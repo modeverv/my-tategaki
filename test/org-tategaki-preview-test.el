@@ -1,0 +1,454 @@
+;;; org-tategaki-preview-test.el --- Preview tests -*- lexical-binding: t; -*-
+
+(require 'ert)
+(require 'org)
+(require 'org-tategaki-preview)
+
+(ert-deftest org-tategaki-preview-render-direction ()
+  (let ((org-tategaki-preview-column-spacing 1))
+    (should (equal (org-tategaki-preview--render "abcdefghijklmnop" 4)
+                   "m  i  e  a \nn  j  f  b \no  k  g  c \np  l  h  d "))))
+
+(ert-deftest org-tategaki-preview-render-japanese ()
+  (let ((org-tategaki-preview-column-spacing 0))
+    (should (equal (org-tategaki-preview--render "あいうえお" 2)
+                   "おうあ\n  えい"))))
+
+(ert-deftest org-tategaki-preview-render-cell-width ()
+  (let* ((result (org-tategaki-preview--render "a猫b犬c" 2))
+         (lines (split-string result "\n")))
+    (should (equal (mapcar #'string-width lines) '(8 8)))
+    (should (equal (car lines) "c  b  a "))))
+
+(ert-deftest org-tategaki-preview-punctuation ()
+  (let ((org-tategaki-preview-use-vertical-forms t))
+    (should (equal (apply #'string
+                         (mapcar #'org-tategaki-preview--vertical-form
+                                 "、。「」『』（ ）［］｛｝〈〉《》"))
+                   "︑︒﹁﹂﹃﹄︵ ︶﹇﹈︷︸︿﹀︽︾")))
+  (let ((org-tategaki-preview-use-vertical-forms nil))
+    (should (= (org-tategaki-preview--vertical-form ?。) ?。))))
+
+(ert-deftest org-tategaki-preview-normalize ()
+  (should (equal (org-tategaki-preview--normalize-text
+                  "* 第一章\n本文\n続き\n \n\n** 第二節\n文章\n")
+                 "第一章\n\n本文続き\n\n第二節\n\n文章"))
+  (should (equal (org-tategaki-preview--normalize-text "a\r\nb\r\n\r\nc")
+                 "ab\n\nc"))
+  (should-not (text-properties-at
+               0 (org-tategaki-preview--normalize-text
+                  (propertize "abc" 'face 'bold)))))
+
+(ert-deftest org-tategaki-preview-paragraph-columns ()
+  (let ((org-tategaki-preview-column-spacing 0))
+    (should (equal (org-tategaki-preview--render "あ\n\nいう" 2)
+                   "い  あ\nう    "))))
+
+(ert-deftest org-tategaki-preview-empty-and-width ()
+  (should (equal (org-tategaki-preview--render "\n \n" 2) ""))
+  (should-error (org-tategaki-preview--render "abc" 0))
+  (should (equal (org-tategaki-preview--render "猫" 1 5) "  猫 "))
+  (should (> (string-width (org-tategaki-preview--render "abcdef" 1 2)) 2)))
+
+(ert-deftest org-tategaki-preview-vertical-padding ()
+  (let ((org-tategaki-preview-vertical-padding 1)
+        (org-tategaki-preview--track-source t))
+    (with-temp-buffer
+      (insert "猫犬鳥魚虫")
+      (let* ((result (org-tategaki-preview--render-terminal
+                      (org-tategaki-preview--source-text) 5 8))
+             (lines (split-string (car result) "\n")))
+        (should (= (length lines) 5))
+        (should (equal (car lines) " "))
+        (should (equal (car (last lines)) " "))
+        (should-not (get-text-property 0 'org-tategaki-preview-location (car lines)))
+        (should (= (cdr result) (string-width (nth 1 lines))))
+        (should (string-match-p "猫" (nth 1 lines)))
+        (should (string-match-p "鳥" (nth 3 lines)))))
+    (should (equal (org-tategaki-preview--render-terminal "" 5 8) '("" . 0)))
+    ;; Reduce excessive padding to preserve a text row in short windows.
+    (let ((org-tategaki-preview-vertical-padding 100))
+      (dolist (height '(1 2 3 4 5))
+        (let ((rows (split-string
+                     (car (org-tategaki-preview--render-terminal "猫犬" height 8)) "\n")))
+          (should (= (length rows) height))
+          (should (string-match-p "猫" (mapconcat #'identity rows ""))))))
+    (let ((org-tategaki-preview-vertical-padding 0))
+      (should (equal (car (org-tategaki-preview--render-terminal "猫犬" 5 8))
+                     (org-tategaki-preview--render "猫犬" 5 8))))))
+
+(defmacro org-tategaki-preview-test--with-source (&rest body)
+  "Run BODY with a visible temporary Org source and restore windows."
+  (declare (indent 0) (debug t))
+  `(save-window-excursion
+     (delete-other-windows)
+     (let ((source (generate-new-buffer " tategaki-test.org")))
+       (unwind-protect
+           (progn
+             (switch-to-buffer source)
+             (org-mode)
+             (insert "* 第一章\n\n吾輩は猫である。\n名前はまだ無い。")
+             ,@body)
+         (when (buffer-live-p source) (kill-buffer source))))))
+
+(ert-deftest org-tategaki-preview-window-lifecycle ()
+  (org-tategaki-preview-test--with-source
+    (let ((original (buffer-string))
+          (original-point (point))
+          (global-hooks (default-value 'window-size-change-functions))
+          (source-margins (window-margins))
+          (source-window (selected-window)))
+      (org-tategaki-preview)
+      (let* ((preview org-tategaki-preview--preview)
+             (window (get-buffer-window preview)))
+        (should (eq (selected-window) source-window))
+        (should (< (car (window-edges window)) (car (window-edges source-window))))
+        (should (equal (window-margins window) '(2 . 2)))
+        (should (equal (window-margins source-window) source-margins))
+        (should (equal original (buffer-string)))
+        (should (= original-point (point)))
+        (should-not buffer-read-only)
+        (with-current-buffer preview
+          (should buffer-read-only)
+          (when (facep 'margin)
+            (should (member '(:background "#000000")
+                            (cdr (assq 'margin face-remapping-alist)))))
+          (should-error (insert "x") :type 'buffer-read-only)
+          (should (eq (key-binding (kbd "q")) #'org-tategaki-preview-close)))
+        (org-tategaki-preview)
+        (should (eq preview org-tategaki-preview--preview))
+        (should (= 2 (length (window-list))))
+        (insert "追記")
+        (let ((timer org-tategaki-preview--timer))
+          (should (timerp timer))
+          (with-current-buffer preview (org-tategaki-preview-close))
+          (should-not (memq timer timer-idle-list)))
+        (should-not (buffer-live-p preview))
+        (should (= 1 (length (window-list))))
+        (should-not org-tategaki-preview-mode)
+        (should-not org-tategaki-preview--timer)
+        (should-not (memq #'org-tategaki-preview--schedule-refresh
+                          after-change-functions))
+        (should (equal global-hooks (default-value 'window-size-change-functions)))))))
+
+(ert-deftest org-tategaki-preview-edit-debounce-and-resize ()
+  (org-tategaki-preview-test--with-source
+    (org-tategaki-preview)
+    (goto-char (point-min))
+    (search-forward "猫")
+    (replace-match "犬")
+    (let ((first-timer org-tategaki-preview--timer))
+      (insert "だ")
+      (should-not (memq first-timer timer-idle-list))
+      ;; Invoke the real timer callback: batch Emacs has no command-loop idle.
+      (let ((timer org-tategaki-preview--timer))
+        (apply (timer--function timer) (timer--args timer))))
+    (let* ((preview org-tategaki-preview--preview)
+           (window (get-buffer-window preview)))
+      (with-current-buffer preview
+        (should (string-match-p "犬" (buffer-string)))
+        (should-not (string-match-p "猫" (buffer-string))))
+      (split-window window 8 'below)
+      (with-current-buffer preview (org-tategaki-preview--resized window))
+      (should (timerp org-tategaki-preview--timer))
+      (org-tategaki-preview-refresh)
+      (with-current-buffer preview
+        (should (= (car org-tategaki-preview--size) (window-body-height window)))
+        (should (= (count-lines (point-min) (point-max)) (window-body-height window)))))))
+
+(ert-deftest org-tategaki-preview-kill-and-major-mode-cleanup ()
+  (dolist (action '(preview source major-mode))
+    (org-tategaki-preview-test--with-source
+      (org-tategaki-preview)
+      (insert "変更")
+      (let ((preview org-tategaki-preview--preview)
+            (timer org-tategaki-preview--timer))
+        (pcase action
+          ('preview (kill-buffer preview))
+          ('source (kill-buffer source))
+          ('major-mode (fundamental-mode)))
+        (should-not (buffer-live-p preview))
+        (should-not (memq timer timer-idle-list))
+        (when (buffer-live-p source)
+          (with-current-buffer source
+            (should-not org-tategaki-preview-mode)
+            (should-not org-tategaki-preview--timer)))))))
+
+(ert-deftest org-tategaki-preview-source-scope ()
+  (with-temp-buffer
+    (insert "abcdef")
+    (narrow-to-region 3 5)
+    (should (equal (org-tategaki-preview--source-text) "abcdef"))
+    (should (= (point-min) 3))
+    (should (= (point-max) 5))))
+
+(ert-deftest org-tategaki-preview-rejects-non-text ()
+  (with-temp-buffer
+    (should-error (org-tategaki-preview) :type 'user-error)
+    (should-not org-tategaki-preview-mode)
+    (should-not org-tategaki-preview--timer)))
+
+(define-derived-mode org-tategaki-preview-test-text-mode text-mode "PreviewTest"
+  "Text-derived mode for checking generic preview support.")
+
+(ert-deftest org-tategaki-preview-text-modes-and-markup ()
+  (dolist (mode '(text-mode org-tategaki-preview-test-text-mode org-mode))
+    (org-tategaki-preview-test--with-source
+      (funcall mode)
+      (erase-buffer)
+      (insert "* 第一章\n本文\n\n# 見出し\n** 強調 **")
+      (goto-char (point-min))
+      (tategaki-preview)
+      (let ((preview org-tategaki-preview--preview)
+            (is-org (derived-mode-p 'org-mode)))
+        (with-current-buffer preview
+          (let ((position (overlay-start org-tategaki-preview--cursor-overlay)))
+            (should (= (char-after position) (if is-org ?第 ?*)))
+            (should (= (aref (get-text-property position 'org-tategaki-preview-location) 0)
+                       (if is-org 3 1)))))
+        (insert "追記")
+        (should (timerp org-tategaki-preview--timer))
+        (tategaki-preview-refresh)
+        (with-current-buffer preview
+          (should (string-match-p "追" (buffer-string)))
+          (should (string-match-p "#" (buffer-string))))
+        (fundamental-mode)
+        (should-not (buffer-live-p preview))
+        (should-not org-tategaki-preview--timer)))))
+
+(ert-deftest org-tategaki-preview-plain-text-normalization ()
+  (let ((org-tategaki-preview--org-source nil))
+    (should (equal (org-tategaki-preview--normalize-text
+                    "* 項目\n続き\n\n** 強調 **\n# 見出し\n")
+                   "* 項目続き\n\n** 強調 **# 見出し"))))
+
+(ert-deftest org-tategaki-preview-multiple-sources ()
+  (org-tategaki-preview-test--with-source
+    (org-tategaki-preview)
+    (let ((first-preview org-tategaki-preview--preview)
+          (second (generate-new-buffer " second.org")))
+      (unwind-protect
+          (progn
+            (switch-to-buffer second)
+            (text-mode)
+            (insert "* 別の文章")
+            (org-tategaki-preview)
+            (should-not (eq first-preview org-tategaki-preview--preview))
+            (with-current-buffer org-tategaki-preview--preview
+              (should (string-match-p "\\*" (buffer-string))))
+            (with-current-buffer source (org-tategaki-preview-refresh))
+            (with-current-buffer first-preview
+              (should-not (string-match-p "\\*" (buffer-string))))
+            (org-tategaki-preview-close)
+            (should (buffer-live-p first-preview))
+            (with-current-buffer source (should org-tategaki-preview-mode)))
+        (kill-buffer second)))))
+
+(ert-deftest org-tategaki-preview-graphical-alignment ()
+  (skip-unless (display-graphic-p))
+  (org-tategaki-preview-test--with-source
+    (erase-buffer)
+    (insert (apply #'concat (make-list 200 "Wi猫あ。")))
+    (org-tategaki-preview)
+    (let* ((preview org-tategaki-preview--preview)
+           (window (get-buffer-window preview)))
+      (with-selected-window window
+        (redisplay t)
+        (let ((centers (make-hash-table :test #'eql))
+              (count 0))
+          (save-excursion
+            (goto-char (point-min))
+            (while (< (point) (point-max))
+              (let* ((display (get-text-property (point) 'display))
+                     (char (char-after))
+                     (position (and (not display) (/= char ?\n)
+                                    (posn-at-point (point) window))))
+                (when position
+                  (let* ((x (car (posn-x-y position)))
+                         (glyph-width (car (posn-object-width-height position)))
+                         (center (+ x (/ glyph-width 2.0)))
+                         (anchor (car (plist-get
+                                       (cdr (get-text-property (1- (point)) 'display))
+                                       :align-to)))
+                         (expected (- anchor (* (window-hscroll window)
+                                                (frame-char-width)))))
+                    (when (and (>= x 0) (< (+ x glyph-width) (window-body-width window t)))
+                      (should (<= (abs (- x expected)) 1))
+                      (let* ((key (round (/ (+ anchor (/ glyph-width 2.0)) 5)))
+                             (previous (gethash key centers)))
+                        (when previous (should (<= (abs (- center previous)) 1)))
+                        (puthash key center centers))
+                      (setq count (1+ count))))))
+              (forward-char)))
+          (should (> count 10))
+          (should (<= (cdr (window-text-pixel-size window nil nil t))
+                      (window-body-height window t))))))))
+
+(ert-deftest org-tategaki-preview-source-position-mapping ()
+  (let* ((org-tategaki-preview--track-source t)
+         (text "* ああ\n猫\t犬\r\n\r\n** 節\n「猫。」\n")
+         (rendered (org-tategaki-preview--render text 3))
+         positions)
+    (dotimes (i (length rendered))
+      (let ((location (get-text-property i 'org-tategaki-preview-location rendered)))
+        (when location
+          (let* ((position (aref location 0))
+                 (original (aref text (1- position))))
+            (push position positions)
+            (should (= (aref rendered i)
+                       (org-tategaki-preview--vertical-form
+                        (if (= original ?\t) ?\s original))))))))
+    ;; Two identical heading characters retain their distinct source offsets.
+    (should (equal (sort positions #'<) '(3 4 6 7 8 16 18 19 20 21)))))
+
+(ert-deftest org-tategaki-preview-cursor-scroll-sync ()
+  (org-tategaki-preview-test--with-source
+    (erase-buffer)
+    (insert (apply #'concat (make-list 100 "猫犬鳥魚虫\n")))
+    (goto-char (point-min))
+    (org-tategaki-preview)
+    (let* ((preview org-tategaki-preview--preview)
+           (window (get-buffer-window preview))
+           (initial-scroll (window-hscroll window))
+           (tick (with-current-buffer preview (buffer-chars-modified-tick))))
+      (should (> initial-scroll 0))
+      (goto-char (point-max))
+      (run-hooks 'post-command-hook)
+      (should (< (window-hscroll window) initial-scroll))
+      (with-current-buffer preview
+        (should (= tick (buffer-chars-modified-tick)))
+        (should (= (char-after (overlay-start org-tategaki-preview--cursor-overlay)) ?虫))
+        (should (> (length org-tategaki-preview--column-overlays) 1))
+        (let* ((position (overlay-start org-tategaki-preview--cursor-overlay))
+               (column (aref (get-text-property position 'org-tategaki-preview-location) 3)))
+          (dolist (overlay org-tategaki-preview--column-overlays)
+            (should (= column (get-text-property
+                               (overlay-start overlay) 'org-tategaki-preview-column))))))
+      (should (equal (window-margins window) '(2 . 2)))
+      (goto-char 2)
+      (run-hooks 'post-command-hook)
+      (should (> (window-hscroll window) 0))
+      (with-current-buffer preview
+        (should (= (char-after (overlay-start org-tategaki-preview--cursor-overlay)) ?犬)))
+      (let ((org-tategaki-preview-window-margin 3))
+        (org-tategaki-preview-refresh)
+        (should (equal (window-margins window) '(3 . 3))))
+      (org-tategaki-preview-close)
+      (should-not (memq #'org-tategaki-preview--sync-point post-command-hook))
+      (should-not (memq #'org-tategaki-preview--source-scrolled window-scroll-functions)))))
+
+(ert-deftest org-tategaki-preview-sync-edit-and-narrowing ()
+  (org-tategaki-preview-test--with-source
+    (org-tategaki-preview)
+    (let ((preview org-tategaki-preview--preview))
+      (goto-char (point-min))
+      (search-forward "猫")
+      (backward-char)
+      (insert "追記")
+      ;; Old coordinates must not be used until the edit has rendered.
+      (org-tategaki-preview--sync-point)
+      (should-not (equal org-tategaki-preview--rendered-tick (buffer-chars-modified-tick)))
+      (narrow-to-region (point) (point-max))
+      (org-tategaki-preview-refresh)
+      (with-current-buffer preview
+        (let ((position (overlay-start org-tategaki-preview--cursor-overlay)))
+          (should (= (char-after position) ?猫))
+          (should (= (aref (get-text-property position 'org-tategaki-preview-location) 0)
+                     (with-current-buffer source (point))))))
+      (widen)
+      (erase-buffer)
+      (org-tategaki-preview-refresh)
+      (with-current-buffer preview
+        (should-not (overlay-buffer org-tategaki-preview--cursor-overlay))
+        (should-not org-tategaki-preview--column-overlays)))))
+
+(ert-deftest org-tategaki-preview-sync-source-scroll ()
+  (org-tategaki-preview-test--with-source
+    (erase-buffer)
+    (insert (apply #'concat (make-list 100 "猫犬鳥魚虫\n")))
+    (goto-char (point-min))
+    (org-tategaki-preview)
+    (let* ((source-window (selected-window))
+           (preview org-tategaki-preview--preview)
+           (window (get-buffer-window preview))
+           (initial-scroll (window-hscroll window)))
+      (set-window-start source-window 541)
+      (org-tategaki-preview--source-scrolled source-window 541)
+      (should (< (window-hscroll window) initial-scroll))
+      (should (= (point) (point-min)))
+      (let ((org-tategaki-preview-sync-point nil)
+            (scroll (window-hscroll window)))
+        (goto-char (point-max))
+        (run-hooks 'post-command-hook)
+        (should (= (window-hscroll window) scroll))))))
+
+(ert-deftest org-tategaki-preview-graphical-padding-and-row-height ()
+  (skip-unless (display-graphic-p))
+  (org-tategaki-preview-test--with-source
+    (erase-buffer)
+    (insert (apply #'concat (make-list 150 "Wiあ。漢x")))
+    (goto-char (point-min))
+    (org-tategaki-preview)
+    (let* ((preview org-tategaki-preview--preview)
+           (window (get-buffer-window preview)))
+      (should (> (window-hscroll window) 0))
+      ;; Measuring again while already scrolled used to report zero widths.
+      (dolist (org-tategaki-preview-vertical-padding '(1 1 0 2))
+        (org-tategaki-preview-refresh)
+        (goto-char (with-current-buffer preview
+                     (length org-tategaki-preview--column-overlays)))
+        (org-tategaki-preview--sync-point t)
+        (redisplay t)
+        (with-current-buffer preview
+          (dotimes (i (length org-tategaki-preview--position-index))
+            (should (> (aref (aref org-tategaki-preview--position-index i) 3) 0)))
+          (let* ((point (overlay-start org-tategaki-preview--cursor-overlay))
+                 (pos (posn-at-point point window))
+                 (x (car (posn-x-y pos)))
+                 (width (car (posn-object-width-height pos)))
+                 (unit (frame-char-width (window-frame window)))
+                 (available (- (window-body-width window t) unit))
+                 (padding (org-tategaki-preview--padding available unit)))
+            (should (>= x padding))
+            (should (<= (+ x width) (- available padding))))
+          ;; Text and the highlight band both stay inside vertical padding,
+          ;; including when the source cursor moves to the bottom of a column.
+          (let* ((rows (count-lines (point-min) (point-max)))
+                 (padding (org-tategaki-preview--vertical-padding rows))
+                 (row-height (car (window-line-height padding window)))
+                 (top (* padding row-height))
+                 (bottom (- (window-body-height window t) top)))
+            (should (= (length org-tategaki-preview--column-overlays)
+                       (- rows (* 2 padding))))
+            (dolist (overlay org-tategaki-preview--column-overlays)
+              (let* ((position (posn-at-point (overlay-start overlay) window))
+                     (y (cdr (posn-x-y position))))
+                (should (>= y top))
+                (should (<= (+ y row-height) bottom)))))
+          (let ((ascent 0) (descent 0)
+                (fonts (make-hash-table :test #'equal)) heights)
+            ;; Compare real row pitch to the fonts actually on screen.  Font
+            ;; name lookup can rescale them twice, and numeric newline heights
+            ;; can add a second layer of spacing even when rows are uniform.
+            (dotimes (i (length org-tategaki-preview--position-index))
+              (let ((font (font-at (aref (aref org-tategaki-preview--position-index i) 1)
+                                   window)))
+                (when (and font (not (gethash font fonts)))
+                  (puthash font t fonts)
+                  (let ((info (font-info font (window-frame window))))
+                    (setq ascent (max ascent (+ (aref info 8) (aref info 4)))
+                          descent (max descent (- (aref info 9) (aref info 4))))))))
+            (dotimes (row (1- (count-lines (point-min) (point-max))))
+              (let ((metrics (window-line-height row window)))
+                (when metrics (push (car metrics) heights))))
+            (should (> (length heights) 3))
+            (should (<= (- (apply #'max heights) (apply #'min heights)) 1))
+            (should (<= (apply #'max heights)
+                        (1+ (max (+ ascent descent)
+                                 (frame-char-height (window-frame window)))))))
+          ;; A full-width band exists on every row, including padding around
+          ;; narrow ASCII glyphs; it is independent of the selected window.
+          (dolist (overlay org-tategaki-preview--column-overlays)
+            (should (> (- (overlay-end overlay) (overlay-start overlay)) 1))))))))
+
+;;; org-tategaki-preview-test.el ends here
