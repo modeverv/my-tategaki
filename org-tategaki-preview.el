@@ -724,5 +724,9 @@ Org buffers receive light heading formatting; other markup is preserved.")
 ;;;###autoload
 (defalias 'tategaki-preview-close #'org-tategaki-preview-close)
 
+;; Existing preview users can start the editor without changing their init.
+(autoload 'tategaki-edit "tategaki" "Edit text in vertical columns." t)
+(autoload 'tategaki-mode "tategaki" "Toggle vertical text editing." t)
+
 (provide 'org-tategaki-preview)
 ;;; org-tategaki-preview.el ends here
