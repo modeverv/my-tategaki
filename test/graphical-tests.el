@@ -18,15 +18,17 @@
            (unless (display-graphic-p) (error "A graphical frame is required"))
            ;; A named selector errors if the test was not loaded.
            (let ((stats (ert-run-tests-batch
-                         '(member org-tategaki-preview-graphical-alignment
+                         '(member org-tategaki-preview-frame-lifecycle
+                                  org-tategaki-preview-frame-move-and-cleanup
+                                  org-tategaki-preview-graphical-alignment
                                   org-tategaki-preview-cursor-scroll-sync
                                   org-tategaki-preview-sync-edit-and-narrowing
                                   org-tategaki-preview-sync-source-scroll
                                   org-tategaki-preview-text-modes-and-markup
                                   org-tategaki-preview-graphical-padding-and-row-height))))
              (setq status
-                   (if (and (= (ert-stats-total stats) 6)
-                            (= (ert-stats-completed-expected stats) 6)
+                   (if (and (= (ert-stats-total stats) 8)
+                            (= (ert-stats-completed-expected stats) 8)
                             (zerop (ert-stats-skipped stats)))
                        0 1))))
        (error (message "GUI test setup failed: %S" err)))

@@ -77,6 +77,10 @@ Refresh with g after changing this value."
     (?〈 . ?︿) (?〉 . ?﹀) (?《 . ?︽) (?》 . ?︾)))
 
 (defvar-local org-tategaki-preview--preview nil)
+(defvar-local org-tategaki-preview--frame nil
+  "Separate preview frame owned by this source buffer.")
+(defvar org-tategaki-preview--open-in-frame nil
+  "Non-nil while opening a preview in a separate frame.")
 (defvar-local org-tategaki-preview--source nil)
 (defvar-local org-tategaki-preview--timer nil)
 (defvar-local org-tategaki-preview--size nil)
@@ -590,6 +594,11 @@ FORCE also updates when point has not moved.  Ignore stale render data."
         org-tategaki-preview--last-sync-position nil)
   (remove-hook 'kill-buffer-hook #'org-tategaki-preview--source-killed t)
   (remove-hook 'change-major-mode-hook #'org-tategaki-preview--source-killed t)
+  (let ((frame org-tategaki-preview--frame))
+    (setq org-tategaki-preview--frame nil)
+    (when (frame-live-p frame)
+      (set-frame-parameter frame 'org-tategaki-preview-source nil)
+      (delete-frame frame)))
   (let ((preview org-tategaki-preview--preview))
     (setq org-tategaki-preview--preview nil)
     (when (buffer-live-p preview)
@@ -609,25 +618,50 @@ FORCE also updates when point has not moved.  Ignore stale render data."
         (setq org-tategaki-preview--preview nil)
         (org-tategaki-preview-mode -1)))))
 
+(defun org-tategaki-preview--frame-deleted (frame)
+  "Detach the preview owned by FRAME when it is closed externally."
+  (let ((source (frame-parameter frame 'org-tategaki-preview-source)))
+    (when (buffer-live-p source)
+      (with-current-buffer source
+        (when (eq frame org-tategaki-preview--frame)
+          (setq org-tategaki-preview--frame nil)
+          (set-frame-parameter frame 'org-tategaki-preview-source nil)
+          (org-tategaki-preview-mode -1))))))
+
+(add-hook 'delete-frame-functions #'org-tategaki-preview--frame-deleted)
+
 (defun org-tategaki-preview--open ()
-  "Create or redisplay this source's preview on the left."
+  "Create or redisplay this source's preview window or separate frame."
   (unless (derived-mode-p 'text-mode)
     (user-error "Tategaki preview requires text-mode or a derived mode"))
   (let* ((source (current-buffer))
          (preview org-tategaki-preview--preview)
          (window (and (buffer-live-p preview) (get-buffer-window preview t))))
+    (when org-tategaki-preview--open-in-frame
+      (unless (frame-live-p org-tategaki-preview--frame)
+        (setq org-tategaki-preview--frame
+              (save-selected-window
+                (make-frame
+                 `((name . ,(format "Tategaki Preview: %s" (buffer-name source)))
+                   (org-tategaki-preview-source . ,source)))))
+        ;; Move an existing side preview instead of displaying two copies
+        ;; with incompatible layout dimensions.
+        (when (buffer-live-p preview)
+          (delete-windows-on preview)))
+      (make-frame-visible org-tategaki-preview--frame)
+      (setq window (frame-selected-window org-tategaki-preview--frame)))
     (unless (window-live-p window)
       (let ((source-window (get-buffer-window source)))
         (unless source-window (user-error "Display the source buffer first"))
-        (setq window (split-window source-window nil 'left)))
-      (unless (buffer-live-p preview)
-        (setq preview (generate-new-buffer
-                       (format "*Tategaki Preview: %s*" (buffer-name source))))
-        (setq org-tategaki-preview--preview preview)
-        (with-current-buffer preview
-          (org-tategaki-preview-buffer-mode)
-          (setq org-tategaki-preview--source source)))
-      (set-window-buffer window preview))
+        (setq window (split-window source-window nil 'left))))
+    (unless (buffer-live-p preview)
+      (setq preview (generate-new-buffer
+                     (format "*Tategaki Preview: %s*" (buffer-name source))))
+      (setq org-tategaki-preview--preview preview)
+      (with-current-buffer preview
+        (org-tategaki-preview-buffer-mode)
+        (setq org-tategaki-preview--source source)))
+    (set-window-buffer window preview)
     (add-hook 'after-change-functions #'org-tategaki-preview--schedule-refresh nil t)
     (add-hook 'post-command-hook #'org-tategaki-preview--sync-point nil t)
     (add-hook 'window-scroll-functions #'org-tategaki-preview--source-scrolled nil t)
@@ -655,6 +689,20 @@ FORCE also updates when point has not moved.  Ignore stale render data."
   (org-tategaki-preview-mode 1))
 
 ;;;###autoload
+(defun org-tategaki-preview-frame ()
+  "Show or reuse a separate vertical preview frame for the current text.
+Keep the source window selected.  An existing side preview is moved to
+the separate frame.  Closing that frame also stops the preview."
+  (interactive)
+  (let ((source (if (derived-mode-p 'org-tategaki-preview-buffer-mode)
+                    org-tategaki-preview--source
+                  (current-buffer)))
+        (org-tategaki-preview--open-in-frame t))
+    (unless (buffer-live-p source) (user-error "No live Tategaki source"))
+    (with-current-buffer source
+      (org-tategaki-preview-mode 1))))
+
+;;;###autoload
 (defun org-tategaki-preview-close ()
   "Close the preview and release its hooks and timer."
   (interactive)
@@ -669,6 +717,9 @@ Org buffers receive light heading formatting; other markup is preserved.")
 
 ;;;###autoload
 (defalias 'tategaki-preview-refresh #'org-tategaki-preview-refresh)
+
+;;;###autoload
+(defalias 'tategaki-preview-frame #'org-tategaki-preview-frame)
 
 ;;;###autoload
 (defalias 'tategaki-preview-close #'org-tategaki-preview-close)
