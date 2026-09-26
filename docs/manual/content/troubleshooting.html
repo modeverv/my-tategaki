@@ -1,0 +1,127 @@
+<p class="lead">まず「編集画面の表示」「入力やキー操作」「ファイル出力」のどこで起きているかを切り分けます。表示を更新しても原稿が直らない場合は、横書きへ戻して元の本文を確認できます。</p>
+
+<h2 id="first-checks">最初に確認すること</h2>
+<ol>
+  <li>縦書き編集中は <kbd>C-c C-l</kbd> で再描画します。プレビューは <kbd>g</kbd> です。</li>
+  <li><kbd>C-c C-c</kbd> で編集を横書きへ戻し、元の文字・改行・注記を確認します。この表示切り替えは本文やUndo履歴を変更しません。</li>
+  <li><code>M-x emacs-version</code> でバージョンを確認します。<code>M-: (locate-library "tategaki")</code> で、読み込んでいるファイルが更新したリポジトリ内にあるか確認できます。</li>
+  <li>エラーの本文は <code>*Messages*</code> バッファで確認します。実行したコマンドと、問題が再現する短い原稿を控えておくと調査しやすくなります。</li>
+</ol>
+<p>GUI・SVG・NS入力関数の有無は、次を <code>M-:</code> で評価すると確認できます。これは状態を読むだけで、設定は変更しません。</p>
+<pre><code class="language-elisp">(list :emacs emacs-version
+      :window-system window-system
+      :graphical (display-graphic-p)
+      :svg (image-type-available-p 'svg)
+      :ns-working (fboundp 'ns-insert-working-text)
+      :ns-marked (fboundp 'ns-insert-marked-text)
+      :ime-offset-x (boundp 'mac-ime-panel-offset-x)
+      :ime-offset-y (boundp 'mac-ime-panel-offset-y))</code></pre>
+
+<h2 id="startup">縦書き編集を開始できない</h2>
+<table>
+  <thead><tr><th>症状</th><th>確認と対処</th></tr></thead>
+  <tbody>
+    <tr><td><code>tategaki-edit</code> が見つからない</td><td><code>load-path</code> に配置先を追加し、<code>(require 'tategaki)</code> を評価します。古いコピーを読んでいないか <code>locate-library</code> で確認します。<a href="getting-started.html">導入手順</a>を参照してください。</td></tr>
+    <tr><td><code>Vertical editing requires text-mode or a derived mode</code></td><td>編集モードは <code>text-mode</code> と派生モードが対象です。新しい <code>fundamental-mode</code> のバッファでは、先に <code>M-x text-mode</code> を実行します。</td></tr>
+    <tr><td>文字を入力できない</td><td>元のバッファが読み取り専用の場合、その制限を引き継ぎます。縦書き表示を理由に読み取り専用を解除することはありません。</td></tr>
+    <tr><td>更新した機能が出てこない</td><td>実行中のEmacsには既に読んだ定義が残ります。原稿を保存してからEmacsを再起動し、読み込み先を確認します。Docker出力の更新には、別途イメージの再構築が必要です。</td></tr>
+  </tbody>
+</table>
+
+<h2 id="svg">ルビや縦中横が記法のまま見える</h2>
+<p><code>M-x tategaki-edit</code> の既定は、原文を1文字ずつ並べる表示です。禁則・ルビ・縦中横などを使うときは <code>M-x tategaki-typeset-edit</code> を実行します。</p>
+<p>組版表示には、GUI、EmacsのSVG対応、<code>tategaki-glyph-use-svg</code> が <code>t</code> であることが必要です。端末EmacsやSVG非対応のGUIでは、注記を含む原文の文字表示へ戻ります。固定原稿用紙・見開きを縮小して画面内へ収める描画も同じ条件が必要です。</p>
+<pre><code class="language-elisp">;; SVG対応のGUIで、現在の文書を組版表示にする
+(setq tategaki-glyph-use-svg t)
+(setq-local tategaki-typesetting t
+            tategaki-typeset-annotation-display 'rendered)
+(tategaki-refresh)</code></pre>
+<p><code>tategaki-typeset-annotation-display</code> が <code>raw</code> のときは、記法を直接編集するために原文を表示します。<kbd>C-c C-a</kbd> / <code>M-x tategaki-toggle-annotations</code> でも切り替えられます。未完・未対応の注記も原文表示に残します。対応する記法は<a href="typesetting.html">組版と原稿用紙</a>で確認してください。</p>
+
+<h2 id="fonts">文字が豆腐になる・約物の向きが合わない</h2>
+<p>本文・ルビ・縦書き約物・絵文字の表示は、使うフォントとEmacsの描画環境に依存します。編集画面のfaceは <code>tategaki-face</code>、プレビューは <code>org-tategaki-preview-face</code> です。<code>M-x customize-face</code> で対象のfaceを選び、実際にインストール済みの日本語フォントを指定してください。</p>
+<p>通常の「、」「。」は出るのに縦書き用字形が欠ける場合は、約物の表示文字置換を無効にして比較できます。編集とプレビューは設定が別です。</p>
+<pre><code class="language-elisp">;; 縦書き編集の約物置換を止めて比較する
+(setq tategaki-layout-use-vertical-forms nil)
+(tategaki-refresh)
+
+;; プレビューの場合。変更後はプレビュー上で g を押す
+(setq org-tategaki-preview-use-vertical-forms nil)</code></pre>
+<p>フォント変更後も再描画してください。これは保存文字を置換する設定ではありません。結合文字・異体字・ZWJ絵文字は対応範囲でまとめて表示しますが、Unicodeのすべての組み合わせや全フォントで同じ字形を保証するものではありません。</p>
+<p>画面の余白や間隔を調整したい場合は、<a href="reference.html">設定リファレンス</a>のpadding・字間・行間を参照してください。GUIではピクセル、端末では行・文字セルとして扱う設定があるため、同じ数値でも見え方が異なります。</p>
+
+<h2 id="ime">IMEの未確定文字や候補一覧の位置が合わない</h2>
+<p>未確定文字を縦に並べる連携は、対応するNS入力関数があるmacOS版Emacsで有効になります。macOS上で動くすべてのEmacs配布物が同じ入力APIを備えているわけではありません。上の診断で <code>ns-working</code> / <code>ns-marked</code> の有無を確認してください。</p>
+<p>候補一覧の位置補正には、<code>mac-ime-panel-offset-x</code> と <code>mac-ime-panel-offset-y</code> が存在し、整数値であることも必要です。対応環境では既存のオフセット値を基準に、変換中の文節位置へ補正します。対象ウィンドウを離れたときや確定・取消・終了時には元へ戻します。変数がない環境へ同名の変数を作るだけでは、OS側の位置補正機能は追加されません。</p>
+<p>候補一覧そのものはOSの横書き表示です。本文の未確定文字は縦書きでも、候補一覧は縦書きになりません。ミニバッファ・通常の編集バッファは元の入力表示を保ちます。</p>
+<p>表示が残った場合は、まずIMEの変換を確定または取り消してから <kbd>C-c C-l</kbd> を実行します。変換途中のままスクロールする操作も、先に確定・取消を行ってください。実機のNS表示関数による描画・取消・確定後のUndoは検証していますが、OSの候補選択キーまで自動操作した試験ではありません。</p>
+
+<h2 id="keys">移動キーやページ送りが期待どおりでない</h2>
+<table>
+  <thead><tr><th>症状</th><th>確認と対処</th></tr></thead>
+  <tbody>
+    <tr><td><kbd>C-f</kbd> / <kbd>C-b</kbd> が物理的な右・左へ進まない</td><td>既定では通常のEmacsの動作です。<code>(setq tategaki-physical-navigation t)</code> で、右・左・下・上に <kbd>C-f</kbd> / <kbd>C-b</kbd> / <kbd>C-n</kbd> / <kbd>C-p</kbd> を割り当てます。現在の原稿だけなら <code>setq-local</code> を使います。</td></tr>
+    <tr><td>Corfuの表示中に本文が動かない</td><td>補完候補を選んでいる間は、補完側の移動・ページ送りキーを優先します。採用または取消後に本文を移動してください。これは <kbd>C-v</kbd> / <kbd>M-v</kbd> にも適用されます。</td></tr>
+    <tr><td><kbd>C-v</kbd> が指定した用紙の次ページへ移らない</td><td><kbd>C-v</kbd> / <kbd>M-v</kbd> は画面単位です。固定版面のページ番号を指定する場合は <code>M-x tategaki-goto-page</code> を使います。物理移動の設定とは独立しています。</td></tr>
+    <tr><td>他のモードのコマンドが実行される</td><td><kbd>C-h k</kbd> の後に問題のキーを押すと、実際に呼ばれるコマンドを確認できます。補完・キーバインド変更パッケージの状態と、縦書きモードが有効かを確認します。</td></tr>
+    <tr><td>文字単位で動いても同じ文字の位置に見える</td><td>組版したセルには複数の原文位置が対応する場合があります。細かい原文位置を編集する場合は、注記の原文表示や横書きへ戻して確認します。</td></tr>
+  </tbody>
+</table>
+<p>画面下の横スクロールバーは、右が原稿の先頭、左が末尾です。縦列を右から左へ読む向きに合わせています。操作一覧は<a href="editing.html">編集と移動</a>を参照してください。</p>
+
+<h2 id="writing">括弧が二重に入る・字下げが変わる</h2>
+<p>執筆支援はEmacsのElectric Pairをバッファ単位で使います。Smartparensなど別の括弧補完と併用する場合は、my-tategaki側を <code>(setq tategaki-writing-electric-pair nil)</code> にしてから執筆支援を開始してください。現在のバッファの支援は <code>M-x tategaki-writing-mode</code> で切り替えられます。</p>
+<p>自動字下げは改行や会話文の入力に対して行います。既存原稿の読み込みや貼り付けで一括整形はしません。脚本モードの <kbd>TAB</kbd> や整形コマンドは原文へ全角空白を挿入・削除するため、保存・Undoの対象です。設定と操作は<a href="writing.html">執筆支援・脚本</a>を参照してください。</p>
+<p>脚本モードで <kbd>C-c C-c</kbd> を押すと縦書き表示を終了しますが、脚本モードとその入力支援は残ります。脚本モード自体を終了する場合は <code>M-x text-mode</code> を使います。</p>
+
+<h2 id="source">原稿・文字数・出力範囲が気になる</h2>
+<table>
+  <thead><tr><th>項目</th><th>原文との関係</th></tr></thead>
+  <tbody>
+    <tr><td><code>↵</code> / <code>⇥</code> / <code>□</code> などが見える</td><td>改行・タブ・文末位置を示す表示用記号です。その記号を保存本文へ加えるものではありません。</td></tr>
+    <tr><td>IMEやCopilot・Corfuの仮入力</td><td>確定・採用前は本文・保存内容・文字数へ含めません。採用後は元の入力処理による本文編集になります。</td></tr>
+    <tr><td>ルビや傍点がコピーすると記法へ戻る</td><td>編集バッファの原文は青空文庫形式の注記を保持します。本文だけが必要な場合は、出力した <code>txt/body.txt</code> と原文保存版 <code>txt/source.txt</code> を使い分けます。</td></tr>
+    <tr><td>400字換算とページ数が違う</td><td>400字換算は文字数から算出し、配置枚数は改行や空きマス・組版を反映します。画面上の版面と、DOCX・PDF・リフローEPUBのページ数も一致するとは限りません。</td></tr>
+    <tr><td>narrowingした範囲より多く数える・出力する</td><td>文字数の「全文」は元バッファ全体です。編集画面・配置枚数・アウトラインは表示対象範囲、従来プレビューは全文を扱います。出力の既定も全文なので、部分出力は <kbd>C-u</kbd> <code>M-x tategaki-export</code> で <code>region</code> または <code>narrowed</code> を選びます。</td></tr>
+  </tbody>
+</table>
+<p>出力は開始時点の本文をスナップショットにします。未保存の編集は含みますが、開始後の追記はそのジョブへ入りません。原稿を保存する操作とは独立しており、元ファイル・カーソル位置・Undoを保持します。</p>
+
+<h2 id="docker">Docker出力が開始しない・途中で失敗する</h2>
+<p>まずDocker Desktopが起動しているか確認し、リポジトリのディレクトリで次を実行します。ビルドはネット接続が必要ですが、通常の出力コンテナはネット接続なしで動きます。</p>
+<pre><code class="language-sh">./bin/tategaki-export doctor
+
+# 初回、またはソース更新後
+./bin/tategaki-export build</code></pre>
+<p>ジョブができている場合は <code>M-x tategaki-export-status</code>、または出力先の <code>report.md</code> / <code>report.json</code> を確認します。一部の形式だけが失敗する場合もあります。失敗した途中ファイルとログは <code>.work/</code> と <code>logs/</code> に残り、成功した完成物とは区別されます。</p>
+<table>
+  <thead><tr><th>確認する点</th><th>対処</th></tr></thead>
+  <tbody>
+    <tr><td>古い出力コードが動く</td><td>ソース更新後は <code>build</code> を再実行します。Emacs側の再読み込みとDockerイメージの更新は別です。</td></tr>
+    <tr><td>CLI入力で文字コードエラー</td><td>CLIの入力はUTF-8です。別の文字コードの原稿は、Emacsで正しく開いてバッファから出力します。TXTの出力文字コード指定とは区別してください。</td></tr>
+    <tr><td>プロファイルや注記の診断で止まる</td><td>レポートの箇所を原文で確認します。<code>strict_diagnostics: true</code> は未解決の注記診断を失敗にします。対応外注記を無条件に消して本文へ混ぜる設計ではありません。</td></tr>
+    <tr><td>フォントが見つからない</td><td>ホストのフォントは自動収集しません。必要なOTF・TTF・TTCをフォント用ディレクトリへ用意して <code>--font-dir</code> を使い、プロファイルには正しいfamily名を指定します。PDFには下記の制限があります。</td></tr>
+    <tr><td>長文で待ち時間が長い</td><td>PDFは全ページの検査画像も作ります。<code>--timeout 600</code> は外部コマンド一回あたりの上限で、ジョブ全体の制限ではありません。PDF変換器には別の上限もあります。</td></tr>
+    <tr><td>やり直したい</td><td>新しいジョブとして出力します。同じジョブIDを再利用せず、前回のログを保持したまま比較できます。</td></tr>
+  </tbody>
+</table>
+<p>取り消す場合は <code>M-x tategaki-export-cancel</code> を使います。Emacsからは、そのEmacsセッションで開始したジョブだけを取り消せます。CLIの場合は <code>./bin/tategaki-export cancel JOB-ID</code> です。取消と終了が重なったときも、最終結果はレポートで確認してください。</p>
+
+<h2 id="format-limits">出力形式ごとの既知の制約</h2>
+<table>
+  <thead><tr><th>形式</th><th>確認している範囲と制約</th></tr></thead>
+  <tbody>
+    <tr><td>DOCX</td><td>編集可能な段落として出力し、LibreOfficeで描画・再保存を検証しています。Wordでの最終実表示は未確認です。LibreOfficeでは一部ZWJ絵文字が分かれて見えますが、原文のコードポイントは保持します。固定字数・列数は試験的設定です。</td></tr>
+    <tr><td>PDF</td><td>フォント埋め込み・本文順・ルビなどを検査します。現在は <code>Noto Serif CJK JP</code> に限定し、別フォントはエラーにします。固定字数・列数、PDF/X、印刷所別の塗り足し・色変換は未対応です。抽出時の空白位置・幅まで完全に照合する検査ではありません。</td></tr>
+    <tr><td>EPUB</td><td>EPUBCheckと構造・本文の検査を行います。Apple Books 9.0では縦書き本文・ルビ・縦中横・文字サイズ変更を確認しました。一方、章名に <code>&amp; &lt;灯&gt;</code> などがあると目次ポップオーバーで <code>xmlParseEntityRef: no name</code> が出る既知の問題があります。正しい原文・目次名は保持し、警告を出します。Kindle Previewerは未検証です。</td></tr>
+    <tr><td>共通</td><td>文字による表紙・奥付に対応し、画像表紙、EPUBへのフォント埋め込みは未対応です。組版や表示の結果は閲覧アプリにも依存します。Apple Silicon / linux/aarch64で実測し、amd64での実行は未確認です。</td></tr>
+  </tbody>
+</table>
+<p>検査が成功したことと、すべての閲覧アプリや提出先の書式へ適合することは別です。提出前には実際に使うアプリで確認してください。形式ごとの設定は<a href="export.html">Docker出力</a>、実施済み試験の範囲は <a href="../docker-export-validation.md">Docker出力の検証記録</a>と<a href="../vertical-typesetting-validation.md">編集・組版の検証記録</a>にまとめています。</p>
+
+<h2 id="reporting">問題を報告するとき</h2>
+<p>再現する最小の原稿、実行したコマンド、Emacs・OSのバージョン、GUI/SVGの診断結果、関連する設定、エラーメッセージを添えてください。出力の問題なら、形式・プロファイル・<code>report.md</code> と該当ログも役立ちます。原稿全体や個人情報を公開する必要はありません。まず短い例で同じ症状が出るか確認すると、入力・描画・閲覧アプリのどこで差が生じるかを整理できます。</p>
+
+<h2 id="support">確認環境と制限</h2>
+<p>主な実機確認はmacOSのGUI版Emacs 31.1、SVG対応環境で行っています。通常の編集機能の対象はEmacs 27.1以降ですが、すべてのOS・Emacsビルドを実機確認したわけではありません。NSのIME連携には対応する関数・変数が必要です。</p>
+<p>Docker出力はApple Silicon環境で検証し、DOCXはmacOS版LibreOffice、EPUB本文はApple Booksで確認しました。バージョン、試験範囲、未対応項目は<a href="../vertical-typesetting-validation.md">編集の検証記録</a>と<a href="../docker-export-validation.md">出力の検証記録</a>に残しています。マニュアルの画像は公開用サンプル原稿を使った実画面です。</p>

@@ -1,0 +1,170 @@
+<p class="lead">同じ原稿から、テキスト、編集用DOCX、校正用PDF、電子書籍EPUB、ブラウザ用HTMLを生成します。出力は開始時の原稿をコピーして別プロセスで進むので、Emacsではそのまま執筆を続けられます。</p>
+
+<h2 id="setup">最初の一回：Dockerを準備する</h2>
+<p>通常の縦書き編集にDockerは不要です。出力を使う場合はDockerとComposeが必要です。macOSではDocker Desktopをインストールして起動し、ターミナルで <code>docker</code> が使える状態にします。ホスト側へPython・Node・Java・Pandocを個別にインストールする必要はありません。</p>
+<p>リポジトリのディレクトリで次を実行します。初回の <code>build</code> はツールとフォントを取得するため、ネット接続と数分程度の待ち時間が必要です。<code>doctor</code> でDockerと出力ツールの情報が表示されることを確認してください。</p>
+<pre><code class="language-sh">cd /path/to/my-tategaki
+./bin/tategaki-export build
+./bin/tategaki-export doctor</code></pre>
+<p>ソースを更新した場合も <code>build</code> を再実行します。依存レイヤーはキャッシュされます。通常の原稿出力は、素材をローカルに揃えた上でネット接続なしのコンテナで実行します。検証した環境はApple Silicon上のDockerです。amd64環境は未検証です。</p>
+
+<h2 id="emacs">Emacsから出力する</h2>
+<p><code>tategaki</code> を読み込んだEmacsで原稿バッファを開き、<code>M-x tategaki-export-all</code> を実行すると、TXT・DOCX・PDF・EPUB・HTMLをまとめて出力します。必要な形式だけを選ぶ場合は <code>M-x tategaki-export</code> を使い、形式とプロファイルを選択します。</p>
+<pre><code class="language-elisp">(setq tategaki-export-profile "preview"
+      tategaki-export-output-directory "~/Documents/tategaki-output"
+      tategaki-export-formats '("txt" "docx" "pdf" "epub" "html"))
+
+;; この原稿だけの書誌情報
+(setq-local tategaki-export-metadata
+            '((title . "雨上がりの町")
+              (author . "筆名")
+              (language . "ja")))
+
+;; # / ## などを章見出しとして出力したい場合
+(setq-local tategaki-export-input-options
+            '((headings . "markdown")))</code></pre>
+<p>出力先の既定値はリポジトリ内の <code>dist/</code> です。<code>tategaki-export-formats</code> は形式選択時の既定値で、<code>tategaki-export-all</code> は5形式すべてを出力します。</p>
+
+<h3 id="snapshot">未保存本文と出力範囲</h3>
+<p>出力するのはコマンド開始時のバッファ本文です。未保存の変更も含めてUTF-8のスナップショットを作り、全形式が同じ内容を使います。その後に原稿を書き進めても、すでに開始した出力は変わりません。元の保存ファイル・カーソル位置・Undoは保持し、IMEの未確定表示や未採用の補完候補は本文へ加えません。</p>
+<p>既定の範囲は<strong>全文</strong>です。narrowing中でも全文を出力します。部分出力は <kbd>C-u</kbd> を付けて <code>M-x tategaki-export</code> を実行し、次から選びます。</p>
+<table>
+  <thead><tr><th>選択肢</th><th>出力範囲</th></tr></thead>
+  <tbody>
+    <tr><td><code>full</code></td><td>バッファ全体。</td></tr>
+    <tr><td><code>region</code></td><td>現在の選択範囲。先に本文を選択しておきます。</td></tr>
+    <tr><td><code>narrowed</code></td><td>narrowingで限定した編集可能範囲。</td></tr>
+  </tbody>
+</table>
+<p>UTF-8以外の原稿も、Emacsで正しい文字コードとして開いてからバッファを出力できます。CLIへ渡す入力ファイルはUTF-8を使ってください。</p>
+
+<h3 id="emacs-status">進捗を見る・取り消す</h3>
+<table>
+  <thead><tr><th>目的</th><th>コマンド</th></tr></thead>
+  <tbody>
+    <tr><td>形式別の結果とレポートを開く</td><td><code>M-x tategaki-export-status</code></td></tr>
+    <tr><td>実行中のジョブを取り消す</td><td><code>M-x tategaki-export-cancel</code></td></tr>
+  </tbody>
+</table>
+<p>結果画面からログと出力フォルダーを開けます。Emacsの取消は、このEmacsセッションから開始したジョブだけが対象です。取消と終了が重なった場合も、最終状態はレポートで確認してください。再実行すると新しいジョブができ、前回の出力を上書きしません。</p>
+
+<h2 id="cli">ターミナルから出力する</h2>
+<p>CLIではUTF-8の原稿ファイルを指定します。空白を含むファイル名は引用符で囲んでください。形式指定を省略した場合は5形式すべてを出力します。</p>
+<pre><code class="language-sh">./bin/tategaki-export export "小説 原稿.txt" \
+  --profile preview \
+  --formats txt,docx,pdf,epub,html \
+  --out ./dist</code></pre>
+<p>開始時に表示されたジョブIDを使います。<code>status</code> にはジョブのディレクトリ、<code>cancel</code> にはIDだけを渡します。</p>
+<pre><code class="language-sh">./bin/tategaki-export status ./dist/JOB-ID
+./bin/tategaki-export cancel JOB-ID</code></pre>
+<p><code>JOB-ID</code> は実際の値へ置き換えてください。<code>--timeout 600</code> で外部コマンド一回あたりの上限を秒で指定できます。ジョブ全体の所要時間を600秒に制限する設定ではありません。PDF変換器には別の上限もあります。</p>
+
+<h2 id="artifacts">完成ファイルとレポートを確認する</h2>
+<p>出力は <code>出力先/ジョブID/</code> にまとまります。原文・共通文書モデル・設定・<code>report.md</code> / <code>report.json</code> を残し、検査に通った形式をそれぞれのフォルダーへ公開します。</p>
+<table>
+  <thead><tr><th>ファイル</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td><code>txt/source.txt</code></td><td>UTF-8スナップショットそのもの。注記と元の改行を保持します。</td></tr>
+    <tr><td><code>txt/body.txt</code></td><td>対応注記を除いた本文。ルビは親文字を残します。</td></tr>
+    <tr><td><code>docx/manuscript.docx</code></td><td>編集可能な通常の縦書き段落、見出し、ルビ、縦中横、傍点・傍線、ページ番号。</td></tr>
+    <tr><td><code>pdf/manuscript.pdf</code></td><td>Vivliostyleで組版した提出・校正用PDF。フォント埋め込みと本文照合を検査し、確認用の全ページ画像も生成します。</td></tr>
+    <tr><td><code>epub/manuscript.epub</code></td><td>縦書き・右から左へのページ進行を持つリフロー型EPUB 3。電子目次とEPUBCheckによる検査を含みます。</td></tr>
+    <tr><td><code>html/manuscript.html</code></td><td>ブラウザで開ける縦書きHTML。</td></tr>
+  </tbody>
+</table>
+<p>まず <code>report.md</code> を開き、各形式が <code>succeeded</code> か、警告が残っていないかを確認します。一つの形式が失敗しても、独立したほかの形式は処理を続けます。失敗した途中ファイルは <code>.work/</code> と <code>logs/</code> に残り、完成品にはなりません。</p>
+<table>
+  <thead><tr><th>状態</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>pending</code> / <code>running</code></td><td>開始待ち／処理中。</td></tr>
+    <tr><td><code>succeeded</code></td><td>実装した検査に合格して出力済み。あらゆるアプリでの表示保証ではありません。</td></tr>
+    <tr><td><code>failed</code> / <code>blocked</code></td><td>生成・検査に失敗／必要な前提を満たせず未実行。</td></tr>
+    <tr><td><code>cancelled</code> / <code>not_requested</code></td><td>取消／今回指定していない形式。</td></tr>
+  </tbody>
+</table>
+<p>CLIの終了コードは全指定形式の成功で0、形式の失敗で1、取消で130です。起動や引数のエラーも非0になります。レポートには入力と設定のSHA-256、ツール・イメージ・フォントの情報、処理時間、検査結果が入ります。別の実行でバイナリ全体が完全一致することは保証しません。</p>
+
+<h2 id="profiles">用紙・見出し・書誌情報を設定する</h2>
+<table>
+  <thead><tr><th>標準プロファイル</th><th>既定の設定</th></tr></thead>
+  <tbody>
+    <tr><td><code>preview</code></td><td>A5、余白20mm、12pt。見出し記号を本文として残し、未対応注記は原文を保持して警告します。</td></tr>
+    <tr><td><code>submission</code></td><td>A4、余白25mm、12pt。日本語の章見出しを認識し、DOCX・PDFに文字表紙を付けます。未対応・未完成注記が残れば失敗にします。</td></tr>
+  </tbody>
+</table>
+<p><code>submission</code> は汎用の提出・校正設定です。出版社・賞・年度ごとの応募要項を保証するものではありません。独自設定は <code>export/profiles/preview.json</code> をコピーし、JSONを編集して指定します。</p>
+<pre><code class="language-sh">cp export/profiles/preview.json my-profile.json
+./bin/tategaki-export export manuscript.txt \
+  --profile ./my-profile.json --out ./dist</code></pre>
+<p>Emacsから使う場合は <code>tategaki-export-profile</code> にJSONファイルの絶対パスを設定します。次は、コピーしたプロファイルの <code>pdf</code> オブジェクトを変更する例です。同じ設定をDOCXにも適用する場合は <code>docx</code> を別に変更します。</p>
+<pre><code class="language-json">{
+  "page_width_mm": 148,
+  "page_height_mm": 210,
+  "margin_mm": {"top": 20, "bottom": 20, "left": 20, "right": 20},
+  "font": "Noto Serif CJK JP",
+  "font_size_pt": 12,
+  "line_height": 1.8,
+  "page_numbers": true,
+  "cover": false,
+  "auto_tcy": true
+}</code></pre>
+<table>
+  <thead><tr><th>主な設定</th><th>値・動作</th></tr></thead>
+  <tbody>
+    <tr><td><code>input.headings</code></td><td><code>literal</code> / <code>markdown</code> / <code>org</code> / <code>japanese</code>。見出し解釈だけを指定。</td></tr>
+    <tr><td><code>strict_diagnostics</code></td><td><code>true</code> なら未解決の原文診断がある出力を失敗にします。</td></tr>
+    <tr><td><code>txt.encoding</code></td><td><code>utf-8</code>、<code>utf-8-sig</code>、<code>cp932</code>、<code>shift_jis</code>。</td></tr>
+    <tr><td><code>txt.newline</code></td><td><code>lf</code>、<code>crlf</code>、<code>preserve</code>。<code>source.txt</code> は変更しません。</td></tr>
+    <tr><td><code>docx</code> / <code>pdf</code></td><td>用紙寸法・上下左右余白はmm、文字サイズはpt。<code>line_height</code> は行送りの倍率。表紙、ページ番号、自動縦中横も形式ごとに指定。</td></tr>
+    <tr><td><code>epub</code></td><td>フォント指定、文字表紙、自動縦中横。<code>embed_fonts</code> は現在 <code>false</code> のみ。</td></tr>
+  </tbody>
+</table>
+<p>出力は青空文庫形式のルビ・傍点・傍線・縦中横に対応します。未対応や未完成の注記は原文と診断位置を残します。見出しをMarkdownにしても本文中のリンク・数式・HTML・強調記号を自動解釈しません。画面のアウトライン認識と出力の見出し設定は別です。脚本の <code>○</code> 見出しを自動でEPUBの章へ変える設定はないため、必要なら原稿にMarkdownなど対応形式の章見出しを用意します。</p>
+
+<h3 id="metadata">作品名・筆名を付ける</h3>
+<p>プロファイルの <code>metadata</code> に書くか、CLIの <code>--metadata</code> でJSONファイルを指定します。例えば <code>metadata.json</code> を次の内容にします。</p>
+<pre><code class="language-json">{
+  "title": "雨上がりの町",
+  "author": "筆名",
+  "language": "ja",
+  "identifier": "urn:uuid:12345678-1234-4234-8234-123456789abc"
+}</code></pre>
+<pre><code class="language-sh">./bin/tategaki-export export manuscript.txt \
+  --profile ./my-profile.json --metadata ./metadata.json --out ./dist</code></pre>
+<p>識別子は作品ごとに自分の値へ変更するか、省略します。CLIで省略すると原文のSHA-256由来のURNを付けます。任意の <code>subtitle</code> と <code>colophon</code> も指定できます。住所・電話番号などの応募用別紙を自動生成する機能はありません。</p>
+
+<h2 id="fonts">フォントを選ぶ</h2>
+<p>コンテナはNoto Serif CJK JP、Noto Sans CJK JP、Noto Color Emojiを含みます。要求したフォントがなければ該当形式を失敗にします。追加する場合は <code>--font-dir ./fonts</code> とプロファイル内の実際のファミリー名を指定します。指定ディレクトリ直下のOTF・TTF・TTCだけをコピーし、ホストのフォントを自動収集・インストールしません。</p>
+<p><strong>PDFの本文照合は現在Noto Serif CJK JP限定です。</strong> 他の書体をPDFへ指定すると未検証としてエラーになります。DOCX・HTML・EPUBにはこのPDF固有の制限はありません。DOCXのフォントは指定のみで埋め込まないため、同じ書体で開くにはOffice互換ソフト側にもフォントが必要です。EPUBへのフォント埋め込みも未対応です。</p>
+
+<h2 id="compatibility">出力後に確認すること</h2>
+<p>画面・DOCX・PDF・EPUBは組版の仕組みが異なり、同じ改ページを保証しません。PDFは実際のページを確認し、DOCXとEPUBは使うアプリで開いてください。本文の文字数、400字詰換算、実際のPDFページ数も別の指標です。</p>
+
+<h3 id="libreoffice">DOCX：macOS LibreOfficeで確認した範囲</h3>
+<p>2026年9月27日の検証では、macOS版LibreOfficeDev 26.8.0.0.alpha0で代表原稿を3ページへ描画し、全ページを確認しました。検証用本文へプログラムで日本語段落を追加してDOCXを作り、LibreOfficeで読み込み・再保存した結果も、全21段落、4ルビ、2縦中横、傍点・傍線、3見出し、縦書き設定と本文の一致を確認しています。</p>
+<p>これはGUIでの手入力検証ではありません。Wordの確認は実施対象から外しており、Wordでの表示・再編集を保証しません。LibreOfficeでは <code>👩‍💻</code> が人物とPCに分かれて表示されました。元のUnicode列は保持されますが、対象DOCXには表示上の制限として警告を記録します。</p>
+
+<h3 id="books">EPUB：Apple Booksの既知の制限</h3>
+<p>Apple Books 9.0では縦書き、ルビ、縦中横、英語の回転、ZWJ絵文字、文字サイズ変更による再配置を確認しました。一方、<code>&amp; &lt;灯&gt;</code> のような記号を含む見出しの電子目次では <code>xmlParseEntityRef: no name</code> が表示される問題が未解決です。本文は表示され、EPUBのXMLとEPUBCheckの検査も通っていますが、この条件の目次表示は保証できません。該当する章名はレポートで警告します。</p>
+<p>Kindle Previewerは未検証です。EPUBCheckへの合格は、すべての閲覧アプリで同じ表示になる保証ではありません。</p>
+
+<h3 id="layout-limits">固定版面・印刷対応の限界</h3>
+<ul>
+  <li>PDFの固定字数・列数指定は未実装で、指定するとエラーになります。用紙・余白・文字サイズ・行送りは設定できます。</li>
+  <li>DOCXの <code>chars_per_column</code> / <code>columns_per_page</code> はOOXMLグリッドの試験設定です。指定と実際の行数・改ページの一致は未保証です。</li>
+  <li>表紙は書名・著者を置く文字表紙です。画像表紙、固定レイアウトEPUB、印刷所別PDF/X・塗り足し・色変換は未対応です。</li>
+  <li>PDFの全ページ画像は確認用に生成します。自動生成された画像だけで、任意の原稿の字形やページ境界まで保証するものではありません。実施した目視確認は代表原稿などの短い試料です。</li>
+</ul>
+
+<h2 id="troubleshooting">うまく出力できないとき</h2>
+<table>
+  <thead><tr><th>症状</th><th>確認する操作</th></tr></thead>
+  <tbody>
+    <tr><td>Dockerが見つからない／起動していない</td><td>Docker Desktopを起動し、同じターミナルで <code>docker info</code>、続いて <code>./bin/tategaki-export doctor</code> を実行します。Emacsだけで見つからない場合はEmacsの <code>exec-path</code> とPATHを確認します。</td></tr>
+    <tr><td>出力イメージがない／更新が反映されない</td><td>リポジトリで <code>./bin/tategaki-export build</code> を実行します。</td></tr>
+    <tr><td>一部の形式だけ失敗する</td><td><code>report.md</code> の形式別診断と <code>logs/</code> を確認します。フォント不足、未対応注記、時間上限などを修正し、新しいジョブで再実行します。</td></tr>
+    <tr><td>CP932等の本文TXTを作れない</td><td>その文字コードで表せない文字を、原文run位置を伴うエラーとして報告します。文字を黙って置換しません。必要に応じてUTF-8を選びます。</td></tr>
+    <tr><td>章が電子目次へ入らない</td><td><code>input.headings</code> を原稿の見出し形式に合わせます。<code>preview</code> の既定値は <code>literal</code> です。</td></tr>
+  </tbody>
+</table>
+<p>原稿の段落やシーンの作り方は <a href="writing.html">執筆支援・アウトライン・脚本</a>を参照してください。</p>

@@ -1,0 +1,123 @@
+<p class="lead">小説の段落を整え、章を行き来し、脚本の人物名・台詞・ト書きを書き分けます。どの機能も通常のテキストを編集するので、保存は <kbd>C-x C-s</kbd>、取り消しは <kbd>C-/</kbd> です。</p>
+<p>縦書き編集の開始・カーソル移動は <a href="editing.html">編集の基本</a>、ルビや禁則は <a href="typesetting.html">組版と注記</a>を参照してください。</p>
+
+<h2 id="prose">小説の段落と会話文を書く</h2>
+<p><code>M-x tategaki-edit</code> または <code>M-x tategaki-typeset-edit</code> で縦書き編集を始めると、既定では <code>tategaki-writing-mode</code> も有効になります。まず地の文を書き、<kbd>RET</kbd> で次の段落へ進んでください。全角空白が1字入ります。</p>
+<p>段落の先頭で <code>「</code> または <code>『</code> を入力すると、会話文用の字下げへ調整します。既定の会話文は字下げなしです。空白だけの段落でさらに <kbd>RET</kbd> を押すと、その段落を空行として残します。<kbd>C-u 2 RET</kbd> でも空の区切り行を挟めます。</p>
+<pre><code class="language-text">第一章
+　雨が止んだ。窓の外から、鳥の声が聞こえる。
+「もう出かけられるね。」
+　私は傘を置き、玄関へ向かった。
+
+　駅までの道は、まだ少し濡れていた。</code></pre>
+<p>この例の行頭の空白は実際の全角空白です。自動字下げは新しく入力した段落に作用します。ファイルを開いたとき、モードを開始したとき、文章を貼り付けたときに既存本文を一括整形することはありません。現在の段落を明示的に揃えるには <code>M-x tategaki-writing-indent-line</code> を実行します。</p>
+
+<h3 id="prose-settings">字下げ量を設定する</h3>
+<pre><code class="language-elisp">(setq tategaki-writing-assistance t
+      tategaki-writing-auto-indent t
+      tategaki-writing-paragraph-indent 1
+      tategaki-writing-dialogue-indent 0
+      tategaki-writing-electric-pair t)</code></pre>
+<table>
+  <thead><tr><th>設定</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>tategaki-writing-assistance</code></td><td>縦書き開始時に執筆支援を有効にするか。既定は <code>t</code>。</td></tr>
+    <tr><td><code>tategaki-writing-auto-indent</code></td><td>改行と新しく入力した会話文の自動字下げ。<code>nil</code> で停止。</td></tr>
+    <tr><td><code>tategaki-writing-paragraph-indent</code></td><td>地の文の段落先頭に入れる全角空白の数。既定は1。</td></tr>
+    <tr><td><code>tategaki-writing-dialogue-indent</code></td><td>小説の会話文に入れる全角空白の数。既定は0。</td></tr>
+    <tr><td><code>tategaki-writing-dialogue-openers</code></td><td>会話文の開始文字。既定は <code>「『“‘</code>。</td></tr>
+  </tbody>
+</table>
+<p>現在のバッファで支援全体を切り替えるには <code>M-x tategaki-writing-mode</code> を使います。原稿ごとの設定には <code>setq-local</code> を使えます。既定では Org・Markdown の見出し記号や日本語の章見出しを字下げから除外します。この規則は <code>tategaki-writing-unindented-prefix-regexp</code> で変更できます。</p>
+
+<h3 id="pairing">括弧を補完する</h3>
+<p>括弧補完には Emacs の Electric Pair を使います。日本語用の <code>「」</code>、<code>『』</code>、<code>（）</code>、<code>［］</code>、<code>【】</code>、<code>〈〉</code>、<code>《》</code> を、このバッファだけに追加します。組み合わせは <code>tategaki-writing-bracket-pairs</code> で設定できます。</p>
+<p>Smartparens などですでに括弧を補完している場合は、執筆支援を有効にする前に次を設定してください。現在有効なバッファでは <code>tategaki-writing-mode</code> を一度無効にしてから再度有効にします。</p>
+<pre><code class="language-elisp">(setq tategaki-writing-electric-pair nil)</code></pre>
+<p>縦書き編集から自動で有効にした支援は、縦書き終了時に解除し、変更した括弧補完設定を戻します。先に独立して有効にしていた執筆支援は残ります。通常の別バッファの設定には影響しません。</p>
+
+<h2 id="outline">章やシーンをアウトラインで移動する</h2>
+<figure><a href="../images/manual-outline.jpg"><img src="../images/manual-outline.jpg" width="894" height="622" loading="lazy" alt="縦書き本文の右側に第一章から第三章までのアウトラインが表示され、現在の章が強調されている。"></a><figcaption>本文を縦書きで読みながら、章一覧から移動できます。表示の配色・フォント・操作案内は撮影用設定です。 画像をクリックすると原寸で開きます。</figcaption></figure>
+
+<p>縦書き編集で <kbd>C-c C-o</kbd>、または <code>M-x tategaki-outline</code> を実行すると、見出し一覧が開きます。見出し上の <kbd>RET</kbd> またはクリックで本文へ移動します。本文を編集すると一覧も更新され、現在の章が強調されます。</p>
+<pre><code class="language-text"># 第一章　雨上がり
+　窓を開けた。
+## 駅へ
+　傘を置いて家を出た。
+# 第二章　待ち合わせ
+　改札の前に、見慣れた姿があった。</code></pre>
+<p>既定では <code>* 見出し</code> の Org 形式、<code># 見出し</code> の Markdown 形式、<code>第1章</code>・<code>第一幕</code>・<code>第2場</code> などを認識します。narrowing で編集範囲を限定している間は、その範囲の見出しだけを一覧にします。</p>
+<table>
+  <thead><tr><th>目的</th><th>一覧内のキー／コマンド</th></tr></thead>
+  <tbody>
+    <tr><td>選んだ見出しへ移動</td><td><kbd>RET</kbd> またはクリック</td></tr>
+    <tr><td>下位見出しの折りたたみ・展開</td><td><kbd>TAB</kbd></td></tr>
+    <tr><td>一覧を更新</td><td><kbd>g</kbd></td></tr>
+    <tr><td>一覧を閉じる</td><td><kbd>q</kbd></td></tr>
+    <tr><td>補完で見出しを選ぶ</td><td><code>M-x tategaki-outline-goto-heading</code></td></tr>
+    <tr><td>次／前の見出しへ移動</td><td><code>M-x tategaki-outline-next-heading</code> / <code>tategaki-outline-previous-heading</code></td></tr>
+  </tbody>
+</table>
+<p>折りたたむのは一覧の下位見出しです。本文を隠したり、章を並べ替えたり、ページ数を変えたりする機能ではありません。一覧は読み取り専用で、本文の保存・Undoとは独立しています。</p>
+
+<h3 id="outline-settings">一覧の幅と認識規則</h3>
+<pre><code class="language-elisp">(setq tategaki-outline-width 30       ; 横幅。単位は文字桁
+      tategaki-outline-side 'right    ; 'left も指定可能
+      tategaki-outline-follow-point t
+      tategaki-outline-heading-regexp 'auto)
+
+;; 元バッファの outline-regexp / outline-level を使う場合
+;; (setq-local tategaki-outline-heading-regexp 'outline)</code></pre>
+<p>独自の見出しには <code>tategaki-outline-heading-regexp</code> に正規表現文字列を指定します。必要なら、見出し行の先頭で呼び出されて正の階層番号を返す関数を <code>tategaki-outline-level-function</code> に設定できます。縦書き終了時や原稿バッファを閉じた際には、対応する一覧と更新タイマーを終了します。</p>
+
+<h2 id="script">脚本・台本を書く</h2>
+<figure><a href="../images/manual-script.jpg"><img src="../images/manual-script.jpg" width="894" height="622" loading="lazy" alt="脚本モードで葵と店主の人物名、台詞、括弧付きのト書きが色と字下げで区別されている。"></a><figcaption>専用モードで人物名・台詞・ト書きを区別した実画面。役割ごとのface色は撮影用に調整しています。 画像をクリックすると原寸で開きます。</figcaption></figure>
+
+<p><code>M-x tategaki-script-mode</code> で脚本専用モードを開始します。<code>text-mode</code> 派生のメジャーモードで、既定では組版付きの縦書き編集と脚本用入力支援が有効になります。シーン・人物名・台詞・ト書きを、色と字下げで区別します。モード開始時に既存原稿は書き換えません。</p>
+<p>基本の形式は、人物名と台詞を別の段落に書くものです。人物名はコロンで終え、ト書きは丸括弧で始めます。挿入コマンドは全角のコロンと括弧を使います。</p>
+<pre><code class="language-text">第一幕
+○ 居間・朝
+太郎：
+　　「おはよう。もう雨は止んだ？」
+　（窓を開ける）
+花子：
+　　「ええ。駅まで歩けそうね。」
+
+○ 駅前・昼
+　（時計の音が聞こえる）</code></pre>
+
+<h3 id="script-workflow">短いシーンを作る手順</h3>
+<ol>
+  <li><kbd>C-c C-s</kbd> を押し、シーン名に <code>居間・朝</code> を入力します。<code>○ 居間・朝</code> と次の入力段落ができます。</li>
+  <li><kbd>C-c C-d</kbd> を押し、人物名に <code>太郎</code> を入力します。人物名と台詞用の <code>　　「」</code> が入り、括弧内から書き始められます。</li>
+  <li>台詞の後で <kbd>C-c C-t</kbd> を押し、ト書きに <code>窓を開ける</code> を入力します。空欄で確定すれば、空の <code>（）</code> の中へ移ります。</li>
+  <li>場面を増やしたら <kbd>C-c C-o</kbd> でシーン一覧を開き、移動します。</li>
+</ol>
+<table>
+  <thead><tr><th>操作</th><th>キー</th><th>コマンド</th></tr></thead>
+  <tbody>
+    <tr><td>シーンを挿入</td><td><kbd>C-c C-s</kbd></td><td><code>tategaki-script-scene</code></td></tr>
+    <tr><td>人物名と台詞を挿入</td><td><kbd>C-c C-d</kbd></td><td><code>tategaki-script-dialogue</code></td></tr>
+    <tr><td>ト書きを挿入</td><td><kbd>C-c C-t</kbd></td><td><code>tategaki-script-stage-direction</code></td></tr>
+    <tr><td>現在の段落を字下げ</td><td><kbd>TAB</kbd></td><td><code>tategaki-script-indent-line</code></td></tr>
+    <tr><td>範囲／全文の字下げを揃える</td><td><kbd>C-c C-f</kbd></td><td><code>tategaki-script-format</code></td></tr>
+    <tr><td>次／前のシーンへ移動</td><td><kbd>M-n</kbd> / <kbd>M-p</kbd></td><td><code>tategaki-script-next-scene</code> / <code>tategaki-script-previous-scene</code></td></tr>
+  </tbody>
+</table>
+<p>人物名の段落末で <kbd>RET</kbd> を押すと、台詞用の字下げと <code>「」</code> を用意します。人物名の入力では同じ原稿に登場した名前を補完できます。本文で名前を入力している途中にも <kbd>M-TAB</kbd> / <kbd>C-M-i</kbd> の <code>completion-at-point</code> を利用できます。Corfu が有効ならその候補一覧を使います。</p>
+<p><kbd>C-c C-f</kbd> は選択範囲があればそれにかかる段落、なければ編集可能な全範囲を整形します。narrowing は尊重します。変更するのは行頭の空白で、通常の Undo で取り消せます。本文内の <kbd>TAB</kbd> は字下げ、アウトライン一覧内の <kbd>TAB</kbd> は下位見出しの開閉です。</p>
+
+<h3 id="script-settings">字下げと開始時の表示を設定する</h3>
+<pre><code class="language-elisp">(setq tategaki-script-speaker-indent 0
+      tategaki-script-dialogue-indent 2
+      tategaki-script-stage-direction-indent 1
+      tategaki-script-auto-dialogue t
+      tategaki-script-start-vertical t)</code></pre>
+<p>字下げの単位は全角空白の数です。横書きで始める場合は、モード開始前に <code>tategaki-script-start-vertical</code> を <code>nil</code> にします。人物名の後の括弧挿入だけを止めるなら <code>tategaki-script-auto-dialogue</code>、自動字下げ全体を止めるなら <code>tategaki-writing-auto-indent</code> を <code>nil</code> にします。</p>
+<p>シーン一覧と <code>M-x imenu</code> は <code>○</code> / <code>◎</code>、<code>第一幕</code> / <code>第2場</code>、Org・Markdown形式の見出しを扱います。挿入する記号は <code>tategaki-script-scene-prefix</code>、認識規則は <code>tategaki-script-scene-regexp</code> です。記法を変更する場合は両方を揃えてください。人物名とト書きの認識には <code>tategaki-script-speaker-regexp</code> / <code>tategaki-script-stage-direction-regexp</code> を使います。</p>
+<p>色は <code>tategaki-script-scene-face</code>、<code>tategaki-script-speaker-face</code>、<code>tategaki-script-dialogue-face</code>、<code>tategaki-script-stage-direction-face</code> で調整できます。</p>
+
+<h3 id="script-limits">終了方法と対応範囲</h3>
+<p><kbd>C-c C-c</kbd> は縦書き表示を終了します。脚本モードと入力支援は横書きでも残ります。脚本モード自体を終了するには <code>M-x text-mode</code> を実行してください。<code>.txt</code> 全体のファイル関連付けは変更しません。</p>
+<p>字下げは原文の段落先頭だけに入ります。長い台詞が画面の列末で折り返された先の列には、継続用の字下げを加えません。特定の放送局・劇団の提出書式や、印刷時の独立した人物名欄は未対応です。書いた原稿は <a href="export.html">Docker出力</a>で通常のテキストとして出力できますが、脚本専用の印刷テンプレートにはなりません。</p>
+<p>現在のメジャーモードを保ちたい場合は、<code>M-x tategaki-writing-set-style</code> で <code>script</code> を選び、<code>tategaki-script-insert-dialogue</code>、<code>tategaki-script-insert-stage-direction</code>、<code>tategaki-script-format-region</code> を使う方法もあります。専用モードのシーン一覧・着色・キー設定をまとめて使う場合は <code>tategaki-script-mode</code> を選びます。</p>

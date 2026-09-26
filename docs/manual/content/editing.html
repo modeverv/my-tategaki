@@ -1,0 +1,117 @@
+<section aria-labelledby="editing-basics">
+  <h2 id="editing-basics">いつもの本文を、縦書きで編集する</h2>
+  <p><code>M-x tategaki-edit</code>で直接編集を始めます。ルビや禁則を使う場合は<code>M-x tategaki-typeset-edit</code>を選びます。入力・削除・コピー・保存は通常のEmacs操作です。元のテキストバッファを編集しているため、縦書き専用の保存操作はありません。</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>操作</th><th>キー</th><th>働き</th></tr></thead>
+      <tbody>
+        <tr><td>読み順に進む／戻る</td><td><kbd>↓</kbd> / <kbd>↑</kbd></td><td>縦列の下／上へ移動。列末を越えると次の列へ進みます。</td></tr>
+        <tr><td>隣の縦列へ</td><td><kbd>←</kbd> / <kbd>→</kbd></td><td>できるだけ同じ高さを保って左右へ移動します。</td></tr>
+        <tr><td>次／前の表示ページ</td><td><code>C-v</code> / <code>M-v</code><br><kbd>PageDown</kbd> / <kbd>PageUp</kbd></td><td>左側の続き／右側の前のページへ進みます。</td></tr>
+        <tr><td>指定位置へ</td><td>文字をクリック</td><td>対応する本文の挿入位置へ移動します。</td></tr>
+        <tr><td>範囲を選ぶ</td><td><code>C-SPC</code>の後に移動、または文字間をドラッグ</td><td>原文の読み順に連続した範囲を選択します。</td></tr>
+        <tr><td>切り取り／コピー／貼り付け</td><td><code>C-w</code> / <code>M-w</code> / <code>C-y</code></td><td>表示記号を追加せず、元のテキストを扱います。</td></tr>
+        <tr><td>保存／Undo</td><td><code>C-x C-s</code> / <code>C-/</code>または<code>C-x u</code></td><td>Emacs本来の保存・取り消しです。</td></tr>
+        <tr><td>再描画</td><td><code>C-c C-l</code></td><td><code>tategaki-refresh</code>。設定やフォントを変更した後にも使います。</td></tr>
+        <tr><td>横書きへ戻る</td><td><code>C-c C-c</code></td><td><code>tategaki-quit</code>。本文と現在位置を保ちます。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>原文表示の上下移動は文字単位です。組版表示では、結合文字や縦中横などのまとまった表示単位で移動します。文字単位の細かな編集との使い分けは<a href="typesetting.html#graphemes">結合文字と編集位置</a>を参照してください。</p>
+  <p>既定では執筆支援も有効になり、<kbd>Enter</kbd>で作る段落に全角空白1字を補い、会話文の字下げや括弧の補完を助けます。字下げの変更・無効化は<a href="writing.html">執筆支援</a>を参照してください。</p>
+  <p>narrowing中は絞り込んだ範囲を表示・編集します。同じバッファを複数のウィンドウで開く場合、縦書きの表示は選択したウィンドウに追従します。</p>
+</section>
+
+<section aria-labelledby="physical-navigation">
+  <h2 id="physical-navigation">C-f・C-b・C-n・C-pを画面の方向に合わせる</h2>
+  <p>既定では、これらのキーは元のEmacs設定のままです。縦書き中だけ、画面上の上下左右へ動かす場合は次を設定します。</p>
+  <pre><code class="language-elisp">(setq tategaki-physical-navigation t)
+;; C-f → 右、C-b → 左、C-n → 下、C-p → 上。</code></pre>
+  <p><code>nil</code>へ戻すと元の割り当てに戻ります。通常の横書きバッファには影響しません。現在のバッファだけ変えるには<code>setq-local</code>を使います。</p>
+  <pre><code class="language-elisp">(setq-local tategaki-physical-navigation t)</code></pre>
+  <p>数値引数と選択範囲は矢印キーと同じように働きます。Corfuなどがバッファ内で候補選択をしている間は、補完側のキー処理を優先します。<code>C-v</code>と<code>M-v</code>のページ移動は、この設定が<code>nil</code>でも使えます。</p>
+</section>
+
+<section aria-labelledby="paging">
+  <h2 id="paging">ページ移動と横スクロール</h2>
+  <p><code>C-v</code>は文章の続きがある左側へ、<code>M-v</code>は右側の前のページへ移動します。既定のページは現在のウィンドウに収まる列数です。余白・行間・ウィンドウサイズを変更すると、一度に表示する範囲も変わります。</p>
+  <p>移動先でも、画面内の列と高さをできるだけ保ちます。短い最終ページから戻るときも、元の位置の目標を保ちます。文書の端を越える場合は先頭・末尾へ移動します。</p>
+  <ul>
+    <li><code>C-u 2 C-v</code>は2ページ先へ移動します。</li>
+    <li>負の数値引数では逆方向、0では移動しません。</li>
+    <li>Corfuの候補一覧が有効な間は、候補側のページ操作を優先します。</li>
+    <li>未採用のCopilot提案は通常の取消処理を経てから、本文のページ移動を計算します。</li>
+  </ul>
+  <p>固定原稿用紙で番号を指定したい場合は<code>C-c C-p</code>（<code>tategaki-goto-page</code>）を使います。指定した紙面の先頭へ移動するので、画面上の位置を保つ<code>C-v</code>とは用途が異なります。</p>
+  <h3 id="horizontal-scrollbar">画面下の横スクロールバー</h3>
+  <p>スクロールバーの右が文頭、左が文末です。つまみをドラッグするか、帯をクリックして表示する列を選びます。バーの矢印と横方向のホイールは1列ずつ移動します。カーソルが画面外になる場合は、高さをできるだけ保って表示範囲内の近い列へ移ります。</p>
+  <pre><code class="language-elisp">(setq tategaki-scrollbar t
+      tategaki-scrollbar-pixel-height 18)</code></pre>
+  <p><code>tategaki-scrollbar</code>を<code>nil</code>にすると非表示にできます。色は<code>tategaki-scrollbar-track</code>と<code>tategaki-scrollbar-thumb</code>のfaceで調整します。スクロール後に<code>C-v</code>または<code>M-v</code>を押すとページ単位の表示へ戻ります。IMEの未確定入力中はバーで移動できないため、確定・取消してから操作してください。</p>
+</section>
+
+<section aria-labelledby="spacing">
+  <h2 id="spacing">余白・行間・文字間を設定する</h2>
+  <p>行間は縦列どうしの横方向の空き、文字間は文字どうしの縦方向の空きです。次の例はGUIのピクセル単位で設定します。</p>
+  <pre><code class="language-elisp">(setq tategaki-padding-top 20
+      tategaki-padding-bottom 20
+      tategaki-padding-left 24
+      tategaki-padding-right 24
+      tategaki-line-spacing 12
+      tategaki-character-spacing 4)
+
+;; nilならウィンドウの高さに合わせる。
+(setq tategaki-column-height nil)
+;; 最大20字にする場合。小さいウィンドウでは収まる高さまで減る。
+;; (setq tategaki-column-height 20)</code></pre>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>設定</th><th>既定値</th><th>単位と意味</th></tr></thead>
+      <tbody>
+        <tr><td><code>tategaki-padding-top</code> / <code>-bottom</code></td><td><code>0</code></td><td>GUIはピクセル、端末は行数。</td></tr>
+        <tr><td><code>tategaki-padding-left</code> / <code>-right</code></td><td><code>0</code></td><td>GUIはピクセル、端末は半角セル数。</td></tr>
+        <tr><td><code>tategaki-line-spacing</code></td><td><code>nil</code></td><td>GUIはピクセル、端末は半角セル数。<code>0</code>は追加の空きなし。</td></tr>
+        <tr><td><code>tategaki-character-spacing</code></td><td><code>0</code></td><td>GUIはピクセル、端末は行数。</td></tr>
+        <tr><td><code>tategaki-column-spacing</code></td><td><code>1</code></td><td><code>line-spacing</code>が<code>nil</code>のときに使う、半角幅単位の列間隔。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>余白と間隔を引いた残りから、表示できる字数・列数を決めます。文字が収まらない端数の空きが下と左に残り、右端には描画用の小さな余裕が加わります。極端に大きい値や小さいウィンドウでは、入力位置を表示できる範囲に縮めます。</p>
+  <p>設定の変更は次の操作・再描画で反映されます。文書ごとの調整には<code>setq-local</code>を使ってください。固定の「20字×20列」を維持するには、最大文字数の指定ではなく<a href="typesetting.html#manuscript">原稿用紙設定</a>を使います。</p>
+  <h3 id="symbols-and-faces">記号・フォント・現在位置の色</h3>
+  <pre><code class="language-elisp">(setq tategaki-layout-use-vertical-forms t
+      tategaki-layout-newline-symbol "↵"
+      tategaki-layout-tab-symbol "⇥"
+      tategaki-layout-eof-symbol "□")
+
+;; 実際にインストールされているフォント名を指定する。
+;; (set-face-attribute 'tategaki-face nil :family "フォント名")
+(set-face-attribute 'tategaki-cursor-face nil :background "#557a22")</code></pre>
+  <p>表示記号には、幅1〜2セルの1文字を指定します。フォント変更後は<code>C-c C-l</code>で再描画してください。約物の縦書き用字形が表示できない場合は<code>tategaki-layout-use-vertical-forms</code>を<code>nil</code>にできます。設定は表示用で、保存する本文を置き換えません。</p>
+</section>
+
+<section aria-labelledby="ime">
+  <h2 id="ime">日本語IMEの未確定文字を縦に表示する</h2>
+  <p>対応するNS関数があるmacOSのNS版Emacsでは、IMEの未確定文字列を挿入位置から縦に並べます。列末まで来ると左の列へ折り返し、変換中の文節の下線・強調も引き継ぎます。追加の有効化設定は不要です。</p>
+  <p>未確定文字は表示用の仮入力です。保存内容とUndo履歴には入りません。確定するとEmacs本来の入力処理で本文になり、キャンセルすると仮入力だけが消えます。変換途中で縦書きを終了した場合は、通常の横書きの未確定表示へ戻します。</p>
+  <p><code>mac-ime-panel-offset-x</code>と<code>mac-ime-panel-offset-y</code>があるNS版では、候補一覧を選択中の文節の先頭文字の右側へ寄せます。フォントの寸法と列の折り返しに追従し、確定・取消・ウィンドウ移動・終了時に元のオフセットへ戻します。候補一覧そのものの向きと選択方法はOSの標準動作です。</p>
+  <p>連携は対象の縦書きウィンドウに限定されます。ミニバッファや通常の横書きバッファは標準表示を保ちます。他のOS・IMEで同じ専用表示を保証するものではありません。</p>
+</section>
+
+<section aria-labelledby="completion">
+  <h2 id="completion">CopilotとCorfu</h2>
+  <p>Copilotのインライン提案とCorfuの選択候補プレビューも、挿入位置から縦に表示し、左の列へ折り返します。候補の色・強調を引き継ぎ、採用するまでは本文や保存内容に含めません。</p>
+  <ul>
+    <li>Copilotの全文・一部採用や候補切り替えには、使用中のCopilotのキー設定を使います。</li>
+    <li>Corfuの候補一覧は横書きのまま、縦書きの実際のカーソル位置へ追従します。選択・確定・取消はCorfu本来の操作です。</li>
+    <li>IME変換中はIMEの仮入力を優先します。縦書きを終了すると通常の補完表示に戻ります。</li>
+  </ul>
+  <p>導入済みのCopilot・Corfuが読み込まれたときに自動連携します。my-tategakiが補完サービスや候補を提供する機能ではないので、それぞれのパッケージの設定は別途行ってください。</p>
+</section>
+
+<section aria-labelledby="search-highlight">
+  <h2 id="search-highlight">検索・置換・校正結果を見る</h2>
+  <p><code>C-s</code>のインクリメンタル検索や<code>M-%</code>の対話的置換など、Emacsの通常の検索・置換が使えます。<code>isearch</code>、<code>lazy-highlight</code>、<code>query-replace</code>の強調、本文の<code>face</code>・<code>font-lock-face</code>、オーバーレイの<code>face</code>を縦書きの対応する文字へ反映します。</p>
+  <p>結合文字や縦中横の一部だけが一致した場合、見た目ではその表示セル全体を強調します。検索範囲・置換対象は元のテキスト位置のままです。</p>
+  <p>一般のオーバーレイの<code>display</code>・<code>before-string</code>・<code>after-string</code>は複製しません。そのため、校正パッケージ独自の追加文字やポップアップまで、すべて同じ見た目になるわけではありません。IME・Copilot・Corfuには前述の専用連携があります。</p>
+</section>

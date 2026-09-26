@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Emacsへの導入、3つの表示方法、最初の保存まで。">
+<meta name="theme-color" content="#f7f6f0">
+<title>導入と最初の原稿 | my-tategaki</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/manual.css">
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/manual.js" defer></script>
+</head>
+<body data-root="../" class="page-getting-started">
+<a class="skip-link" href="#main">本文へ移動</a>
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Emacs 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html" aria-current="page"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav>
+<div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
+</aside>
+<div class="site-body">
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 01</span>
+<div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html" aria-current="page"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav></details>
+<main id="main" tabindex="-1">
+<div class="page-heading"><p class="eyebrow">CHAPTER 01</p><h1>導入と最初の原稿</h1><p class="lead">Emacsへの導入、3つの表示方法、最初の保存まで。</p></div>
+<div class="document-grid"><article><section aria-labelledby="overview">
+  <h2 id="overview">Emacsで、縦書きのまま書く</h2>
+  <p>my-tategakiは、普段のテキストバッファを縦書きで表示するEmacsパッケージです。上から下へ書き、列は右から左へ進みます。入力・保存・UndoはEmacsの仕組みを使い、ファイルには元のテキストが保存されます。</p>
+<figure><a href="../images/manual-editing.jpg"><img src="../images/manual-editing.jpg" width="894" height="622" loading="lazy" alt="サンプル原稿をEmacsで縦書き編集している画面。ルビの記法も原文の文字として縦に並ぶ。"></a><figcaption>原文表示の編集画面。実際のmacOS版Emacsで撮影。配色・フォント・上部の操作案内は撮影用設定です。 画像をクリックすると原寸で開きます。</figcaption></figure>
+
+  <p>用途に合わせて、直接編集する表示と、横書きの編集画面に添えるプレビューを選べます。</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>表示</th><th>開始コマンド</th><th>向いている使い方</th><th>表示の特徴</th></tr></thead>
+      <tbody>
+        <tr><td>原文の縦書き編集</td><td><code>M-x tategaki-edit</code></td><td>縦書きで入力し、記号や空白も一文字ずつ確かめる</td><td>既定の表示。原文の文字ごとに編集位置を設けます。</td></tr>
+        <tr><td>組版した縦書き編集</td><td><code>M-x tategaki-typeset-edit</code></td><td>ルビ・禁則・縦中横を見ながら文章を書く</td><td>GUIとSVGが必要です。注記や結合文字をまとめて配置します。</td></tr>
+        <tr><td>縦書きプレビュー</td><td><code>M-x tategaki-preview</code></td><td>横書きの編集画面を残して、縦書きの流れを読む</td><td>別ウィンドウの読み取り専用表示。編集側から一方向に同期します。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>tategaki-edit</code>は現在の組版設定を引き継ぎます。一度組版を有効にしたバッファを原文表示へ戻す方法は、<a href="typesetting.html#typesetting-switch">表示の切り替え</a>を参照してください。</p>
+</section>
+
+<section aria-labelledby="requirements">
+  <h2 id="requirements">必要なもの</h2>
+  <ul>
+    <li>Emacs 27.1以降。日本語の表示に使えるフォントも用意します。</li>
+    <li><code>text-mode</code>またはその派生モードのバッファ。プレーンテキスト、Markdown、Orgなどが対象です。</li>
+    <li>ルビ・縦中横・欧文回転・固定版面の縮小表示には、SVG画像を表示できるGUI版Emacsが必要です。</li>
+  </ul>
+  <p>通常の縦書き編集とプレビューはEmacs Lispで動きます。Dockerは<a href="export.html">ファイル出力</a>を使う場合の追加要件です。CopilotやCorfuを使わない場合も、これらのパッケージを追加する必要はありません。</p>
+  <p>端末やSVG非対応のGUIでも原文表示を使えます。組版表示を指定しても、描画できない環境では注記を含む原文の文字表示へ戻ります。macOSのIME専用連携については、<a href="editing.html#ime">日本語入力</a>で説明します。</p>
+</section>
+
+<section aria-labelledby="installation">
+  <h2 id="installation">読み込みと最初の一文</h2>
+  <p>このリポジトリを手元に置き、Emacsの設定ファイルに次を追加します。パスは実際に保存したディレクトリに置き換えてください。</p>
+  <pre><code class="language-elisp">(add-to-list 'load-path "/path/to/my-tategaki")
+(require 'tategaki)</code></pre>
+  <ol>
+    <li><code>C-x C-f</code>で、たとえば<code>manuscript.txt</code>を開きます。</li>
+    <li><code>M-x tategaki-edit</code>を実行します。</li>
+    <li>空のバッファでは右上の<code>□</code>が挿入位置です。そのまま文章を入力します。</li>
+    <li><code>C-x C-s</code>で保存します。横書きへ戻るときは<code>C-c C-c</code>を押します。</li>
+  </ol>
+  <p><code>M-x</code>は通常<kbd>Alt</kbd>と<kbd>x</kbd>です。MacでMetaキーを別のキーに割り当てている場合は、その設定に従ってください。コマンド名の入力後に<kbd>Enter</kbd>を押します。</p>
+  <p>新規バッファが<code>fundamental-mode</code>の場合は、先に<code>M-x text-mode</code>を実行してください。プログラミング用のメジャーモードは対象外です。読み取り専用のバッファは縦書きにしても読み取り専用のままです。</p>
+  <p>縦書きの終了時も、文章とカーソルの位置は保たれます。<code>M-x tategaki-mode</code>でも縦書きの有効・無効を切り替えられます。</p>
+</section>
+
+<section aria-labelledby="source-and-display">
+  <h2 id="source-and-display">保存される文章と、画面の見え方</h2>
+  <p>縦書き編集は、元のバッファに表示用のレイヤーを重ねます。別の文書へ書き写す操作は不要です。コピー、検索、Undo、ファイル保存は、通常の本文に対して働きます。</p>
+  <ul>
+    <li>原文の改行ごとに次の縦列へ進みます。空行と、行頭・行末の空白も残します。</li>
+    <li><code>↵</code>は改行、<code>⇥</code>はタブ、<code>□</code>は文末の挿入位置です。これらの表示記号が保存時に追加されることはありません。</li>
+    <li>Markdownの<code>#</code>やOrgの<code>*</code>などは直接編集では原文どおり表示します。組版編集が解釈するのは、対応する青空文庫形式の注記です。</li>
+    <li>表示だけの変更は本文やUndo履歴を変更しません。ルビを挿入するなど、注記そのものを書く操作は通常の本文編集です。</li>
+  </ul>
+  <p>詳細な移動方法は<a href="editing.html">編集と入力</a>、読み仮名や原稿用紙は<a href="typesetting.html">組版と原稿用紙</a>へ進んでください。字下げ・台本・章の一覧は<a href="writing.html">執筆支援</a>で説明します。</p>
+</section>
+
+<section aria-labelledby="preview">
+  <h2 id="preview">横書きの編集画面を残す</h2>
+  <p>読み取り専用のプレビューを使う場合は、次も読み込みます。</p>
+  <pre><code class="language-elisp">(require 'org-tategaki-preview)</code></pre>
+  <p><code>M-x tategaki-preview</code>で左側にプレビューが開き、選択ウィンドウは右の編集側に残ります。別フレームに置きたい場合は<code>M-x tategaki-preview-frame</code>を使います。同じコマンドを再実行すると既存のプレビューを再利用します。</p>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>操作</th><th>方法</th></tr></thead>
+      <tbody>
+        <tr><td>内容を更新</td><td>編集を止めて約0.2秒後に自動更新。プレビューで<code>g</code>、または編集側で<code>M-x tategaki-preview-refresh</code>。</td></tr>
+        <tr><td>現在位置を確認</td><td>編集側の現在の文字と縦列を強調。画面外なら横スクロールして追従します。</td></tr>
+        <tr><td>手動で横に読む</td><td>プレビューで<code>C-x &lt;</code>は左方向、<code>C-x &gt;</code>は右方向。編集側で位置を動かすと追従へ戻ります。</td></tr>
+        <tr><td>閉じる</td><td>プレビューで<code>q</code>、または<code>M-x tategaki-preview-close</code>。別フレームの閉じる操作も使えます。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3 id="preview-rules">プレビュー固有の表示ルール</h3>
+  <p>プレビューは単一の改行を連結し、空行を空の列として残します。Org派生モードでは見出し先頭の<code>*</code>を除き、見出しを独立した段落にします。Org以外では記号をそのまま表示し、Markdownの装飾などは解釈しません。直接編集の改行の扱いとは異なります。</p>
+  <p>narrowingで編集範囲を絞っていても、プレビューはバッファ全体を使います。同期は編集側からプレビューへの一方向です。プレビュー上で本文を編集したり、クリックで編集側の位置を指定したりする機能ではありません。</p>
+  <p>このプレビューには、禁則、書記素単位の結合文字表示、ルビ、縦中横、欧文回転、ページ切り替えはありません。編集・リサイズ時は全文を変換するため、長い文書では待ち時間が生じます。これらが必要な場合は組版した直接編集を使ってください。</p>
+  <h3 id="preview-settings">プレビューの設定</h3>
+  <pre><code class="language-elisp">(setq org-tategaki-preview-refresh-delay 0.2
+      org-tategaki-preview-use-vertical-forms t
+      org-tategaki-preview-column-spacing 1
+      org-tategaki-preview-window-margin 2
+      org-tategaki-preview-padding 1
+      org-tategaki-preview-vertical-padding 1)
+
+;; 手動で読み続ける場合はカーソルへの自動追従を止める。
+;; (setq org-tategaki-preview-sync-point nil)</code></pre>
+  <p>左右の余白は半角セル、上下の余白は文字の高さを単位とします。変更後はプレビューで<code>g</code>を押してください。縦書きの約物が欠けるフォントでは、<code>org-tategaki-preview-use-vertical-forms</code>を<code>nil</code>にできます。直接編集用の<code>tategaki-padding-*</code>とは別の設定です。</p>
+  <p>従来の<code>org-tategaki-preview</code>コマンドや設定名も引き続き使えます。</p>
+</section>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../index.html"><small>前の章</small>使い方マニュアル <span aria-hidden="true">→</span></a><a href="../manual/editing.html"><small>次の章</small>縦書きで編集する <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#overview">Emacsで、縦書きのまま書く</a></li><li class="h2"><a href="#requirements">必要なもの</a></li><li class="h2"><a href="#installation">読み込みと最初の一文</a></li><li class="h2"><a href="#source-and-display">保存される文章と、画面の見え方</a></li><li class="h2"><a href="#preview">横書きの編集画面を残す</a></li><li class="h3"><a href="#preview-rules">プレビュー固有の表示ルール</a></li><li class="h3"><a href="#preview-settings">プレビューの設定</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+</main>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/getting-started.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
+</div>
+</body></html>

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="目的からコマンドを探し、setqで自分の書き方に合わせる。">
+<meta name="theme-color" content="#f7f6f0">
+<title>コマンド・設定一覧 | my-tategaki</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/manual.css">
+<script src="../assets/search-index.js" defer></script>
+<script src="../assets/manual.js" defer></script>
+</head>
+<body data-root="../" class="page-reference">
+<a class="skip-link" href="#main">本文へ移動</a>
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Emacs 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html" aria-current="page"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav>
+<div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
+</aside>
+<div class="site-body">
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 06</span>
+<div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html" aria-current="page"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav></details>
+<main id="main" tabindex="-1">
+<div class="page-heading"><p class="eyebrow">CHAPTER 06</p><h1>コマンド・設定一覧</h1><p class="lead">目的からコマンドを探し、setqで自分の書き方に合わせる。</p></div>
+<div class="document-grid"><article><p class="lead">コマンドと主な設定を用途から引く索引です。導入は <a href="getting-started.html">はじめに</a>、操作手順は <a href="editing.html">縦書き編集</a>、<a href="typesetting.html">組版</a>、<a href="writing.html">執筆支援</a>、<a href="export.html">出力</a>を参照してください。</p>
+<h2 id="commands">コマンド一覧</h2>
+<p>コマンド名は <kbd>M-x</kbd> から実行できます。「—」はこのパッケージ固有の既定キーなしを表します。本文のキーは縦書き編集が有効なときのものです。アウトライン一覧・脚本モード・プレビューのキーは、それぞれの画面やモードで使います。</p>
+<h3 id="editing-commands">編集・移動</h3>
+<p>保存・Undo・コピー等は通常のEmacsの操作です。<code>tategaki-physical-navigation</code> が <code>t</code> なら <kbd>C-f</kbd> は右、<kbd>C-b</kbd> は左、<kbd>C-n</kbd> は下、<kbd>C-p</kbd> は上へ移動します。Corfuで候補を選択している間は候補操作を優先します。</p>
+<table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>
+<tr><td>縦書き編集を開始</td><td><code>tategaki-edit</code></td><td>—</td></tr>
+<tr><td>組版付きの縦書き編集を開始</td><td><code>tategaki-typeset-edit</code></td><td>—</td></tr>
+<tr><td>縦書き編集の有効・無効を切り替える</td><td><code>tategaki-mode</code></td><td>—</td></tr>
+<tr><td>横書きへ戻る</td><td><code>tategaki-quit</code></td><td><kbd>C-c C-c</kbd></td></tr>
+<tr><td>再描画</td><td><code>tategaki-refresh</code></td><td><kbd>C-c C-l</kbd></td></tr>
+<tr><td>読む順序で次／前の文字へ</td><td><code>tategaki-next-character</code> / <code>tategaki-previous-character</code></td><td><kbd>↓</kbd> / <kbd>↑</kbd></td></tr>
+<tr><td>左／右の縦列へ</td><td><code>tategaki-forward-column</code> / <code>tategaki-backward-column</code></td><td><kbd>←</kbd> / <kbd>→</kbd></td></tr>
+<tr><td>次／前のページへ</td><td><code>tategaki-forward-page</code> / <code>tategaki-backward-page</code></td><td><kbd>C-v</kbd> / <kbd>M-v</kbd>、<kbd>PageDown</kbd> / <kbd>PageUp</kbd></td></tr>
+<tr><td>指定ページの先頭へ</td><td><code>tategaki-goto-page</code></td><td><kbd>C-c C-p</kbd></td></tr>
+<tr><td>表示を左／右へ1列ずつ送る</td><td><code>tategaki-scroll-left</code> / <code>tategaki-scroll-right</code></td><td>横方向のホイール、スクロールバー両端の矢印</td></tr>
+</tbody></table>
+<h3 id="annotation-commands">注記・原稿用紙</h3>
+<p>注記の挿入は原文を編集し、通常のUndo対象になります。組版／原文記法の切り替えと原稿用紙の表示設定は本文を書き換えません。固定版面・見開き・罫線にはGUIとSVGによる組版表示が必要です。</p>
+<table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>
+<tr><td>選択範囲にルビを付ける</td><td><code>tategaki-insert-ruby</code></td><td><kbd>C-c C-r</kbd></td></tr>
+<tr><td>現在位置のルビの読みを変更</td><td><code>tategaki-edit-ruby</code></td><td>—</td></tr>
+<tr><td>選択範囲を縦中横にする</td><td><code>tategaki-insert-tcy</code></td><td>—</td></tr>
+<tr><td>選択範囲に傍点／傍線を付ける</td><td><code>tategaki-add-emphasis</code></td><td>—（<code>dot</code> / <code>line</code> を選択）</td></tr>
+<tr><td>注記を組版／原文記法で表示</td><td><code>tategaki-toggle-annotations</code></td><td><kbd>C-c C-a</kbd></td></tr>
+<tr><td>版面プリセットを選ぶ</td><td><code>tategaki-manuscript-set-preset</code></td><td>—（<code>20x20</code> / <code>40x30</code> / <code>adaptive</code>）</td></tr>
+<tr><td>見開きの切り替え</td><td><code>tategaki-manuscript-toggle-spread</code></td><td>—</td></tr>
+<tr><td>原稿用紙の罫線の切り替え</td><td><code>tategaki-manuscript-toggle-grid</code></td><td>—</td></tr>
+<tr><td>文字数の目標を設定</td><td><code>tategaki-manuscript-set-target</code></td><td>—（0で解除）</td></tr>
+</tbody></table>
+<h3 id="writing-commands">執筆支援・アウトライン</h3>
+<p>一覧では <kbd>RET</kbd> またはクリックで見出しへ移動し、<kbd>q</kbd> で閉じます。折りたたむのは一覧だけで、本文のページ数や表示範囲は変えません。</p>
+<table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>
+<tr><td>入力支援の有効・無効を切り替える</td><td><code>tategaki-writing-mode</code></td><td>—</td></tr>
+<tr><td>小説／脚本の字下げ規則を選ぶ</td><td><code>tategaki-writing-set-style</code></td><td>—（<code>prose</code> / <code>script</code>）</td></tr>
+<tr><td>新しい段落と字下げを挿入</td><td><code>tategaki-writing-newline</code></td><td><kbd>RET</kbd>（通常の執筆支援）</td></tr>
+<tr><td>現在の段落を字下げ</td><td><code>tategaki-writing-indent-line</code></td><td>—</td></tr>
+<tr><td>見出し一覧を開く</td><td><code>tategaki-outline</code></td><td><kbd>C-c C-o</kbd></td></tr>
+<tr><td>補完で見出しへ移動</td><td><code>tategaki-outline-goto-heading</code></td><td>—</td></tr>
+<tr><td>次／前の見出しへ移動</td><td><code>tategaki-outline-next-heading</code> / <code>tategaki-outline-previous-heading</code></td><td>—</td></tr>
+<tr><td>一覧の下位見出しを開閉</td><td><code>tategaki-outline-toggle-subtree</code></td><td><kbd>TAB</kbd>（一覧内）</td></tr>
+<tr><td>見出し一覧を更新</td><td><code>tategaki-outline-refresh</code></td><td><kbd>g</kbd>（一覧内）</td></tr>
+</tbody></table>
+<h3 id="script-commands">脚本専用モード</h3>
+<p><kbd>C-c C-c</kbd> は横書きへ戻すだけで、脚本モードと入力支援は残します。脚本モード自体は <code>M-x text-mode</code> で終了します。</p>
+<table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>
+<tr><td>脚本・台本のメジャーモードを開始</td><td><code>tategaki-script-mode</code></td><td>—</td></tr>
+<tr><td>シーンを挿入</td><td><code>tategaki-script-scene</code></td><td><kbd>C-c C-s</kbd></td></tr>
+<tr><td>人物名と台詞を挿入</td><td><code>tategaki-script-dialogue</code></td><td><kbd>C-c C-d</kbd></td></tr>
+<tr><td>ト書きを挿入</td><td><code>tategaki-script-stage-direction</code></td><td><kbd>C-c C-t</kbd></td></tr>
+<tr><td>改行。人物名の直後なら台詞用の括弧を用意</td><td><code>tategaki-script-newline</code></td><td><kbd>RET</kbd></td></tr>
+<tr><td>現在の段落の字下げを揃える</td><td><code>tategaki-script-indent-line</code></td><td><kbd>TAB</kbd>（本文内）</td></tr>
+<tr><td>選択範囲／編集可能な全文の字下げを揃える</td><td><code>tategaki-script-format</code></td><td><kbd>C-c C-f</kbd></td></tr>
+<tr><td>次／前のシーンへ移動</td><td><code>tategaki-script-next-scene</code> / <code>tategaki-script-previous-scene</code></td><td><kbd>M-n</kbd> / <kbd>M-p</kbd></td></tr>
+</tbody></table>
+<h3 id="export-preview-commands">出力・従来のプレビュー</h3>
+<p>出力はDocker、従来のプレビューは <code>(require 'org-tategaki-preview)</code> が必要です。プレビューには <code>org-tategaki-preview-*</code> の互換名もあります。</p>
+<table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>
+<tr><td>形式とプロファイルを選んで出力</td><td><code>tategaki-export</code></td><td>—（<kbd>C-u</kbd> で出力範囲も選択）</td></tr>
+<tr><td>TXT・DOCX・PDF・EPUB・HTMLを一括出力</td><td><code>tategaki-export-all</code></td><td>—（<kbd>C-u</kbd> で出力範囲を選択）</td></tr>
+<tr><td>出力ジョブの結果・ログ・フォルダーを開く</td><td><code>tategaki-export-status</code></td><td>—</td></tr>
+<tr><td>このEmacsで開始したジョブを取り消す</td><td><code>tategaki-export-cancel</code></td><td>—</td></tr>
+<tr><td>横書き編集の横に読み取り専用プレビューを開く</td><td><code>tategaki-preview</code></td><td>—</td></tr>
+<tr><td>別フレームにプレビューを開く</td><td><code>tategaki-preview-frame</code></td><td>—</td></tr>
+<tr><td>プレビューを更新</td><td><code>tategaki-preview-refresh</code></td><td><kbd>g</kbd>（プレビュー内）</td></tr>
+<tr><td>プレビューを閉じる</td><td><code>tategaki-preview-close</code></td><td><kbd>q</kbd>（プレビュー内）</td></tr>
+</tbody></table>
+<h2 id="setting-scope">setq・setq-local・setq-defaultの使い分け</h2>
+<p>次の表の「共通」は、通常は既定値を共有する設定です。<code>setq</code> は、そのバッファにローカル値がなければ共有値を変更します。<code>setq-local</code> は現在の原稿だけを変更します。<code>setq-default</code> は共有の既定値を明示的に変更し、すでにあるローカル値は上書きしません。</p>
+<p>「自動ローカル」は、<code>setq</code> でも現在のバッファだけの値になる設定です。全原稿の初期値を変えるには、パッケージを読み込んだ後に <code>setq-default</code> を使います。下表の既定値は、ユーザー設定を読まないEmacs <code>-Q</code> で、現行モジュールを読み込んで確認しています。実行元依存のパスはリポジトリ相対で表記しました。</p>
+<pre><code class="language-elisp">(require 'tategaki)
+
+;; 共有の表示設定
+(setq tategaki-padding-top 20
+      tategaki-physical-navigation t)
+
+;; 組版と原稿用紙は自動ローカル。全原稿の既定値にはsetq-default
+(setq-default tategaki-typesetting t
+              tategaki-manuscript-size '(20 . 20))
+
+;; この原稿だけの目標
+(setq-local tategaki-manuscript-target-characters 20000)</code></pre>
+<p>本文表示の設定は次の操作・再描画で反映します。すぐに確認するには <kbd>C-c C-l</kbd> を押してください。「開始時」と書いた設定は、対応するモードや出力を次に開始するときに使います。</p>
+
+<h3 id="raw-and-typesetting">文字単位表示と注記のraw表示は別の設定</h3>
+<p><code>tategaki-typesetting</code> が <code>nil</code> なら原文を1文字ずつ並べる表示、<code>t</code> なら禁則・ルビなどを扱う組版表示を要求します。<code>tategaki-typeset-edit</code> はこの値を現在のバッファで <code>t</code> にします。<code>tategaki-edit</code> は現在の値を保って開始するため、組版を使ったバッファで実行し直しても文字単位表示には戻りません。</p>
+<p><code>tategaki-typeset-annotation-display</code> の <code>'raw</code> は、組版モードの中で注記記号を原文のまま見せる指定です。組版そのものを無効にする指定ではありません。<kbd>C-c C-a</kbd> はこの値を現在のバッファだけで切り替えます。</p>
+<pre><code class="language-elisp">;; 現在の原稿を文字単位表示へ戻す
+(setq-local tategaki-typesetting nil)
+(tategaki-refresh)
+
+;; 組版を使いながら、注記の記法を直接見る
+(setq-local tategaki-typesetting t
+            tategaki-typeset-annotation-display 'raw)
+(tategaki-refresh)</code></pre>
+<p>GUI・SVGが使えない場合や <code>tategaki-glyph-use-svg</code> が <code>nil</code> の場合は、設定を保持したまま原文の文字表示へフォールバックします。固定版面などの組版表示はその間適用されません。これらは画面の設定です。DOCX・PDF・EPUBの設定は別の出力プロファイルを使います。</p>
+<h2 id="settings">設定一覧</h2>
+<div class="ref-filter"><label for="reference-filter">設定名・説明で絞り込む</label><input id="reference-filter" type="search" placeholder="例：padding、字下げ、フォント"><p id="reference-count" role="status">69項目を表示</p></div>
+<h3 id="display-settings">表示・余白・移動</h3>
+<p>余白・line-spacing・character-spacingはGUIではピクセル単位です。端末では上下方向を行数、左右方向を半角セル数として扱います。小さい画面では表示可能な範囲まで縮めます。表示記号には幅1〜2セルの1文字を指定します。詳細は <a href="editing.html">縦書き編集</a>。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-column-height"><td><code>tategaki-column-height</code></td><td><code>nil</code></td><td>1列の最大文字数。<code>nil</code> はウィンドウに合わせる。</td><td>共通。縦書き編集。固定版面では版面の行数を使用。</td></tr>
+<tr class="ref-entry" id="tategaki-column-spacing"><td><code>tategaki-column-spacing</code></td><td><code>1</code></td><td>列間の空き。半角文字幅単位。</td><td>共通。縦書き編集。line-spacingがnilのとき。</td></tr>
+<tr class="ref-entry" id="tategaki-padding-top"><td><code>tategaki-padding-top</code></td><td><code>0</code></td><td>上余白。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-padding-bottom"><td><code>tategaki-padding-bottom</code></td><td><code>0</code></td><td>下余白。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-padding-left"><td><code>tategaki-padding-left</code></td><td><code>0</code></td><td>左余白。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-padding-right"><td><code>tategaki-padding-right</code></td><td><code>0</code></td><td>右余白。描画用の小さな安全幅は別。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-line-spacing"><td><code>tategaki-line-spacing</code></td><td><code>nil</code></td><td>縦列間の横方向の空き。<code>nil</code> はcolumn-spacingを使用。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-character-spacing"><td><code>tategaki-character-spacing</code></td><td><code>0</code></td><td>文字間に追加する縦方向の空き。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-physical-navigation"><td><code>tategaki-physical-navigation</code></td><td><code>nil</code></td><td>C-f/C-b/C-n/C-pを画面上の右/左/下/上へ割り当てる。</td><td>共通。縦書き編集。次のキー操作から。</td></tr>
+<tr class="ref-entry" id="tategaki-scrollbar"><td><code>tategaki-scrollbar</code></td><td><code>t</code></td><td>画面下部の横スクロールバーを表示。</td><td>共通。縦書き編集。右が文頭、左が文末。</td></tr>
+<tr class="ref-entry" id="tategaki-scrollbar-pixel-height"><td><code>tategaki-scrollbar-pixel-height</code></td><td><code>18</code></td><td>バーの指定高さ。文字の高さ等による下限あり。</td><td>共通。GUI。論理ピクセル。</td></tr>
+<tr class="ref-entry" id="tategaki-layout-use-vertical-forms"><td><code>tategaki-layout-use-vertical-forms</code></td><td><code>t</code></td><td>約物を縦書き用字形に置換して表示。原文は不変。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-layout-newline-symbol"><td><code>tategaki-layout-newline-symbol</code></td><td><code>&quot;↵&quot;</code></td><td>改行の表示記号。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-layout-tab-symbol"><td><code>tategaki-layout-tab-symbol</code></td><td><code>&quot;⇥&quot;</code></td><td>タブの表示記号。</td><td>共通。縦書き編集。</td></tr>
+<tr class="ref-entry" id="tategaki-layout-eof-symbol"><td><code>tategaki-layout-eof-symbol</code></td><td><code>&quot;□&quot;</code></td><td>文末の挿入位置の表示記号。</td><td>共通。縦書き編集。</td></tr>
+</tbody></table>
+<h3 id="typesetting-settings">組版・禁則・文字の向き</h3>
+<p>設定の意味と対応注記は <a href="typesetting.html">組版と注記</a>を参照してください。規格全体への完全準拠を示す設定ではありません。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-typesetting"><td><code>tategaki-typesetting</code></td><td><code>nil</code></td><td>文字単位表示の代わりに組版を要求する。</td><td>自動ローカル。現在の原稿。typeset-editはtにする。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-kinsoku"><td><code>tategaki-typeset-kinsoku</code></td><td><code>t</code></td><td>列頭・列末の禁則を適用。</td><td>共通。組版表示。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-line-start-prohibited"><td><code>tategaki-typeset-line-start-prohibited</code></td><td><code>&quot;、。，．・：；？！‼⁇⁈⁉）〕］｝〉》」』】〙〗〟’”»ぁぃぅぇぉっゃゅょゎァィゥェォッャュョヮヵヶー々〻ゝゞヽヾ…‥&quot;</code></td><td>列の先頭を避ける文字。</td><td>共通。組版表示。禁則有効時。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-line-end-prohibited"><td><code>tategaki-typeset-line-end-prohibited</code></td><td><code>&quot;（〔［｛〈《「『【〘〖〝‘“«&quot;</code></td><td>列の末尾を避ける文字。</td><td>共通。組版表示。禁則有効時。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-hanging-punctuation"><td><code>tategaki-typeset-hanging-punctuation</code></td><td><code>t</code></td><td>句読点を列末の外へ半セルぶら下げる。</td><td>共通。組版表示。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-compression"><td><code>tategaki-typeset-compression</code></td><td><code>nil</code></td><td>禁則対象を1セル追加して追い込む。<code>nil</code> は追い出しを優先。</td><td>共通。組版表示。収まらない分割禁止単位には緊急の圧縮あり。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-auto-tcy-digits"><td><code>tategaki-typeset-auto-tcy-digits</code></td><td><code>t</code></td><td>独立した半角数字2桁を自動縦中横にする。</td><td>共通。組版表示。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-auto-tcy-punctuation"><td><code>tategaki-typeset-auto-tcy-punctuation</code></td><td><code>t</code></td><td>感嘆符・疑問符2文字を自動縦中横にする。</td><td>共通。組版表示。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-latin-orientation"><td><code>tategaki-typeset-latin-orientation</code></td><td><code>&#x27;upright</code></td><td><code>upright</code>は英字を直立、<code>rotate</code>はASCIIの語を回転。</td><td>共通。組版表示。</td></tr>
+<tr class="ref-entry" id="tategaki-typeset-annotation-display"><td><code>tategaki-typeset-annotation-display</code></td><td><code>&#x27;rendered</code></td><td><code>rendered</code>は注記を組版、<code>raw</code>は記法を表示。</td><td>共通。組版表示。切替コマンドはローカル値を作成。</td></tr>
+<tr class="ref-entry" id="tategaki-glyph-use-svg"><td><code>tategaki-glyph-use-svg</code></td><td><code>t</code></td><td>対応GUIでSVGによる組版描画を使う。</td><td>共通。組版表示。nilは原文表示へ戻る。</td></tr>
+</tbody></table>
+<h3 id="manuscript-settings">原稿用紙・文字数</h3>
+<p>字数はEmacsの文字単位です。全文集計はnarrowing外も含み、ページ情報は現在の表示範囲に基づきます。400字詰換算と組版による実枚数は別です。未対応・未完成注記は原文どおり数えます。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-manuscript-size"><td><code>tategaki-manuscript-size</code></td><td><code>nil</code></td><td><code>nil</code>は画面に合わせる。例：<code>'(20 . 20)</code>は20字×20列。</td><td>自動ローカル。現在の原稿。固定版面は組版時。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-spread"><td><code>tategaki-manuscript-spread</code></td><td><code>nil</code></td><td>2ページを並べる。ページ番号は1枚ずつ数える。</td><td>自動ローカル。現在の原稿。組版時。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-grid"><td><code>tategaki-manuscript-grid</code></td><td><code>nil</code></td><td>原稿用紙のセルガイドを表示。</td><td>自動ローカル。現在の原稿。組版時。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-status"><td><code>tategaki-manuscript-status</code></td><td><code>t</code></td><td>モードラインにページ・文字数等を表示。</td><td>自動ローカル。現在の原稿。縦書き編集時。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-target-characters"><td><code>tategaki-manuscript-target-characters</code></td><td><code>nil</code></td><td>目標文字数。<code>nil</code>は目標なし。</td><td>自動ローカル。現在の原稿の集計。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-count-whitespace"><td><code>tategaki-manuscript-count-whitespace</code></td><td><code>t</code></td><td>空白やタブを字数に含める。</td><td>自動ローカル。現在の原稿の集計。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-count-newlines"><td><code>tategaki-manuscript-count-newlines</code></td><td><code>nil</code></td><td>LF・CRを字数に含める。</td><td>自動ローカル。現在の原稿の集計。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-count-markup"><td><code>tategaki-manuscript-count-markup</code></td><td><code>nil</code></td><td>対応する注記記号・読みも字数に含める。nilでは本文を数える。</td><td>自動ローカル。現在の原稿の集計。</td></tr>
+<tr class="ref-entry" id="tategaki-manuscript-chapter-regexp"><td><code>tategaki-manuscript-chapter-regexp</code></td><td><code>&#x27;auto</code></td><td>章の境界。<code>auto</code>、<code>outline</code>、正規表現、無効化の<code>nil</code>。</td><td>自動ローカル。現在の原稿の章集計。</td></tr>
+</tbody></table>
+<h3 id="writing-settings">小説の入力支援</h3>
+<p>入力例と既存の括弧補完との併用は <a href="writing.html">執筆支援</a>を参照してください。字下げは本文の全角空白として保存されます。開始・読込・貼付け時の一括整形はしません。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-writing-assistance"><td><code>tategaki-writing-assistance</code></td><td><code>t</code></td><td>縦書き開始時に執筆支援を自動で有効化。</td><td>共通。縦書き開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-auto-indent"><td><code>tategaki-writing-auto-indent</code></td><td><code>t</code></td><td>RETと新しく入力した段落先頭の字下げを調整。</td><td>共通。執筆支援中の入力。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-paragraph-indent"><td><code>tategaki-writing-paragraph-indent</code></td><td><code>1</code></td><td>地の文の段落先頭に入れる全角空白数。</td><td>共通。proseの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-dialogue-indent"><td><code>tategaki-writing-dialogue-indent</code></td><td><code>0</code></td><td>小説の会話文の全角空白数。</td><td>共通。proseの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-dialogue-openers"><td><code>tategaki-writing-dialogue-openers</code></td><td><code>&quot;「『“‘&quot;</code></td><td>会話文の開始とみなす文字。</td><td>共通。proseの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-electric-pair"><td><code>tategaki-writing-electric-pair</code></td><td><code>t</code></td><td>日本語括弧にバッファ内のElectric Pairを使う。</td><td>共通。執筆支援の開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-bracket-pairs"><td><code>tategaki-writing-bracket-pairs</code></td><td><code>&#x27;((?「 . ?」) (?『 . ?』) (?（ . ?）) (?［ . ?］) (?【 . ?】) (?〈 . ?〉) (?《 . ?》))</code></td><td>Electric Pairへ追加する括弧の組。</td><td>共通。執筆支援の開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-writing-style"><td><code>tategaki-writing-style</code></td><td><code>&#x27;prose</code></td><td><code>prose</code>は小説、<code>script</code>は人物名・台詞・ト書き。</td><td>自動ローカル。現在の原稿。脚本モードはscriptにする。</td></tr>
+</tbody></table>
+<h3 id="script-settings">脚本・台本</h3>
+<p>シーン記法を変える場合は <code>tategaki-script-scene-regexp</code> の認識規則も揃えます。独自の人物名・ト書きには <code>tategaki-script-speaker-regexp</code> / <code>tategaki-script-stage-direction-regexp</code> を使えます。詳しくは <a href="writing.html#script-settings">脚本の設定</a>。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-script-start-vertical"><td><code>tategaki-script-start-vertical</code></td><td><code>t</code></td><td>脚本モード開始時に組版付きの縦書きへ入る。</td><td>共通。脚本モードの開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-script-auto-dialogue"><td><code>tategaki-script-auto-dialogue</code></td><td><code>t</code></td><td>人物名の行末でRETを押すと台詞用の括弧を用意。</td><td>共通。脚本モード。auto-indentもtが必要。</td></tr>
+<tr class="ref-entry" id="tategaki-script-speaker-indent"><td><code>tategaki-script-speaker-indent</code></td><td><code>0</code></td><td>人物名の段落の全角空白数。</td><td>共通。scriptの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-script-dialogue-indent"><td><code>tategaki-script-dialogue-indent</code></td><td><code>2</code></td><td>台詞の段落の全角空白数。</td><td>共通。scriptの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-script-stage-direction-indent"><td><code>tategaki-script-stage-direction-indent</code></td><td><code>1</code></td><td>ト書きの段落の全角空白数。</td><td>共通。scriptの入力・明示整形。</td></tr>
+<tr class="ref-entry" id="tategaki-script-scene-prefix"><td><code>tategaki-script-scene-prefix</code></td><td><code>&quot;○ &quot;</code></td><td>シーン挿入コマンドが付ける接頭辞。末尾に半角空白を含む。</td><td>共通。シーン挿入時。</td></tr>
+</tbody></table>
+<h3 id="outline-settings">アウトライン</h3>
+<p>アウトラインの認識、文字数集計の章認識、出力時の章認識は別設定です。アウトラインはnarrowingの範囲だけを対象にします。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-outline-width"><td><code>tategaki-outline-width</code></td><td><code>30</code></td><td>一覧の希望横幅。文字桁単位。</td><td>共通。一覧の表示時。</td></tr>
+<tr class="ref-entry" id="tategaki-outline-side"><td><code>tategaki-outline-side</code></td><td><code>&#x27;right</code></td><td>一覧の位置。<code>right</code>または<code>left</code>。</td><td>共通。一覧の表示時。</td></tr>
+<tr class="ref-entry" id="tategaki-outline-follow-point"><td><code>tategaki-outline-follow-point</code></td><td><code>t</code></td><td>現在位置の章を一覧で強調。</td><td>共通。開いている一覧。</td></tr>
+<tr class="ref-entry" id="tategaki-outline-heading-regexp"><td><code>tategaki-outline-heading-regexp</code></td><td><code>&#x27;auto</code></td><td><code>auto</code>は自動認識、<code>outline</code>はEmacsの規則。正規表現も可。</td><td>共通。見出し一覧。脚本モードは独自のローカル規則を設定。</td></tr>
+<tr class="ref-entry" id="tategaki-outline-level-function"><td><code>tategaki-outline-level-function</code></td><td><code>nil</code></td><td>見出し行の先頭で呼び出す階層判定関数。nilは既定規則。</td><td>共通。見出し一覧。脚本モードは専用関数をローカル設定。</td></tr>
+<tr class="ref-entry" id="tategaki-outline-update-delay"><td><code>tategaki-outline-update-delay</code></td><td><code>0.25</code></td><td>本文編集後の自動更新までの待ち時間。秒。</td><td>共通。開いている一覧。</td></tr>
+</tbody></table>
+<h3 id="export-settings">Docker出力</h3>
+<p>これらを設定・調査する場合は <code>(require 'tategaki-export)</code> で出力モジュールを読み込めます。読み込みだけではDockerを起動しません。用紙・余白・フォント等はJSONプロファイルで指定します。操作例は <a href="export.html">Docker出力</a>。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="tategaki-export-program"><td><code>tategaki-export-program</code></td><td><code>リポジトリ内の bin/tategaki-export</code></td><td>Docker出力ランチャーの実行ファイル。</td><td>共通。出力・取消開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-export-output-directory"><td><code>tategaki-export-output-directory</code></td><td><code>リポジトリ内の dist/</code></td><td>ジョブごとの出力ディレクトリを置く親フォルダー。</td><td>共通。出力開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-export-profile"><td><code>tategaki-export-profile</code></td><td><code>&quot;preview&quot;</code></td><td>標準名またはJSONプロファイルの絶対パス。</td><td>共通。出力開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-export-formats"><td><code>tategaki-export-formats</code></td><td><code>&#x27;(&quot;txt&quot; &quot;docx&quot; &quot;pdf&quot; &quot;epub&quot; &quot;html&quot;)</code></td><td>形式選択で提示する既定値。allコマンドは常に5形式。</td><td>共通。tategaki-exportの形式選択時。</td></tr>
+<tr class="ref-entry" id="tategaki-export-metadata"><td><code>tategaki-export-metadata</code></td><td><code>nil</code></td><td>title・author・language・identifier等のalist。nilはプロファイル等を使用。</td><td>自動ローカル。現在の原稿から出力開始時。</td></tr>
+<tr class="ref-entry" id="tategaki-export-input-options"><td><code>tategaki-export-input-options</code></td><td><code>nil</code></td><td>見出し解釈の上書き。nilはプロファイルを継承。</td><td>共通。出力開始時。原稿別にはsetq-local。</td></tr>
+<tr class="ref-entry" id="tategaki-export-cancel-startup-timeout"><td><code>tategaki-export-cancel-startup-timeout</code></td><td><code>15</code></td><td>コンテナ起動中に取消を再試行する上限。秒。</td><td>共通。このEmacsからの取消。</td></tr>
+</tbody></table>
+<h3 id="preview-settings">従来の読み取り専用プレビュー</h3>
+<p><code>(require 'org-tategaki-preview)</code> で読み込みます。縦書き編集の <code>tategaki-padding-*</code> 等とは別設定です。変更後はプレビューで <kbd>g</kbd> を押します。プレビュー側へ <code>setq-local</code> を置くと編集側の設定と食い違うため、通常は初期化ファイルで共有の既定値を設定してください。</p>
+<table><thead><tr><th>名前</th><th>既定値</th><th>意味</th><th>有効範囲</th></tr></thead><tbody>
+<tr class="ref-entry" id="org-tategaki-preview-refresh-delay"><td><code>org-tategaki-preview-refresh-delay</code></td><td><code>0.2</code></td><td>本文編集後の更新までの待ち時間。秒。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-sync-point"><td><code>org-tategaki-preview-sync-point</code></td><td><code>t</code></td><td>編集側のカーソル・スクロールに自動追従。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-use-vertical-forms"><td><code>org-tategaki-preview-use-vertical-forms</code></td><td><code>t</code></td><td>約物を縦書き用の文字へ置換して表示。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-column-spacing"><td><code>org-tategaki-preview-column-spacing</code></td><td><code>1</code></td><td>縦列間の空き。表示セル単位。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-window-margin"><td><code>org-tategaki-preview-window-margin</code></td><td><code>2</code></td><td>左右の外側の空白。表示セル単位。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-padding"><td><code>org-tategaki-preview-padding</code></td><td><code>1</code></td><td>外側の余白に追加する内側の左右空白。表示セル単位。</td><td>共通。プレビュー。</td></tr>
+<tr class="ref-entry" id="org-tategaki-preview-vertical-padding"><td><code>org-tategaki-preview-vertical-padding</code></td><td><code>1</code></td><td>上下の空白。文字の高さ単位。</td><td>共通。プレビュー。</td></tr>
+</tbody></table>
+<h2 id="inspect-settings">現在の設定を調べる</h2>
+<p><kbd>C-h v</kbd> に変数名を入力すると、現在値・既定値・説明を確認できます。<kbd>C-h f</kbd> はコマンドの説明、<kbd>C-h k</kbd> は実際に押したキーの割り当てを表示します。独自キー設定や補完パッケージを併用している場合に便利です。</p>
+<p>本文やカーソルの色は <code>tategaki-face</code> / <code>tategaki-cursor-face</code>、バーの色は <code>tategaki-scrollbar-track</code> / <code>tategaki-scrollbar-thumb</code> のfaceで設定します。フォントを変えたら再描画してください。操作が意図と違う場合は <a href="troubleshooting.html">トラブルシューティング</a>も参照できます。</p>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/export.html"><small>前の章</small>原稿を出力する <span aria-hidden="true">→</span></a><a href="../manual/troubleshooting.html"><small>次の章</small>困ったとき <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#commands">コマンド一覧</a></li><li class="h3"><a href="#editing-commands">編集・移動</a></li><li class="h3"><a href="#annotation-commands">注記・原稿用紙</a></li><li class="h3"><a href="#writing-commands">執筆支援・アウトライン</a></li><li class="h3"><a href="#script-commands">脚本専用モード</a></li><li class="h3"><a href="#export-preview-commands">出力・従来のプレビュー</a></li><li class="h2"><a href="#setting-scope">setq・setq-local・setq-defaultの使い分け</a></li><li class="h3"><a href="#raw-and-typesetting">文字単位表示と注記のraw表示は別の設定</a></li><li class="h2"><a href="#settings">設定一覧</a></li><li class="h3"><a href="#display-settings">表示・余白・移動</a></li><li class="h3"><a href="#typesetting-settings">組版・禁則・文字の向き</a></li><li class="h3"><a href="#manuscript-settings">原稿用紙・文字数</a></li><li class="h3"><a href="#writing-settings">小説の入力支援</a></li><li class="h3"><a href="#script-settings">脚本・台本</a></li><li class="h3"><a href="#outline-settings">アウトライン</a></li><li class="h3"><a href="#export-settings">Docker出力</a></li><li class="h3"><a href="#preview-settings">従来の読み取り専用プレビュー</a></li><li class="h2"><a href="#inspect-settings">現在の設定を調べる</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+</main>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/reference.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
+</div>
+</body></html>
