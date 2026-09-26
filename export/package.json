@@ -1,0 +1,6 @@
+{
+  "name": "tategaki-export-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {"@vivliostyle/cli": "11.3.3"}
+}

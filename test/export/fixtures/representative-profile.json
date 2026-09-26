@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "name": "representative",
+  "strict_diagnostics": false,
+  "input": {
+    "headings": "markdown"
+  },
+  "metadata": {
+    "title": "縦書き出力の試験",
+    "author": "Tategaki Test",
+    "language": "ja"
+  },
+  "txt": {
+    "encoding": "utf-8",
+    "newline": "lf"
+  },
+  "docx": {
+    "page_width_mm": 148,
+    "page_height_mm": 210,
+    "margin_mm": {
+      "top": 20,
+      "bottom": 20,
+      "left": 20,
+      "right": 20
+    },
+    "font": "Noto Serif CJK JP",
+    "font_size_pt": 12,
+    "page_numbers": true,
+    "cover": false,
+    "auto_tcy": true
+  },
+  "pdf": {
+    "page_width_mm": 148,
+    "page_height_mm": 210,
+    "margin_mm": {
+      "top": 20,
+      "bottom": 20,
+      "left": 20,
+      "right": 20
+    },
+    "font": "Noto Serif CJK JP",
+    "font_size_pt": 12,
+    "page_numbers": true,
+    "cover": false,
+    "auto_tcy": true
+  },
+  "epub": {
+    "font": "Noto Serif CJK JP",
+    "cover": false,
+    "embed_fonts": false,
+    "auto_tcy": true
+  }
+}

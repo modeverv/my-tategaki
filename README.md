@@ -1,6 +1,51 @@
 # my-tategaki
 
-Emacs でテキストを縦書きのまま入力・編集する `tategaki-mode` と、横書きの編集画面に縦書き表示を添える `tategaki-preview` です。どちらも pure Elisp で動作し、ブラウザや外部プログラムは使いません。
+Emacs でテキストを縦書きのまま入力・編集する `tategaki-mode` と、横書きの編集画面に縦書き表示を添える `tategaki-preview` です。編集・プレビューは pure Elisp で動作します。任意のDocker出力機能で、同じ原稿からTXT・DOCX・PDF・EPUB・HTMLを生成できます。
+
+## 原稿を一括出力する
+
+ホスト側に必要なのはDockerと通常のシェルだけです。初回は、このリポジトリで次を実行します。初回構築にはダウンロードが必要ですが、通常の出力はネット接続なしで実行します。
+
+```sh
+./bin/tategaki-export build
+./bin/tategaki-export doctor
+```
+
+Emacsでは **`M-x tategaki-export-all`** で全形式、`M-x tategaki-export` で形式・プロファイルを選択します。開始時の未保存本文を固定して別プロセスで出力するので、編集中のバッファ、保存ファイル、Undoは変わりません。入力中のIME表示や未採用の補完候補は含みません。既定はnarrowingにかかわらず全文です。`C-u M-x tategaki-export` なら全文・選択範囲・narrowing範囲を明示的に選べます。
+
+```elisp
+(setq tategaki-export-profile "preview"
+      tategaki-export-output-directory "~/Documents/tategaki-output"
+      tategaki-export-formats '("txt" "docx" "pdf" "epub" "html"))
+(setq-local tategaki-export-metadata
+            '((title . "作品名") (author . "筆名") (language . "ja")))
+;; 見出しとして解釈する場合だけ指定。本文のMarkdown/Org全体は解釈しません。
+(setq-local tategaki-export-input-options '((headings . "markdown")))
+```
+
+`M-x tategaki-export-status` で形式別の結果を開き、`M-x tategaki-export-cancel` でこのEmacsから開始したジョブを取り消せます。失敗後の再実行は新しいジョブになり、以前の出力を上書きしません。
+
+```sh
+./bin/tategaki-export export "小説 原稿.txt" \
+  --profile preview --formats txt,docx,pdf,epub,html --out ./dist
+./bin/tategaki-export status ./dist/表示されたジョブID
+./bin/tategaki-export cancel 表示されたジョブID
+```
+
+`dist/<ジョブID>/` に原文・共通文書モデル・設定・`report.json` / `report.md` が入り、検証に通った形式だけが `txt/`、`docx/`、`pdf/`、`epub/`、`html/` に現れます。途中の失敗は別形式の処理を止めず、一つでも失敗すれば終了コードは非0になります。
+
+| 出力 | 内容 |
+|---|---|
+| `txt/source.txt` | UTF-8スナップショットそのもの。元の改行も保持 |
+| `txt/body.txt` | 対応注記を除いた本文。ルビは親文字を保持 |
+| `docx/manuscript.docx` | 通常の編集可能な縦書き段落、見出し、ルビ、縦中横、傍点・傍線、ページ番号 |
+| `pdf/manuscript.pdf` | Vivliostyleの提出・校正用PDF。埋め込みフォント、本文照合、全ページ画像を検査 |
+| `epub/manuscript.epub` | リフロー型EPUB 3。縦書き、右から左へのページ進行、電子目次、EPUBCheck |
+| `html/manuscript.html` | ブラウザで開ける縦書きHTML |
+
+`preview` は見出し記号を文字として保持し、未対応注記を残して診断します。`submission` は日本語の章見出しを認識し、未対応・未完成注記があれば出力を失敗にします。特定の出版社の応募要項を表す名前ではありません。JSONプロファイルをコピーして、用紙・余白・フォント・文字サイズ・表紙・TXT文字コード等を指定できます。`--metadata metadata.json` で書誌情報を上書きできます。設定例と検証範囲は [Docker出力ガイド](docs/docker-export-guide.md) を参照してください。
+
+DOCXのフォントは指定のみで埋め込みません。EPUBは閲覧アプリのフォント設定を使用できます。画面・Word・PDF・EPUBは異なる組版エンジンなので改ページの一致は保証しません。PDFの固定字数・行数指定、EPUBへのフォント埋め込み、印刷所別のPDF/X・塗り足しは現時点で未対応です。実測とアプリでの確認結果は [検証記録](docs/docker-export-validation.md) に分けて記載しています。
 
 ## 縦書きで書く
 
@@ -13,6 +58,8 @@ Emacs 27.1 以降が対象です。このディレクトリを `load-path` に�
 
 テキストファイルを開き、`M-x tategaki-edit` を実行してください。現在のウィンドウが縦書き表示になり、そのまま文字を入力できます。文字は上から下、列は右から左へ進みます。`M-x tategaki-mode` でも有効・無効を切り替えられます。
 
+`tategaki-edit` は既定では原文を1文字ずつ並べます。禁則、縦中横、ルビ等を使う場合は `M-x tategaki-typeset-edit` で組版表示を選びます。こちらも同じファイルバッファを編集します。組版表示にはGUIとSVG画像のサポートが必要で、利用できない環境では注記を含む原文の文字表示へ戻ります。
+
 すでに `org-tategaki-preview` を読み込む設定がある場合も、新版を読み込み直せば `tategaki-edit` をそのまま使えます。
 
 編集対象は元のファイルバッファです。その上に縦書きの表示レイヤーを重ねるため、入力、削除、保存、undo は通常の Emacs の操作を使います。表示を実カーソルの前後に分け、縦書きの各文字へ実カーソルを配置します。終了時は `C-c C-c` で同じ位置の横書き表示に戻れます。元バッファが読み取り専用なら、その制限も引き継ぎます。
@@ -24,6 +71,7 @@ Emacs 31.1での実画面です。明朝体・配色と上部のキー案内は�
 | 操作 | キー・コマンド |
 | --- | --- |
 | 縦書き編集を開始 | `M-x tategaki-edit` |
+| 組版表示で編集を開始 | `M-x tategaki-typeset-edit` |
 | 読む順序で次／前の文字へ | `↓` / `↑` |
 | 左／右の縦列へ | `←` / `→` |
 | 次／前の縦書きページへ | `C-v` / `M-v`、`PageDown` / `PageUp` |
@@ -33,15 +81,107 @@ Emacs 31.1での実画面です。明朝体・配色と上部のキー案内は�
 | 保存 | `C-x C-s` |
 | undo | `C-/` または `C-x u` |
 | 再描画 | `C-c C-l` / `M-x tategaki-refresh` |
+| 選択範囲にルビを付ける | `C-c C-r` / `M-x tategaki-insert-ruby` |
+| 注記の組版／原文表示を切り替える | `C-c C-a` / `M-x tategaki-toggle-annotations` |
+| 指定ページへ移動 | `C-c C-p` / `M-x tategaki-goto-page` |
+| アウトラインを開く | `C-c C-o` / `M-x tategaki-outline` |
 | 横書きへ戻る | `C-c C-c` / `M-x tategaki-quit` |
 
-上下の矢印は原文の1文字単位で進み、列の末尾では次の列へ移ります。左右の矢印は縦列を移動し、できるだけ同じ高さを保ちます。カーソルが表示範囲を越えると、対応する列を含むページへ表示が切り替わります。`C-f` / `C-b` などは初期設定では元の割り当てを保ち、以下の設定で画面上の方向へ切り替えられます。選択範囲も原文の順序に沿った連続した範囲になります。
+上下の矢印は、通常の原文表示では原文の1文字単位、組版表示では結合文字・縦中横等をまとめた表示単位で進みます。列の末尾では次の列へ移ります。左右の矢印は縦列を移動し、できるだけ同じ高さを保ちます。カーソルが表示範囲を越えると、対応する列を含むページへ表示が切り替わります。`C-f` / `C-b` などは初期設定では元の割り当てを保ち、以下の設定で画面上の方向へ切り替えられます。選択範囲も原文の順序に沿った連続した範囲になります。
 
-対象は `text-mode` とその派生モードです。Markdown・Org でも使えますが、見出し記号などを含めて原文をそのまま並べます。新規バッファが `fundamental-mode` の場合は、先に `M-x text-mode` を実行してください。
+対象は `text-mode` とその派生モードです。Markdown・Org でも使えます。見出し記号や通常のMarkdown記法は原文のまま表示し、組版表示では後述の青空文庫形式の注記だけを解釈します。新規バッファが `fundamental-mode` の場合は、先に `M-x text-mode` を実行してください。
 
-`C-v` は左側の次ページ、`M-v` は右側の前ページへ移動します。1ページは現在のウィンドウに収まる縦列数で、余白・間隔・リサイズも反映します。できるだけ同じ画面上の行・列を保ち、短い最終ページから戻るときも元の位置を使います。ページ範囲を越える操作は本文の先頭・末尾へ移動します。数値引数はページ数（例：`C-u 2 C-v`）、負数は逆方向、0は移動なしです。
+`C-v` は左側の次ページ、`M-v` は右側の前ページへ移動します。既定の1ページは現在のウィンドウに収まる縦列数で、余白・間隔・リサイズも反映します。固定版面の設定は後述します。できるだけ同じ画面上の行・列を保ち、短い最終ページから戻るときも元の位置を使います。ページ範囲を越える操作は本文の先頭・末尾へ移動します。数値引数はページ数（例：`C-u 2 C-v`）、負数は逆方向、0は移動なしです。
 
 ページ移動は `tategaki-physical-navigation` の値にかかわらず使えます。Corfuで候補を選択中の `C-v` / `M-v` はCorfuの候補ページ送りを優先します。Copilotの未採用提案は通常の取消処理で消してから本文のページを計算します。
+
+画面下部の横スクロールバーは、**右が文頭、左が文末**です。つまみをドラッグするか、軌道をクリックして移動できます。両端の矢印と横方向のホイール操作は1列ずつ移動します。カーソルが画面外に出る場合は最寄りの表示列へ移し、文字の高さをできるだけ保ちます。`C-v` / `M-v` に戻るとページ単位の表示に戻ります。IME変換中は確定・取消後にスクロールできます。
+
+```elisp
+(setq tategaki-scrollbar t                 ; nilならバーを非表示
+      tategaki-scrollbar-pixel-height 18)  ; GUIでの高さ
+```
+
+バーは本文の上に描く表示専用の部品で、保存する文字やUndo履歴には入りません。色は `tategaki-scrollbar-track` / `tategaki-scrollbar-thumb` faceで調整できます。
+
+## 執筆支援
+
+縦書き編集では、既定で `tategaki-writing-mode` も有効になります。`RET` で新しい段落に全角空白を1字挿入し、会話文の冒頭に `「` / `『` を入力すると会話文用の字下げに調整します。空白だけの段落でさらに `RET` を押すと空行を残します。括弧補完はEmacsのバッファローカルなElectric Pairを使います。既存本文の読み込みや貼り付けでは自動整形しません。
+
+```elisp
+(setq tategaki-writing-assistance t        ; 次回開始時に執筆支援を有効化
+      tategaki-writing-auto-indent t
+      tategaki-writing-paragraph-indent 1  ; 全角空白の数
+      tategaki-writing-dialogue-indent 0
+      tategaki-writing-electric-pair t)
+;; Smartparensなどで括弧を補完している場合は、上のelectric-pairをnilにする。
+```
+
+現在のバッファでは `M-x tategaki-writing-mode` で切り替えられます。縦書き終了時に、この機能が変更した括弧補完設定を元に戻します。通常の編集バッファや、先に独立して有効化した執筆支援には影響しません。
+
+## 脚本・台本モード
+
+**`M-x tategaki-script-mode`** で専用モードを開始します。`text-mode` 派生のメジャーモードで、既定では組版付きの縦書き編集と脚本用の入力支援を有効にします。シーン・人物名・台詞・ト書きを色と字下げで区別し、既存原稿は開始時に書き換えません。
+
+「シーン見出し」「人物名＋全角コロン」「台詞」「丸括弧で囲んだト書き」を別々の段落に書く形式です。字下げは原文に全角空白として入り、保存・Undoの対象になります。
+
+```text
+第一幕
+○ 居間・朝
+太郎：
+　　「おはよう。」
+　（窓を開ける）
+```
+
+| 操作 | キー | コマンド |
+| --- | --- | --- |
+| シーンを挿入 | `C-c C-s` | `tategaki-script-scene` |
+| 人物名と台詞を挿入 | `C-c C-d` | `tategaki-script-dialogue` |
+| ト書きを挿入 | `C-c C-t` | `tategaki-script-stage-direction` |
+| 現在の段落の字下げを揃える | `TAB` | `tategaki-script-indent-line` |
+| 選択範囲／全文の字下げを揃える | `C-c C-f` | `tategaki-script-format` |
+| シーン一覧を開く | `C-c C-o` | `tategaki-outline` |
+| 次／前のシーンへ | `M-n` / `M-p` | `tategaki-script-next-scene` / `tategaki-script-previous-scene` |
+
+人物名の行末で `RET` を押すと、次の段落へ台詞用の `　　「」` を挿入して括弧内へ移ります。その他の行では通常の脚本用改行です。`C-u 2 RET` は空の区切り行を挟みます。人物名の入力では同じ原稿に登場した名前を補完候補に使います。本文の人物名入力途中では `M-TAB` / `C-M-i` の通常の `completion-at-point` も使え、Corfuが有効ならその候補一覧を利用できます。
+
+シーン一覧と `imenu` は `○` / `◎`、`第一幕` / `第2場`、Org・Markdown形式の見出しを扱います。設定したnarrowingの範囲だけを対象にします。`TAB` で揃うのは本文の現在の段落で、アウトライン一覧内では従来どおり階層の開閉です。
+
+```elisp
+(setq tategaki-script-speaker-indent 0
+      tategaki-script-dialogue-indent 2
+      tategaki-script-stage-direction-indent 1
+      tategaki-script-auto-dialogue t
+      tategaki-script-start-vertical t)
+;; 横書きで開始する場合は、開始前にstart-verticalをnilにする。
+;; 自動字下げ全体を止める場合はtategaki-writing-auto-indentをnilにする。
+;; シーン記法はtategaki-script-scene-prefix / -scene-regexpで指定できる。
+```
+
+役割ごとの色は `tategaki-script-scene-face`、`tategaki-script-speaker-face`、`tategaki-script-dialogue-face`、`tategaki-script-stage-direction-face` で調整できます。変更した段落を描画前に再着色し、シーン移動先の縦書き表示にも反映します。
+
+`C-c C-c` は横書きへ戻し、脚本モードと入力支援は残します。脚本モード自体を終了するには `M-x text-mode` を使います。`.txt` 全体の関連付けや他のバッファの設定は変更しません。
+
+字下げは段落の先頭に付けます。長い台詞が画面の列末で自動折り返しされた後の列には、継続用の字下げを加えません。特定の放送局・劇団の提出書式や、印刷時の独立した役名欄は対象外です。
+
+専用メジャーモードへ切り替えずに使う場合は、従来の `tategaki-script-insert-dialogue`、`tategaki-script-insert-stage-direction`、`tategaki-script-format-region` と `tategaki-writing-set-style` も利用できます。
+
+## アウトライン
+
+`C-c C-o` で見出し一覧を開き、`RET` またはクリックで本文へ移動します。Orgの `* 見出し`、Markdownの `# 見出し`、`第1章` / `第一幕` / `第2場` などを自動認識します。本文を編集すると一覧も更新され、現在の章が強調されます。narrowing中はその範囲だけを表示します。
+
+一覧では `TAB` で下位見出しを折りたたみ・展開、`g` で更新、`q` で閉じます。折りたたみは一覧だけに適用します。本文の表示やページ数は変えません。`tategaki-outline-goto-heading` は補完で見出しを選び、`tategaki-outline-next-heading` / `tategaki-outline-previous-heading` は次／前の見出しに移動します。
+
+```elisp
+(setq tategaki-outline-width 30
+      tategaki-outline-side 'right         ; または 'left
+      tategaki-outline-follow-point t
+      tategaki-outline-heading-regexp 'auto)
+;; 既存のoutline-regexp / outline-levelを使う場合は 'outline。
+;; 独自の見出しには正規表現文字列とtategaki-outline-level-functionを指定。
+```
+
+一覧は読み取り専用で、本文の変更・Undo・保存とは独立しています。縦書きの終了や元バッファを閉じた際には、対応する一覧と更新タイマーを片付けます。
 
 ## 編集モードの表示と設定
 
@@ -88,7 +228,140 @@ GUI ではフォントの幅を測って列を揃え、端末では1文字を半
 
 `setq` の変更は次の操作・再描画で反映されます。バッファごとに変える場合は `setq-local` を使えます。移動キー設定を `nil` にすると元の割り当てへ戻り、縦書き以外のバッファには影響しません。数値引数・選択範囲も矢印と同じ扱いで、Corfuの候補選択中はCorfuのキー処理を優先します。フォントを変更したら `C-c C-l` で再描画してください。
 
-文字単位の縦書き編集です。禁則処理、欧文回転、縦中横、ルビには対応していません。結合文字やゼロ幅文字にも個別の編集位置を設け、単独では見えない文字を `◌` などの記号で表示します。編集時は表示対象テキスト全体を組み直すため、長文では入力後の更新に時間がかかります。カーソル移動だけならレイアウトを再利用します。
+既定の原文表示では、結合文字やゼロ幅文字にも個別の編集位置を設け、単独では見えない文字を `◌` などの記号で表示します。組版表示では、結合文字等をまとめた表示単位と段落ごとの配置を使います。どちらも原文上の文字位置を維持し、カーソル移動だけならレイアウトを再利用します。
+
+## 検索・校正の強調表示
+
+`isearch`、`lazy-highlight`、`query-replace` の強調、本文の `face` / `font-lock-face`、元バッファのオーバーレイの `face` を縦書きの対応する文字へ反映します。本文を変更せずに検索対象や診断結果の色だけが変わった場合も更新します。検索・置換そのもののコマンドやキーはEmacsの通常操作です。
+
+結合文字や縦中横の一部だけに一致した場合は、まとまった表示セルを強調します。検索範囲・選択範囲は元テキストの位置を保ちます。一般のオーバーレイが持つ `display` / `before-string` / `after-string` は複製しません。文字列を追加するIME・Copilot・Corfu等は、それぞれの専用連携を使います。校正パッケージ固有の表示がすべて再現されるという保証ではありません。
+
+## 組版して書く
+
+`M-x tategaki-typeset-edit` は現在のバッファで `tategaki-typesetting` を有効にし、縦書き編集を開始します。
+
+![ルビ、縦中横、時計回りの欧文、傍点・傍線、結合文字を原稿用紙の罫線とともに表示するEmacs。](docs/images/tategaki-typesetting.png)
+
+Emacs 31.1 / macOSの専用GUIで確認した組版表示です。本文・注記を含む元のテキストをそのまま保存し、表示レイヤーだけを組み替えています。
+
+表示中に設定する場合は次のようにします。
+
+```elisp
+;; 現在の文書を組版表示にする。
+(setq tategaki-typesetting t)
+(tategaki-refresh)
+
+;; 原文を1文字ずつ確認する表示に戻す。
+;; (setq tategaki-typesetting nil)
+;; (tategaki-refresh)
+
+;; 新しい文書でも組版表示を既定にする場合。
+;; (setq-default tategaki-typesetting t)
+```
+
+結合濁点、異体字セレクタ、絵文字修飾子、対応するZWJ絵文字列などを一つの表示単位にまとめます。原文をUnicode正規化したり、コピー・保存内容を別の文字へ置換したりはしません。上下の矢印は表示単位で進み、`forward-char` / `backward-char` は原文の文字単位で動きます。`tategaki-physical-navigation` が `nil` なら `C-f` / `C-b` でも細かな編集位置へ移れます。同じ表示セル内に複数の原文位置があるため、その内部での移動は画面上の位置が変わらない場合があります。
+
+```elisp
+;; 禁則と列末の調整。現在のバッファだけに適用する例。
+(setq-local tategaki-typeset-kinsoku t
+            tategaki-typeset-hanging-punctuation t
+            tategaki-typeset-compression nil)
+
+;; ちょうど2桁の半角数字、2文字の ! / ? を自動で縦中横にする。
+(setq-local tategaki-typeset-auto-tcy-digits t
+            tategaki-typeset-auto-tcy-punctuation t)
+
+;; 欧文は既定で upright。rotate なら単語単位に時計回り90度回転。
+(setq-local tategaki-typeset-latin-orientation 'rotate)
+
+;; 対応する注記を組版表示する。raw なら記法をそのまま表示する。
+(setq-local tategaki-typeset-annotation-display 'rendered)
+```
+
+禁則対象は `tategaki-typeset-line-start-prohibited` / `tategaki-typeset-line-end-prohibited` の文字列で調整できます。句読点のぶら下げを先に試し、追い込みを有効にした場合はその次に使い、それ以外は文字を次列へ送ります。分離しない三点リーダー・ダッシュ等や極端に短い列には、配置が終了するための代替処理があります。
+
+欧文回転は単語をまとまりとして扱い、列に収まらない長い語やURLだけを分割します。縦中横・ルビ・傍点・傍線は表示用SVGで描画します。フォントの全縦書き字形を自動で使い分ける実装ではなく、約物には従来の縦書き字形置換も使います。
+
+### 対応する青空文庫形式の注記
+
+次の記法をプレーンテキストに保存できます。親文字を伴わない注記、未完の括弧、対応外の注記は原文表示に残します。
+
+| 用途 | 入力するテキスト |
+| --- | --- |
+| 親文字を明示したルビ | `｜青空《あおぞら》`、`\|青空《あおぞら》` |
+| 漢字に続くルビ | `青空《あおぞら》` |
+| 傍点の範囲 | `［＃傍点］強調する文［＃傍点終わり］` |
+| 傍線の範囲 | `［＃傍線］強調する文［＃傍線終わり］` |
+| 直前の文字への傍点 | `強調［＃「強調」に傍点］` |
+| 直前の文字への傍線 | `強調［＃「強調」に傍線］` |
+| 明示的な縦中横 | `［＃縦中横］12［＃縦中横終わり］` |
+
+ルビは親文字の右側に読みを配分して表示します。親文字と読みの対応は均等配分で、熟語ルビの精密な配置規則には対応していません。長い読みは与えられた表示範囲に収めます。親文字・読み・記法を直接編集したい場合は `tategaki-typeset-annotation-display` を `raw` にして再描画するか、横書きへ戻れます。表示の切り替えでは本文やUndo履歴を変更しません。
+
+入力補助には次のコマンドを使えます。注記を挿入・変更する操作は通常の本文編集なので、保存され、Undoで取り消せます。
+
+| 操作 | コマンド |
+| --- | --- |
+| 選択範囲に読みを付ける | `tategaki-insert-ruby`（`C-c C-r`） |
+| カーソル位置のルビの読みを変更する | `tategaki-edit-ruby` |
+| 選択範囲を明示的な縦中横にする | `tategaki-insert-tcy` |
+| 選択範囲に傍点・傍線を付ける | `tategaki-add-emphasis` |
+| 注記を組版表示／記法の原文表示へ切り替える | `tategaki-toggle-annotations`（`C-c C-a`） |
+
+これは青空文庫記法・Unicode文字分割・JLReqの限定した対応です。青空文庫の全注記、完全なUAX #29文字分割、日本語組版の全要件への適合を意味しません。SVGが使えないGUIや端末では、注記や結合文字を含む原文を従来の文字表示で確認できます。
+
+### 原稿用紙・ページ・見開き
+
+| 操作 | コマンド |
+| --- | --- |
+| 20字×20列、40字×30列、画面に合わせる表示を選ぶ | `M-x tategaki-manuscript-set-preset` |
+| 指定した文書ページへ移動 | `M-x tategaki-goto-page` |
+| 見開きの切り替え | `M-x tategaki-manuscript-toggle-spread` |
+| 原稿用紙の罫線の切り替え | `M-x tategaki-manuscript-toggle-grid` |
+| 目標文字数の設定・解除 | `M-x tategaki-manuscript-set-target`（0で解除） |
+
+```elisp
+;; 現在の文書の固定版面。1列20字、1ページ20列。
+(setq-local tategaki-manuscript-size '(20 . 20)
+            tategaki-manuscript-spread t
+            tategaki-manuscript-grid t)
+
+;; 40字×30列の場合: '(40 . 30)
+;; ウィンドウに合わせる従来の表示に戻す場合: nil
+;; (setq-local tategaki-manuscript-size nil)
+```
+
+固定版面ではウィンドウを小さくしても論理的な字数・列数を維持し、表示を縮小して収めます。見開きでもページ番号は1枚ごとに数えます。`tategaki-goto-page` は指定した紙面の先頭へ移動し、`C-v` / `M-v` の画面単位の移動と使い分けられます。これらは画面上の版面で、PDF・印刷・EPUBの出力機能ではありません。
+
+固定版面・見開きの縮小描画はGUIの組版表示で使います。SVGがないGUIや端末で原文表示へ戻った場合は、設定値を保持したままウィンドウに合わせた通常の表示・ページ数を使います。
+
+### 文字数・枚数・執筆目標
+
+モードラインには現在／総ページ、全文字数、選択中の字数、現在の章の字数、400字換算、実際の本文配置枚数、設定した目標の残りを表示します。`400字N枚` は文字数を400で割って切り上げた数、`配N枚` は改行・空きマス・組版を反映した配置枚数です。空本文は配置0枚・編集用ページ1頁です。ちょうど版面を埋めたときに文末挿入位置だけの空ページができる場合、そのページは移動用の総ページ数に含め、本文配置枚数から除外します。
+
+標準のモードラインではバッファ名の直後に統計を置き、行番号やモード名より優先して表示します。統計内ではページ・全文字数・換算枚数・配置枚数・目標残りを先に置き、選択と章の字数は短い `選` / `章` ラベルで後ろへ続けます。独自のモードラインは元の形式を保持して統計の後ろへ置きます。モードラインを非表示にしている場合は、その設定を保ちます。
+
+```elisp
+(setq-local tategaki-manuscript-status t
+            tategaki-manuscript-target-characters 4000
+            tategaki-manuscript-count-whitespace t
+            tategaki-manuscript-count-newlines nil
+            tategaki-manuscript-count-markup nil
+            tategaki-manuscript-chapter-regexp 'auto)
+
+;; 統計を非表示にする: (setq-local tategaki-manuscript-status nil)
+;; 目標を解除する:     (setq-local tategaki-manuscript-target-characters nil)
+```
+
+既定では半角・全角空白やタブを数え、改行と対応する注記記法を除きます。ルビの読みは除き、親文字を数えます。`count-markup` を `t` にすると読み・区切り・注記も原文通りに数えます。文字数はEmacs上の文字単位で、バイト数や組版後のセル数ではありません。IME未確定文字や未採用の補完は含みません。
+
+未完成・不正・未対応の注記は、書かれている文字をそのまま数えます。選択範囲の字数では注記全体を選んだときだけ記法を除きます。ルビの途中から選択した場合など、注記が選択境界をまたぐときは、その部分を原文の文字数として数えます。
+
+章の `auto` はOrgバッファではOrg見出し、その他ではMarkdownの `#` 見出しと `第3章` / `第三章` 等を使います。各見出しから次の見出しの直前までを、見出し自身を含めて集計します。最初の見出しより前は「前文」です。`outline` なら `outline-regexp`、文字列なら独自の見出し正規表現、`nil` なら章集計を無効にします。折りたたみや章の並べ替えを追加する機能ではありません。
+
+全文・章の集計と章境界をキャッシュし、カーソル移動のたびに全文を走査しません。目標値の変更は再集計を待たずに反映します。narrowing中も文字数の「全文」は元ファイル全体を指し、ページ・配置枚数は表示中の範囲を指します。モード終了時には元のモードラインへ戻ります。
+
+## 日本語入力と補完
 
 macOSのNS版Emacsでは、IMEの未確定文字列も挿入位置から縦に表示します。入力が列末に達すると左の列へ折り返し、変換中の文節の下線・強調表示も引き継ぎます。確定前の文字は表示用の仮入力で、本文・保存内容・Undo履歴には入りません。確定はEmacs本来の入力処理に任せ、キャンセル時は仮入力を消します。
 
@@ -104,22 +377,64 @@ Copilot のインライン提案と Corfu の選択候補プレビューも、�
 
 Corfu の候補一覧は横書きのまま、縦書き画面の実際のカーソル位置に追従します。IME変換中はIME表示を優先します。縦書きを終了すると各パッケージの通常表示へ戻ります。インストール済みパッケージが読み込まれたときに自動連携し、Copilot・Corfuを使用していない環境では追加インストール不要です。
 
-### 編集モードの検証
+## 編集モードの検証
+
+G01〜G12の追加分では、組版モデルのERT31件、原稿・統計のERT29件、組版編集の専用GUI9件が成功しています。GUIでは実カーソル、複数文字をまとめた表示単位、検索face、欧文回転、ぶら下げ、固定版面・見開き、NSのIME表示、実パッケージのCopilot・Corfu連携を確認しました。全バッチの確定件数、回帰結果、性能測定、残る制約は[縦書き組版の検証記録](docs/vertical-typesetting-validation.md)にまとめています。
+
+2026-09-27の追加対応後は、全バッチ291件中287件成功・GUI専用4件スキップ、GUI51件成功です。ぶら下げ句読点は半セルの占有高でも本文の字形サイズを保ちます。横スクロール、執筆支援、脚本、アウトラインを検証し、従来機能のGUIも再確認しました。性能表はこれらの追加前の測定値です。
 
 ```sh
-emacs --batch -Q -L . -l org-tategaki-preview.el -l tategaki-layout.el -l tategaki.el \
+emacs --batch -Q -L . --eval '(setq load-prefer-newer t)' \
+  -l org-tategaki-preview.el -l tategaki-layout.el -l tategaki.el \
   -l test/org-tategaki-preview-test.el -l test/tategaki-layout-test.el \
   -l test/tategaki-test.el -l test/tategaki-ime-test.el \
   -l test/tategaki-completion-test.el -l test/tategaki-corfu-test.el \
   -l test/tategaki-navigation-test.el -l test/tategaki-spacing-test.el \
   -l test/tategaki-paging-test.el \
+  -l test/tategaki-typeset-test.el -l test/tategaki-glyph-test.el \
+  -l test/tategaki-highlight-test.el -l test/tategaki-manuscript-test.el \
+  -l test/tategaki-typeset-view-test.el -l test/tategaki-annotations-test.el \
+  -l test/tategaki-typeset-integration-test.el \
   -f ert-run-tests-batch-and-exit
-emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
+emacs --batch -Q -L . --eval '(setq load-prefer-newer t byte-compile-error-on-warn t)' \
   -f batch-byte-compile org-tategaki-preview.el tategaki-layout.el tategaki-ime.el \
-  tategaki-completion.el tategaki-corfu.el tategaki-navigation.el tategaki.el
+  tategaki-completion.el tategaki-corfu.el tategaki-navigation.el \
+  tategaki-typeset.el tategaki-glyph.el tategaki-highlight.el \
+  tategaki-manuscript.el tategaki-typeset-view.el tategaki-annotations.el tategaki.el
 ```
 
-Emacs 31.1でバッチの128件中124件成功、GUI専用4件スキップ、失敗0件。レイアウト13件・編集機能23件・IME連携22件・補完連携19件・移動設定7件・余白と間隔8件・ページ移動12件を含みます。バイトコンパイルは警告なしです。
+### 長文性能の測定範囲
+
+組版モデルは段落の解析結果・列の索引を再利用し、必要な表示位置を参照します。通常の漢字・仮名・ASCIIの本文には簡略化した処理を使います。結合文字、注記、縦中横の候補、欧文回転などを含む部分は一般の解析を使うため、内容によって時間が変わります。
+
+2026-09-26、macOSのEmacs 31.1、バイトコンパイル済みのモデルで、改行なしの「文」の繰り返し・1列20字・中央へ1字追加を各1回測定した例です。
+
+| 字数 | 原文モデルの全配置 | 組版モデルの初回 | 1字追加後の組版モデル更新 |
+| --- | ---: | ---: | ---: |
+| 10万字 | 269ms | 22.9ms | 20.7ms |
+| 20万字 | 529ms | 41.2ms | 41.4ms |
+
+この表にはGUI描画、SVG作成、face収集、IME・補完処理を含めていません。入力から画面更新までの時間やp95の測定結果ではありません。
+
+別途、専用GUIの100桁×40行フレーム・1列30字で、100文字ごとに固有の漢字を含む生成本文を使い、入力からredisplayまで各20回測定しました。単一段落／99文字＋改行の短段落のp95は、10万字で71.8ms／58.3ms、20万字で91.8ms／86.8msでした。このfixtureでは10万字100ms以内という暫定目標を達成しています。詳細は[検証記録](docs/vertical-typesetting-validation.md)と[計測結果](docs/vertical-typesetting-timings.sexp)を参照してください。多数の注記・結合文字・欧文等が混在する長文の最悪ケースや、未測定の環境へ数値を一般化しません。
+
+再現用の `tategaki-typeset-benchmark` は1千・1万・10万・20万字について、単一段落と99文字ごとに改行した本文を測定します。
+
+```sh
+emacs --batch -Q -L . -l test/tategaki-typeset-test.el \
+  --eval '(prin1 (tategaki-typeset-benchmark))'
+```
+
+文字数集計も別に測定しています。10万字の原文にルビを100個含めた場合、全文集計は初回9.3ms、本文へ1字追加後14.7msでした。キャッシュ済みのモードライン評価1000回は合計2.36msでした。これは統計関数の測定で、実際のモードライン描画や組版モデルの作成は含みません。集計モジュールはバイトコンパイル済み、注記除去関数はソースの状態で各1回測定しています。
+
+```sh
+emacs --batch -Q -L . -l test/tategaki-manuscript-test.el \
+  --eval '(prin1 (tategaki-manuscript-benchmark 100000 t))'
+```
+
+### 既存機能の検証記録
+
+G01〜G12の組版拡張を追加する前の記録では、Emacs 31.1でバッチの128件中124件成功、GUI専用4件スキップ、失敗0件でした。レイアウト13件・編集機能23件・IME連携22件・補完連携19件・移動設定7件・余白と間隔8件・ページ移動12件を含みます。以下のGUI記録も、特記がなければこの既存機能の検証結果です。
 
 専用GUIでは編集モード8件と従来プレビュー8件が全て成功しました。カーソルを全位置へ動かしても文字の画面座標が変わらないこと、小さいウィンドウ・大きいフォントで最下段と文末が見えること、列をまたぐドラッグ選択と切り取りも確認しています。
 
@@ -141,9 +456,15 @@ emacs -Q -L /path/to/corfu -L /path/to/compat \
   -l /absolute/path/to/my-tategaki/test/tategaki-corfu-graphical-tests.el
 emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-spacing-graphical-tests.el
 emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-paging-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-glyph-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-typeset-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-scrollbar-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-writing-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-outline-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-script-graphical-tests.el
 ```
 
-終了コードは成功0、失敗1、起動条件の不備・60秒タイムアウト2です。ログは `temporary-file-directory` 内の `tategaki-gui-tests.log` / `tategaki-ime-gui-tests.log` に保存されます。IME用GUIテストにはNS版Emacsと `ns-put-marked-text` が必要です。
+終了コードは成功0、失敗1、起動条件の不備・タイムアウト2です。通常のGUI試験は60秒、組版編集のGUI試験は120秒でタイムアウトします。ログは `temporary-file-directory` 内の `tategaki-gui-tests.log` / `tategaki-ime-gui-tests.log` / `tategaki-typeset-gui-tests.log` 等に保存されます。IME用GUIテストにはNS版Emacsと `ns-put-marked-text` が必要です。組版編集のGUIテストにはさらにSVG対応と、インストール済みのCopilot・Corfuが必要です。
 
 ## 従来の縦書きプレビュー
 

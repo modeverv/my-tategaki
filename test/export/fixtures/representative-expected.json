@@ -1,0 +1,32 @@
+{
+  "input": {
+    "headings": "markdown"
+  },
+  "body_text": "第一章　始まり & <灯>\n\n　「おはよう」と、太郎は言った。\n長い親文字と東京、空海。\n大切なこと、忘れないこと。\n12月、!?　自動候補は34と!?。\n「……」「――」、（括弧）と句読点。、を原文のまま残す。\nEnglish words, https://example.org/path?q=12&lang=ja and literal $math$ <tag> *stars*.\n結合文字：が。異体字：葛󠄀。絵文字：👩‍💻、☕️。\n\n第二節　空行の後\n明示改行の前。\n明示改行の後。\n\f\n第二章　帰り道\n　花子：「それでは、また。」\n　（太郎、静かにうなずく。）\n大切という後置注記。\n\n",
+  "ruby_readings": [
+    "ながいおやもじ",
+    "とうきょう",
+    "そら",
+    "うみ"
+  ],
+  "chapters": [
+    {
+      "title": "第一章　始まり & <灯>",
+      "level": 1
+    },
+    {
+      "title": "第二節　空行の後",
+      "level": 2
+    },
+    {
+      "title": "第二章　帰り道",
+      "level": 1
+    }
+  ],
+  "semantic_annotation_counts": {
+    "ruby": 4,
+    "tcy": 2,
+    "dot": 2,
+    "line": 1
+  }
+}

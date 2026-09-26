@@ -1,2 +1,5 @@
 *.elc
 
+dist/
+export/node_modules/
+__pycache__/

@@ -1,0 +1,578 @@
+[
+  {
+    "shape": "short",
+    "source_codepoints": 10000,
+    "run": 1,
+    "wall_seconds": 8.695,
+    "duration_seconds": 7.486,
+    "status": "succeeded",
+    "peak_child_rss_kib": 279284,
+    "peak_runner_rss_kib": 54272,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.004
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.392
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 6.351
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.005
+      }
+    }
+  },
+  {
+    "shape": "short",
+    "source_codepoints": 10000,
+    "run": 2,
+    "wall_seconds": 6.658,
+    "duration_seconds": 6.115,
+    "status": "succeeded",
+    "peak_child_rss_kib": 278088,
+    "peak_runner_rss_kib": 54208,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.003
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.236
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 5.214
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.005
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 10000,
+    "run": 1,
+    "wall_seconds": 6.312,
+    "duration_seconds": 5.658,
+    "status": "succeeded",
+    "peak_child_rss_kib": 345692,
+    "peak_runner_rss_kib": 51764,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.004
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.201
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 4.888
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.003
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 10000,
+    "run": 2,
+    "wall_seconds": 6.147,
+    "duration_seconds": 5.594,
+    "status": "succeeded",
+    "peak_child_rss_kib": 311756,
+    "peak_runner_rss_kib": 51788,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.003
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.193
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 4.943
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.003
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 10000,
+    "run": 1,
+    "wall_seconds": 7.387,
+    "duration_seconds": 6.787,
+    "status": "succeeded",
+    "peak_child_rss_kib": 277772,
+    "peak_runner_rss_kib": 60856,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.003
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.332
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 5.813
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.01
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 10000,
+    "run": 2,
+    "wall_seconds": 7.11,
+    "duration_seconds": 6.477,
+    "status": "succeeded",
+    "peak_child_rss_kib": 294596,
+    "peak_runner_rss_kib": 60888,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.004
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.368
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 5.323
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.009
+      }
+    }
+  },
+  {
+    "shape": "short",
+    "source_codepoints": 100000,
+    "run": 1,
+    "wall_seconds": 9.021,
+    "duration_seconds": 8.432,
+    "status": "succeeded",
+    "peak_child_rss_kib": 408484,
+    "peak_runner_rss_kib": 71016,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.005
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.871
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 6.591
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.036
+      }
+    }
+  },
+  {
+    "shape": "short",
+    "source_codepoints": 100000,
+    "run": 2,
+    "wall_seconds": 8.819,
+    "duration_seconds": 8.248,
+    "status": "succeeded",
+    "peak_child_rss_kib": 379260,
+    "peak_runner_rss_kib": 71032,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.006
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.779
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 6.475
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.037
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 100000,
+    "run": 1,
+    "wall_seconds": 6.055,
+    "duration_seconds": 5.534,
+    "status": "succeeded",
+    "peak_child_rss_kib": 297224,
+    "peak_runner_rss_kib": 52652,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.005
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.211
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 4.752
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.012
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 100000,
+    "run": 2,
+    "wall_seconds": 6.792,
+    "duration_seconds": 6.267,
+    "status": "succeeded",
+    "peak_child_rss_kib": 331940,
+    "peak_runner_rss_kib": 52828,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.005
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.217
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 5.491
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.015
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 100000,
+    "run": 1,
+    "wall_seconds": 12.518,
+    "duration_seconds": 12.017,
+    "status": "succeeded",
+    "peak_child_rss_kib": 383636,
+    "peak_runner_rss_kib": 139728,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.004
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 1.879
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 7.37
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.067
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 100000,
+    "run": 2,
+    "wall_seconds": 13.209,
+    "duration_seconds": 12.452,
+    "status": "succeeded",
+    "peak_child_rss_kib": 384548,
+    "peak_runner_rss_kib": 139740,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.004
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 1.907
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 7.566
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.062
+      }
+    }
+  },
+  {
+    "shape": "short",
+    "source_codepoints": 200000,
+    "run": 1,
+    "wall_seconds": 13.47,
+    "duration_seconds": 12.409,
+    "status": "succeeded",
+    "peak_child_rss_kib": 386384,
+    "peak_runner_rss_kib": 98788,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.008
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 1.3
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 9.556
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.055
+      }
+    }
+  },
+  {
+    "shape": "short",
+    "source_codepoints": 200000,
+    "run": 2,
+    "wall_seconds": 19.43,
+    "duration_seconds": 18.447,
+    "status": "succeeded",
+    "peak_child_rss_kib": 401352,
+    "peak_runner_rss_kib": 98848,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.012
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 2.319
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 13.609
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.095
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 200000,
+    "run": 1,
+    "wall_seconds": 9.613,
+    "duration_seconds": 7.847,
+    "status": "succeeded",
+    "peak_child_rss_kib": 293408,
+    "peak_runner_rss_kib": 53244,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.008
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.376
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 6.263
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.022
+      }
+    }
+  },
+  {
+    "shape": "single",
+    "source_codepoints": 200000,
+    "run": 2,
+    "wall_seconds": 7.214,
+    "duration_seconds": 6.54,
+    "status": "succeeded",
+    "peak_child_rss_kib": 368512,
+    "peak_runner_rss_kib": 53620,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.006
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 0.255
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 5.515
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.024
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 200000,
+    "run": 1,
+    "wall_seconds": 20.902,
+    "duration_seconds": 20.238,
+    "status": "succeeded",
+    "peak_child_rss_kib": 463448,
+    "peak_runner_rss_kib": 244824,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.006
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 4.051
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 10.658
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.148
+      }
+    }
+  },
+  {
+    "shape": "annotations",
+    "source_codepoints": 200000,
+    "run": 2,
+    "wall_seconds": 22.52,
+    "duration_seconds": 21.217,
+    "status": "succeeded",
+    "peak_child_rss_kib": 457656,
+    "peak_runner_rss_kib": 244488,
+    "formats": {
+      "txt": {
+        "status": "succeeded",
+        "seconds": 0.011
+      },
+      "docx": {
+        "status": "succeeded",
+        "seconds": 4.17
+      },
+      "pdf": {
+        "status": "not_requested",
+        "seconds": null
+      },
+      "epub": {
+        "status": "succeeded",
+        "seconds": 11.241
+      },
+      "html": {
+        "status": "succeeded",
+        "seconds": 0.13
+      }
+    }
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object", "required":["schema_version","metadata","source","blocks","expectations","diagnostics"],
+  "properties": {
+    "schema_version":{"const":1}, "metadata":{"type":"object","required":["title","author","language","identifier"]},
+    "source":{"type":"object","required":["sha256"],"properties":{"sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"}}},
+    "blocks":{"type":"array","items":{"type":"object","required":["id","type","start","end","runs"],"properties":{
+      "id":{"type":"string","pattern":"^[A-Za-z][A-Za-z0-9_-]*$"},"type":{"enum":["paragraph","heading","page_break"]},
+      "level":{"type":"integer","minimum":1,"maximum":6},"start":{"type":"integer","minimum":0},"end":{"type":"integer","minimum":0},
+      "runs":{"type":"array","items":{"type":"object","required":["kind","text","start","end","emphasis"],"properties":{
+        "kind":{"enum":["text","ruby","tcy"]},"text":{"type":"string"},"reading":{"type":"string"},"emphasis":{"type":"array","items":{"enum":["dot","line"]}},"start":{"type":"integer","minimum":0},"end":{"type":"integer","minimum":0}
+      },"allOf":[{"if":{"properties":{"kind":{"const":"ruby"}}},"then":{"required":["reading"]}}]}}
+    },"allOf":[{"if":{"properties":{"type":{"const":"heading"}}},"then":{"required":["level"]}}]}},
+    "expectations":{"type":"object","required":["body_text","ruby_readings","chapters","annotation_counts"],"properties":{"body_text":{"type":"string"},"ruby_readings":{"type":"array","items":{"type":"string"}},"chapters":{"type":"array"},"annotation_counts":{"type":"object"}}},
+    "diagnostics":{"type":"array","items":{"type":"object","required":["code","severity","message","start","end"],"properties":{"severity":{"enum":["warning","error","info"]}}}}
+  }
+}

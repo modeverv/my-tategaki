@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "submission",
+  "strict_diagnostics": true,
+  "input": {"headings": "japanese"},
+  "metadata": {"title": "無題", "author": "", "language": "ja"},
+  "txt": {"encoding": "utf-8", "newline": "lf"},
+  "docx": {
+    "page_width_mm": 210, "page_height_mm": 297,
+    "margin_mm": {"top": 25, "bottom": 25, "left": 25, "right": 25},
+    "font": "Noto Serif CJK JP", "font_size_pt": 12,
+    "page_numbers": true, "cover": true, "auto_tcy": true
+  },
+  "pdf": {
+    "page_width_mm": 210, "page_height_mm": 297,
+    "margin_mm": {"top": 25, "bottom": 25, "left": 25, "right": 25},
+    "font": "Noto Serif CJK JP", "font_size_pt": 12,
+    "page_numbers": true, "cover": true, "auto_tcy": true
+  },
+  "epub": {"font": "Noto Serif CJK JP", "cover": false, "embed_fonts": false, "auto_tcy": true}
+}

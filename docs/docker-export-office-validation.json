@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-09-26T17:50:23.766059+00:00",
+  "platform": "macOS arm64",
+  "office": {
+    "name": "bundled LibreOfficeDev",
+    "version": "26.8.0.0.alpha0",
+    "build": "2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+    "executable": "/Users/seijiro/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/libreoffice-headless/libreoffice/LibreOfficeDev.app/Contents/MacOS/soffice"
+  },
+  "font_configuration": {
+    "isolated": true,
+    "system_fonts_installed": false,
+    "source": "tategaki-export:1 Docker fonts copied to a temporary QA directory",
+    "file_sha256": {
+      "NotoSansCJK-Regular.ttc": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+      "NotoSerifCJK-Regular.ttc": "a04178ec485dffdff7cc0c0c20e1fce9202d7e2160d805e8e44a4c8841c58481",
+      "NotoColorEmoji.ttf": "e5899ed38b8ed83e08bd3ac5de09791e9d19d288333a796de1d35ad17396f1ec",
+      "NotoSansCJK-Bold.ttc": "faa5f3656a78b2e2d450d27fe8382c778bc2b6bb5ea29c986664a6a435056ceb",
+      "NotoSerifCJK-Bold.ttc": "a5d4b046c127da3d7c72f98b46c41489cd29bf52abfdf18aba920903e920d4ac"
+    },
+    "observed_pdf_fonts": [
+      "NotoSerifCJKjp-Regular",
+      "NotoSerifCJKjp-Bold",
+      "NotoColorEmoji"
+    ]
+  },
+  "procedure": [
+    "Render original Docker-produced representative DOCX with canonical render_docx.py and bundled LibreOffice; inspect all 3 page PNGs.",
+    "Append a Japanese paragraph to a disposable document model and export a new editable DOCX.",
+    "Import the edited DOCX into bundled LibreOffice and save it as DOCX using Office Open XML Text filter.",
+    "Reopen saved DOCX, compare exact body text and annotation structure, then render and inspect all 3 page PNGs."
+  ],
+  "checks": {
+    "original_pages_inspected": 3,
+    "resaved_pages_inspected": 3,
+    "resaved_body_codepoints_exact": true,
+    "resaved_paragraphs": 21,
+    "resaved_ruby_readings_exact": true,
+    "ruby_count": 4,
+    "explicit_tcy_count": 2,
+    "dot_runs": 2,
+    "line_runs": 1,
+    "headings_preserved": 3,
+    "vertical_direction_preserved": "tbRl",
+    "blank_paragraphs_preserved": true,
+    "formfeed_pagebreak_preserved": true,
+    "combining_dakuten_and_variation_selectors_preserved": true,
+    "appended_paragraph_visible": "再編集確認：追加した本文。",
+    "pdf_fonts_embedded": true
+  },
+  "limitations": [
+    {
+      "code": "programmatic-edit-only",
+      "description": "The edit was made in the document model before export; LibreOffice import/save/reopen was real, but manual GUI typing in an office application was not verified."
+    },
+    {
+      "code": "joined-emoji-rendering",
+      "description": "LibreOffice rendered the tested woman-technologist ZWJ sequence as separate woman and laptop glyphs; the original Unicode code points survived the DOCX roundtrip exactly."
+    },
+    {
+      "code": "word-not-verified",
+      "description": "Microsoft Word verification was stopped at the user request. No claim of Word visual/layout compatibility is made; the recorded office verification uses bundled macOS LibreOffice only."
+    },
+    {
+      "code": "pagination",
+      "description": "This checks the representative fixture only; exact fixed-grid counts and cross-application pagination are not certified."
+    }
+  ],
+  "artifacts": {
+    "dist/office-validation/independent-expected.json": {
+      "sha256": "1ef4219080ffc3f98b67dca1a6f247e8e2fdad63fc8b8099990b1f7df3a5f85d",
+      "bytes": 1191
+    },
+    "dist/office-validation/qa-fontconfig.xml": {
+      "sha256": "1ede6df83db6658bd421f5ec9fba8b3a8a3c9d5013286a716258bc080645e795",
+      "bytes": 175
+    },
+    "dist/office-validation/original-render/page-1.png": {
+      "sha256": "5a01265225b55aabe2911f96f63063ec9e81ef5fb1647891cb21cf062d15d668",
+      "bytes": 148307
+    },
+    "dist/office-validation/original-render/page-3.png": {
+      "sha256": "e4d39cd167a40c37b7b9f26486d689a3862db81dc752a3e17d4ecb2d42c1e006",
+      "bytes": 57650
+    },
+    "dist/office-validation/original-render/page-2.png": {
+      "sha256": "879d6e11c0866b169de30897f24e83244c0d194a0a6764ac300925131fb47d51",
+      "bytes": 65969
+    },
+    "dist/office-validation/original-render/manuscript.pdf": {
+      "sha256": "cc8aae627e6091559687f7649af4a5ea23ce60502727140c5a616bc1a000dd53",
+      "bytes": 80744
+    },
+    "dist/office-validation/original/manuscript.docx": {
+      "sha256": "d2ba2348b32f7f5fc50170076979894be85ec6b52c90b93cae2b8d20a15563e1",
+      "bytes": 11619
+    },
+    "dist/office-validation/original/source.txt": {
+      "sha256": "e8bc156c07fb3d91e2e93624ffbd90f782cf8eb8ed65d19a25261f2e1c3e7ead",
+      "bytes": 948
+    },
+    "dist/office-validation/original/document.json": {
+      "sha256": "ecd8a5f8a2e13428c432f0695ea1aa8b90fc91e5079fb522e97547f1c3a67a9f",
+      "bytes": 5355
+    },
+    "dist/office-validation/original/profile.json": {
+      "sha256": "a8863367fca724aef731e2207920798da9668eeb2f135b15dd742e0dd6ac0b98",
+      "bytes": 1104
+    },
+    "dist/office-validation/edited-roundtrip/edited-model.json": {
+      "sha256": "1f41a29fce49fd551a318c38dcc49286cc6ad5785f2a8612996bd6a8e7fd65c4",
+      "bytes": 6011
+    },
+    "dist/office-validation/edited-roundtrip/roundtrip-extracted.txt": {
+      "sha256": "38fa74c3701bc51eff623ba40f0a3363c84adb9c44d2dfcef6b111c3ee76a765",
+      "bytes": 702
+    },
+    "dist/office-validation/edited-roundtrip/saved/manuscript.docx": {
+      "sha256": "98cda0b2b6a9b029acab83e4568527fd3ce02f9518febbda93c1873ded61fbfd",
+      "bytes": 10349
+    },
+    "dist/office-validation/edited-roundtrip/input/manuscript.pandoc.json": {
+      "sha256": "9fc7b7a17f2e06881a150bc05f39f7410d71b6e18b7e3760ff0f39dc48ed08a5",
+      "bytes": 1528
+    },
+    "dist/office-validation/edited-roundtrip/input/manuscript.docx": {
+      "sha256": "c223d3ed586ffaa59cffe91b975af41862703b918264846d61fd2e1beb5083c9",
+      "bytes": 11560
+    },
+    "dist/office-validation/edited-roundtrip/input/pandoc-empty.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "dist/office-validation/edited-roundtrip/input/reference.docx": {
+      "sha256": "9cd5fbc5c175b9a3746bec7308d6cb4e02809413b452b5163249237c17cc8ced",
+      "bytes": 9821
+    },
+    "dist/office-validation/edited-roundtrip/rendered/page-1.png": {
+      "sha256": "243ecca3bf83c1ba5ac3107d0a7f63a64e87942498e4585957b01b2a0f7fc63e",
+      "bytes": 147520
+    },
+    "dist/office-validation/edited-roundtrip/rendered/page-3.png": {
+      "sha256": "9110885abc14d8d489b7bfb14a1d1a4da63e27e870d9323ae1eae4c2345f8777",
+      "bytes": 70955
+    },
+    "dist/office-validation/edited-roundtrip/rendered/page-2.png": {
+      "sha256": "879d6e11c0866b169de30897f24e83244c0d194a0a6764ac300925131fb47d51",
+      "bytes": 65969
+    },
+    "dist/office-validation/edited-roundtrip/rendered/manuscript.pdf": {
+      "sha256": "e6727aacf56e218ddda4cdcd93a2a189ab9d10624ec04790ab213ebd9d18bd42",
+      "bytes": 84070
+    }
+  }
+}

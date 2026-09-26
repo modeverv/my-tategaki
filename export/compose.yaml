@@ -1,0 +1,17 @@
+services:
+  export:
+    image: tategaki-export:1
+    build:
+      context: ..
+      dockerfile: export/Dockerfile
+    network_mode: none
+    read_only: true
+    user: "${TATEGAKI_UID:-1000}:${TATEGAKI_GID:-1000}"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,nosuid,size=1g
+    shm_size: 256m
+    volumes:
+      - ${TATEGAKI_INPUT:-../test/export/fixtures}:/input:ro
+      - ${TATEGAKI_OUTPUT:-../dist}:/output:rw

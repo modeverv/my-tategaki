@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "name", "strict_diagnostics", "input", "metadata", "txt", "docx", "pdf", "epub"],
+  "properties": {
+    "schema_version": {"const": 1}, "name": {"type": "string", "minLength": 1},
+    "strict_diagnostics": {"type": "boolean"},
+    "input": {"type":"object", "additionalProperties":false, "required":["headings"], "properties":{"headings":{"enum":["literal","markdown","org","japanese"]}}},
+    "metadata": {"$ref":"#/$defs/metadata"},
+    "txt": {"type":"object", "additionalProperties":false, "required":["encoding","newline"], "properties":{"encoding":{"enum":["utf-8","utf-8-sig","cp932","shift_jis"]},"newline":{"enum":["lf","crlf","preserve"]}}},
+    "docx": {"$ref":"#/$defs/page"}, "pdf": {"$ref":"#/$defs/page"},
+    "epub": {"type":"object", "additionalProperties":false, "required":["font","cover","embed_fonts"], "properties":{"font":{"type":"string","minLength":1},"cover":{"type":"boolean"},"embed_fonts":{"const":false},"auto_tcy":{"type":"boolean"}}}
+  },
+  "$defs": {
+    "metadata": {"type":"object", "additionalProperties":false, "properties":{"title":{"type":"string"},"subtitle":{"type":"string"},"author":{"type":"string"},"language":{"type":"string","pattern":"^[a-zA-Z]{2,8}(-[a-zA-Z0-9]{1,8})*$"},"identifier":{"type":"string"},"colophon":{"type":"string"}}},
+    "page": {
+      "type":"object", "additionalProperties":false,
+      "required":["page_width_mm","page_height_mm","margin_mm","font","font_size_pt","page_numbers","cover"],
+      "properties": {
+        "page_width_mm":{"type":"number","minimum":50,"maximum":1000},"page_height_mm":{"type":"number","minimum":50,"maximum":1000},
+        "margin_mm":{"type":"object","additionalProperties":false,"required":["top","bottom","left","right"],"properties":{"top":{"type":"number","minimum":0},"bottom":{"type":"number","minimum":0},"left":{"type":"number","minimum":0},"right":{"type":"number","minimum":0}}},
+        "font":{"type":"string","minLength":1},"font_size_pt":{"type":"number","minimum":6,"maximum":48},
+        "page_numbers":{"type":"boolean"},"cover":{"type":"boolean"},"auto_tcy":{"type":"boolean"},"line_height":{"type":"number","minimum":1,"maximum":4},
+        "chars_per_column":{"type":"integer","minimum":5,"maximum":100},"columns_per_page":{"type":"integer","minimum":5,"maximum":100}
+      }
+    }
+  }
+}

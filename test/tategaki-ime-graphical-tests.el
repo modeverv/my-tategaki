@@ -16,6 +16,9 @@
   (declare (indent 1))
   `(save-window-excursion
      (let ((buffer (generate-new-buffer " *Tategaki native IME test*"))
+           ;; Keep this native-source regression independent of optional
+           ;; prose indentation (covered by writing GUI integration tests).
+           (tategaki-writing-assistance nil)
            (tategaki-column-height 3)
            (ns-working-overlay nil)
            (ns-working-text "")

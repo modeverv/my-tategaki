@@ -17,6 +17,8 @@
   (declare (indent 1))
   `(save-window-excursion
      (let ((buffer (generate-new-buffer " *tategaki GUI test*"))
+           ;; Native editing baseline; writing assistance has its own GUI tests.
+           (tategaki-writing-assistance nil)
            (tategaki-column-height 4))
        (unwind-protect
            (progn

@@ -1,0 +1,95 @@
+#!/bin/sh
+# Only POSIX shell utilities and Docker are required on the host.
+set -eu
+task_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+image=${TATEGAKI_EXPORT_IMAGE:-tategaki-export:1}
+usage() {
+  cat <<'EOF'
+Usage: tategaki-export build | doctor
+       tategaki-export export SOURCE [--model JSON] [--profile NAME|JSON]
+         [--formats txt,docx,pdf,epub,html] [--out DIR] [--job-id ID]
+         [--metadata JSON] [--font-dir DIR] [--timeout SECONDS]
+       tategaki-export cancel JOB-ID
+       tategaki-export status JOB-DIRECTORY
+Built-in profiles: preview, submission (generic, not a publisher's rules).
+EOF
+}
+command=${1:-help}
+[ "$#" -eq 0 ] || shift
+case "$command" in
+  help|--help|-h) usage; exit 0;;
+  build) exec docker compose -f "$task_root/export/compose.yaml" build;;
+  doctor)
+    docker info --format 'Docker {{.ServerVersion}} / {{.Architecture}}'
+    exec docker run --rm --network none "$image" doctor;;
+  status)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    exec cat "$1/report.md";;
+  cancel)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    case "$1" in ''|*[!a-zA-Z0-9_-]*) echo 'Invalid job ID' >&2; exit 2;; esac
+    label=$(docker inspect --format '{{index .Config.Labels "tategaki.export.job"}}' "tategaki-export-$1")
+    [ "$label" = "$1" ] || { echo 'Not a tategaki export job' >&2; exit 2; }
+    exec docker stop --time 10 "tategaki-export-$1";;
+  export) ;;
+  *) usage >&2; exit 2;;
+esac
+[ "$#" -gt 0 ] || { usage >&2; exit 2; }
+source_path=$1; shift
+profile=preview formats=txt,docx,pdf,epub,html out=./dist model= metadata= font_dir= job_id= timeout=600
+while [ "$#" -gt 0 ]; do
+  [ "$#" -ge 2 ] || { echo "Missing value: $1" >&2; exit 2; }
+  case "$1" in
+    --profile) profile=$2;; --formats) formats=$2;; --out) out=$2;;
+    --model) model=$2;; --metadata) metadata=$2;; --font-dir) font_dir=$2;; --job-id) job_id=$2;;
+    --timeout) timeout=$2;; *) echo "Unknown option: $1" >&2; exit 2;;
+  esac
+  shift 2
+done
+[ -f "$source_path" ] || { echo "Source not found: $source_path" >&2; exit 2; }
+docker info >/dev/null 2>&1 || { echo 'Docker is not running. Start Docker Desktop and retry.' >&2; exit 2; }
+docker image inspect "$image" >/dev/null 2>&1 || { echo 'Export image is missing. Run bin/tategaki-export build first.' >&2; exit 2; }
+image_id=$(docker image inspect --format '{{.Id}}' "$image")
+stage=$(mktemp -d "${TMPDIR:-/tmp}/tategaki-export.XXXXXXXX")
+cleanup() { rm -rf "$stage"; }
+trap cleanup EXIT
+if [ -z "$job_id" ]; then job_id="$(date -u +%Y%m%dT%H%M%SZ)-${stage##*.}"; fi
+case "$job_id" in ''|*[!a-zA-Z0-9_-]*) echo 'Invalid job ID' >&2; exit 2;; esac
+cp "$source_path" "$stage/source.txt"
+if [ -n "$model" ]; then cp "$model" "$stage/document.json"; fi
+if [ -n "$metadata" ]; then cp "$metadata" "$stage/metadata.json"; fi
+if [ -n "$font_dir" ]; then
+  [ -d "$font_dir" ] || { echo "Font directory not found: $font_dir" >&2; exit 2; }
+  mkdir "$stage/fonts"
+  # Copy only font files, not arbitrary files from the user's directory.
+  for font in "$font_dir"/*.otf "$font_dir"/*.ttf "$font_dir"/*.ttc; do
+    [ ! -f "$font" ] || cp "$font" "$stage/fonts/"
+  done
+fi
+if [ -f "$profile" ]; then
+  cp "$profile" "$stage/profile.json"; profile=/input/profile.json
+else
+  case "$profile" in preview|submission) ;; *) echo "Unknown profile: $profile" >&2; exit 2;; esac
+fi
+mkdir -p "$out"
+out=$(CDPATH= cd -- "$out" && pwd)
+job_path="$out/$job_id"
+# mkdir (without -p) makes collisions an error, never an overwrite.
+mkdir "$job_path"
+chmod 755 "$stage"
+find "$stage" -type d -exec chmod 755 {} +
+find "$stage" -type f -exec chmod 644 {} +
+echo "Job: $job_id"
+echo "Output: $job_path"
+cancel_current() { docker stop --time 10 "tategaki-export-$job_id" >/dev/null 2>&1 || true; exit 130; }
+trap cancel_current INT TERM
+set -- export --source /input/source.txt --profile "$profile" --formats "$formats" \
+  --out /output --job-id "$job_id" --source-name "$(basename -- "$source_path")" --timeout "$timeout"
+if [ -n "$model" ]; then set -- "$@" --model /input/document.json; fi
+if [ -n "$metadata" ]; then set -- "$@" --metadata /input/metadata.json; fi
+docker run --rm --name "tategaki-export-$job_id" --label "tategaki.export.job=$job_id" \
+  --network none --read-only --cap-drop ALL --security-opt no-new-privileges \
+  --env "TATEGAKI_EXPORT_IMAGE_ID=$image_id" --env "TATEGAKI_EXPORT_IMAGE=$image" \
+  --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,nosuid,size=1g --shm-size 256m \
+  --mount "type=bind,source=$stage,target=/input,readonly" \
+  --mount "type=bind,source=$job_path,target=/output" "$image_id" "$@"

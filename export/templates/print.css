@@ -1,0 +1,6 @@
+/* Page size, font and margins are appended from the validated output profile. */
+body { widows: 2; orphans: 2; }
+h1 { break-before: page; page-break-before: always; }
+body > main > h1:first-child { break-before: auto; page-break-before: auto; }
+nav { break-after: page; }
+@page :blank { @bottom-center { content: none; } }

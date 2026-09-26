@@ -1,0 +1,24 @@
+/* Shared semantic typography.  Source text is never replaced by vertical glyphs. */
+html { writing-mode: vertical-rl; -epub-writing-mode: vertical-rl; }
+body { margin: 0; line-height: 1.8; text-orientation: mixed; line-break: strict;
+       overflow-wrap: anywhere; font-kerning: normal; }
+p { margin: 0; padding: 0; white-space: pre-wrap; }
+p.empty { min-height: 1em; min-inline-size: 1em; }
+h1, h2, h3, h4, h5, h6 { font-weight: 700; line-height: 1.6;
+  break-after: avoid; page-break-after: avoid; white-space: pre-wrap; }
+h1 { font-size: 1.4em; } h2 { font-size: 1.2em; }
+h3, h4, h5, h6 { font-size: 1em; }
+ruby { ruby-align: center; ruby-position: over; }
+rt { font-size: 0.5em; }
+.tcy { text-combine-upright: all; -webkit-text-combine: horizontal;
+       -epub-text-combine: horizontal; }
+.emoji { display: inline-block; writing-mode: horizontal-tb;
+         text-orientation: upright; line-height: 1; }
+.emphasis-dot { text-emphasis: filled sesame; -webkit-text-emphasis: filled sesame;
+                text-emphasis-position: over right; }
+.emphasis-line { text-decoration: underline; text-underline-position: right; }
+.page-break { break-after: page; page-break-after: always; }
+.cover { break-after: page; page-break-after: always; text-align: center; }
+.cover h1 { font-size: 2em; }
+nav ol { list-style: none; padding: 0; }
+nav a { color: inherit; text-decoration: none; }

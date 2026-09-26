@@ -13,6 +13,7 @@
   (declare (indent 1))
   `(save-window-excursion
      (let ((buffer (generate-new-buffer " *spacing test*"))
+           (tategaki-writing-assistance nil)
            (tategaki-column-height 4)
            (tategaki-padding-top 0) (tategaki-padding-bottom 0)
            (tategaki-padding-left 0) (tategaki-padding-right 0)
