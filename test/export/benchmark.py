@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Measure real Docker exports at 10k/100k/200k in three source shapes."""
 import argparse
 import json

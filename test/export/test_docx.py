@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """DOCX contract tests.  Actual Pandoc/Word rendering is an integration concern."""
 
 from pathlib import Path

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Job regression tests; renderer tests live beside these."""
 import argparse
 import copy

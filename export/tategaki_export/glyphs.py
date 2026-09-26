@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Detect absent Unicode glyphs before making a publication look successful."""
 from functools import lru_cache
 import unicodedata

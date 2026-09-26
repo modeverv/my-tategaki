@@ -25,6 +25,7 @@ RUN npm ci --omit=dev --no-audit --no-fund && \
     ln -s /opt/vivliostyle/node_modules/.bin/vivliostyle /usr/local/bin/vivliostyle
 ENV PYTHONPATH=/app/export
 WORKDIR /app
+COPY LICENSE LICENSING.md ./
 COPY *.el ./
 COPY export ./export
 COPY test/export ./test/export

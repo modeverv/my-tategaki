@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Profiles and model validation; no manuscript syntax lives in Python."""
 import copy
 import hashlib

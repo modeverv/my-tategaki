@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Vivliostyle EPUB generation and content-aware EPUB 3 validation."""
 
 from __future__ import annotations

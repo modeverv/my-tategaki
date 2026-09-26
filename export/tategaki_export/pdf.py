@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Vivliostyle PDF adapter with independent Poppler checks."""
 
 from __future__ import annotations

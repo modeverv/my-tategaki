@@ -1,5 +1,23 @@
 ;;; tategaki-corfu-test.el --- Real Corfu adapter checks -*- lexical-binding: t; -*-
 
+;; Copyright (C) 2026 seijiro and contributors.
+;; SPDX-License-Identifier: GPL-3.0-or-later
+;;
+;; This file is part of my-tategaki.
+;;
+;; my-tategaki is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; my-tategaki is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with my-tategaki.  If not, see <https://www.gnu.org/licenses/>.
+
 ;; Add installed Corfu and compat directories to load-path for these tests.
 ;; The installed Corfu overlay and insertion functions run unchanged; only
 ;; the renderer boundary is recorded so tests can also run in batch Emacs.

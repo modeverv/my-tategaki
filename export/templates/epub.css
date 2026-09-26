@@ -1,3 +1,5 @@
+/* Copyright (C) 2026 seijiro and contributors.
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 /* Deliberately reflowable: no physical page size, fixed grid or page counters. */
 html, body { font-size: 100%; }
 body { margin: 0.5em; }

@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Editable vertical Word documents, with Pandoc scaffolding and OOXML annotations.
 
 Only the shared document model is consumed here.  In particular this module must

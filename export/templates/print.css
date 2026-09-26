@@ -1,3 +1,5 @@
+/* Copyright (C) 2026 seijiro and contributors.
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 /* Page size, font and margins are appended from the validated output profile. */
 body { widows: 2; orphans: 2; }
 h1 { break-before: page; page-break-before: always; }

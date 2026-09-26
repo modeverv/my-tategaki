@@ -2,5 +2,6 @@
   "name": "tategaki-export-runtime",
   "private": true,
   "version": "1.0.0",
+  "license": "GPL-3.0-or-later",
   "dependencies": {"@vivliostyle/cli": "11.3.3"}
 }

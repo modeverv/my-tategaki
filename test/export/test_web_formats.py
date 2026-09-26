@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Boundary tests independent of the external typesetting engines."""
 
 from copy import deepcopy

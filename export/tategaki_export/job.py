@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Isolated job lifecycle, provenance, atomic publication and cancellation."""
 import argparse
 import importlib

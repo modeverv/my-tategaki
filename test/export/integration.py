@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Explicit Docker integration checks (not run by unittest discovery).
 
 Run from the repository: python3 test/export/integration.py

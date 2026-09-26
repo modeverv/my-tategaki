@@ -1,3 +1,5 @@
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Lossless semantic HTML shared by the print and reflowable exports."""
 
 from __future__ import annotations

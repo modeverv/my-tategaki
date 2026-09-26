@@ -1,3 +1,5 @@
+/* Copyright (C) 2026 seijiro and contributors.
+ * SPDX-License-Identifier: GPL-3.0-or-later */
 /* Shared semantic typography.  Source text is never replaced by vertical glyphs. */
 html { writing-mode: vertical-rl; -epub-writing-mode: vertical-rl; }
 body { margin: 0; line-height: 1.8; text-orientation: mixed; line-break: strict;

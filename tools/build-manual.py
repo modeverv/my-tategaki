@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (C) 2026 seijiro and contributors.
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Build the dependency-free GitHub Pages manual from HTML content fragments."""
 from html import escape
 from html.parser import HTMLParser
@@ -98,7 +100,7 @@ def build():
 <div class="document-grid"><article>{body}<nav class="chapter-pager" aria-label="前後の章">{''.join(siblings)}</nav></article>
 <aside class="page-toc"><p>このページ</p><ol>{toc}</ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
 </main>
-<footer><span>my-tategaki · Emacsで縦書き。</span><a href="{REPO}/blob/main/docs/manual/content/{slug}.html">このページの原稿</a><a href="{root}manual/troubleshooting.html#support">確認環境と制限</a></footer>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="{REPO}/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="{REPO}/blob/main/docs/manual/content/{slug}.html">このページの原稿</a><a href="{root}manual/troubleshooting.html#support">確認環境と制限</a></footer>
 </div>
 </body></html>'''
         path = DOCS / ("index.html" if slug == "index" else "manual/" + slug + ".html")
@@ -110,7 +112,8 @@ def build():
             search.append({"title": f'{title} / {h["text"]}', "url": f'{url}#{h["id"]}', "text": h["text"]})
         for row in parsed.rows:
             search.append({"title": row["id"], "url": f'{url}#{row["id"]}', "text": row["text"]})
-    (DOCS / "assets/search-index.js").write_text("window.TATEGAKI_SEARCH = " + json.dumps(search, ensure_ascii=False).replace("</", "<\\/") + ";\n", encoding="utf-8")
+    notice = "// Copyright (C) 2026 seijiro and contributors.\n// SPDX-License-Identifier: GPL-3.0-or-later\n"
+    (DOCS / "assets/search-index.js").write_text(notice + "window.TATEGAKI_SEARCH = " + json.dumps(search, ensure_ascii=False).replace("</", "<\\/") + ";\n", encoding="utf-8")
     (DOCS / ".nojekyll").write_text("", encoding="utf-8")
     print(f"Built {len(PAGES)} manual pages and {len(search)} search entries.")
 
