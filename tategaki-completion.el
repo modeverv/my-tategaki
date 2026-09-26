@@ -52,6 +52,14 @@ CARET-OFFSET is the insertion cursor's character offset within TEXT."
                          (plist-get data :end) (point-max)))
            return data))
 
+(declare-function copilot-clear-overlay "copilot" (&optional is-accepted))
+
+(defun tategaki-completion-dismiss-copilot ()
+  "Dismiss a Copilot proposal through its native cancellation path."
+  (when (and (eq (plist-get (tategaki-completion-current) :kind) 'copilot)
+             (fboundp 'copilot-clear-overlay))
+    (copilot-clear-overlay)))
+
 (defun tategaki-completion--delete-mirrors ()
   "Delete horizontal Copilot displays in other windows."
   (mapc #'delete-overlay tategaki-completion--mirrors)

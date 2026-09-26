@@ -16,6 +16,7 @@
 (require 'tategaki-ime)
 (require 'tategaki-completion)
 (require 'tategaki-corfu)
+(require 'tategaki-navigation)
 
 (defgroup tategaki nil
   "Edit text through a vertical display layer."
@@ -27,9 +28,41 @@
   :group 'tategaki)
 
 (defcustom tategaki-column-spacing 1
-  "Space between columns, in frame character widths."
+  "Space between columns in frame character widths.
+Used when `tategaki-line-spacing' is nil."
   :type 'natnum
   :group 'tategaki)
+
+(defcustom tategaki-padding-top 0
+  "Minimum space above editable text, in GUI pixels or terminal rows.
+Padding is reduced in small windows to keep the insertion point visible."
+  :type 'natnum :group 'tategaki)
+
+(defcustom tategaki-padding-bottom 0
+  "Minimum space below editable text, in GUI pixels or terminal rows.
+Padding is reduced in small windows to keep the insertion point visible."
+  :type 'natnum :group 'tategaki)
+
+(defcustom tategaki-padding-left 0
+  "Minimum space left of editable text, in GUI pixels or terminal cells.
+Padding is reduced in small windows to keep the insertion point visible."
+  :type 'natnum :group 'tategaki)
+
+(defcustom tategaki-padding-right 0
+  "Space right of editable text, in GUI pixels or terminal cells.
+This is additional to the renderer's small right-edge safety margin.
+Padding is reduced in small windows to keep the insertion point visible."
+  :type 'natnum :group 'tategaki)
+
+(defcustom tategaki-line-spacing nil
+  "Horizontal gap between vertical columns, in GUI pixels or terminal cells.
+Nil uses the existing `tategaki-column-spacing' setting."
+  :type '(choice (const :tag "Use column-spacing" nil) natnum)
+  :group 'tategaki)
+
+(defcustom tategaki-character-spacing 0
+  "Extra vertical gap between characters, in GUI pixels or terminal rows."
+  :type 'natnum :group 'tategaki)
 
 (defface tategaki-face '((t (:inherit fixed-pitch)))
   "Face for editable vertical text."
@@ -58,6 +91,8 @@
 (defvar-local tategaki--page 0)
 (defvar-local tategaki--page-size 1)
 (defvar-local tategaki--goal-row nil)
+(defvar-local tategaki--page-goal nil
+  "Desired (PAGE-SIZE COLUMN-HEIGHT COLUMN-OFFSET) for consecutive page moves.")
 (defvar-local tategaki--refreshing nil)
 (defvar-local tategaki--preedit-text nil)
 (defvar-local tategaki--preedit-start nil)
@@ -220,6 +255,55 @@ Relative widths remain stable across the two replacement strings."
   (propertize " " 'display `(space :width (,width) :height (,height)
                                     :ascent (,ascent))))
 
+(defun tategaki--fit-padding (before after limit)
+  "Return (BEFORE . AFTER) reduced proportionally to fit LIMIT."
+  (setq before (max 0 before) after (max 0 after) limit (max 0 limit))
+  (if (<= (+ before after) limit)
+      (cons before after)
+    (let ((first (/ (* before limit) (+ before after))))
+      (cons first (- limit first)))))
+
+(defun tategaki--geometry (window metrics)
+  "Compute visible text geometry for WINDOW using font METRICS.
+GUI values are logical pixels; terminal values are cells and rows."
+  (let* ((graphic (display-graphic-p (window-frame window)))
+         (unit (if graphic (frame-char-width (window-frame window)) 1))
+         (cell (if graphic (nth 1 metrics) 2))
+         (row-height (if graphic (nth 2 metrics) 1))
+         ;; A fixed right-edge allowance keeps column spacing independent
+         ;; of padding, and leaves room for the native cursor at EOF.
+         (width (max cell (- (window-body-width window graphic) (* 2 unit))))
+         (height (window-body-height window graphic))
+         (horizontal (tategaki--fit-padding
+                      tategaki-padding-left tategaki-padding-right (- width cell)))
+         ;; Keep a spare row for font rounding and the native EOF cursor.
+         (vertical (tategaki--fit-padding
+                    tategaki-padding-top tategaki-padding-bottom
+                    (- height (* 2 row-height))))
+         (inner-width (- width (car horizontal) (cdr horizontal)))
+         (inner-height (- height (car vertical) (cdr vertical)))
+         (gap (min (max 0 (- inner-width cell))
+                   (max 0 (or tategaki-line-spacing (* unit tategaki-column-spacing)))))
+         (character-gap (min (max 0 (- inner-height row-height))
+                             (max 0 tategaki-character-spacing)))
+         (pitch (+ cell gap))
+         (capacity (max 1 (/ (+ inner-width gap) pitch))))
+    (list :cell cell :gap gap :pitch pitch :capacity capacity
+          :left (+ (car horizontal) (max 0 (- inner-width (- (* capacity pitch) gap))))
+          :top (car vertical) :bottom (cdr vertical)
+          :character-gap character-gap
+          :rows (max 1 (1- (/ (+ inner-height character-gap)
+                              (+ row-height character-gap)))))))
+
+(defun tategaki--vertical-space (size graphic)
+  "Return display-only vertical space of SIZE pixels or terminal rows.
+A space glyph defines the complete height; the newline adds no font height."
+  (if (<= size 0) ""
+    (if graphic
+        (propertize (concat (tategaki--spacer 1 size 0) "\n")
+                    'line-height t 'line-spacing 0)
+      (make-string size ?\n))))
+
 (defun tategaki--face-list (face)
   "Return FACE as a list of face names and attribute plists."
   (cond ((null face) nil)
@@ -229,13 +313,14 @@ Relative widths remain stable across the two replacement strings."
 (defun tategaki--paint (window)
   "Paint the visible page in WINDOW from the cached lossless layout."
   (let* ((graphic (display-graphic-p (window-frame window)))
-         (unit (if graphic (frame-char-width (window-frame window)) 1))
-         (width (max 1 (- (window-body-width window graphic) unit)))
-         (cell (if graphic (nth 1 tategaki--metrics) 2))
+         (geometry (tategaki--geometry window tategaki--metrics))
+         (cell (plist-get geometry :cell))
          (line-height (if graphic (nth 2 tategaki--metrics) 1))
          (ascent (if graphic (nth 3 tategaki--metrics) 1))
-         (pitch (+ cell (* unit (max 0 tategaki-column-spacing))))
-         (capacity (max 1 (/ (max cell (- width (* 2 unit))) pitch)))
+         (pitch (plist-get geometry :pitch))
+         (capacity (plist-get geometry :capacity))
+         (top (plist-get geometry :top))
+         (character-gap (plist-get geometry :character-gap))
          (entry (tategaki--entry))
          (column (if entry (aref entry 3) 0))
          (height (plist-get tategaki--layout :height))
@@ -257,14 +342,14 @@ Relative widths remain stable across the two replacement strings."
         (dotimes (visual-column capacity)
           (let* ((logical-column (+ tategaki--page (- capacity visual-column 1)))
                  (item (gethash (cons row logical-column) cells))
-                 (x (+ (max 0 (- width (* capacity pitch)))
+                 (x (+ (plist-get geometry :left)
                        (* visual-column pitch))))
             (push (if graphic (tategaki--spacer
                                (if (zerop visual-column) x (- pitch cell))
                                line-height ascent)
                     (if (zerop visual-column)
                         (make-string (max 0 x) ?\s)
-                      (make-string (max 0 tategaki-column-spacing) ?\s))) parts)
+                      (make-string (- pitch cell) ?\s))) parts)
             (if (not item)
                 (push (if graphic (tategaki--spacer cell line-height ascent)
                         (make-string cell ?\s)) parts)
@@ -294,7 +379,8 @@ Relative widths remain stable across the two replacement strings."
                 (when graphic
                   (puthash position
                            (list :x (+ x (/ (- cell glyph-width) 2))
-                                 :y (* row line-height) :width glyph-width :height line-height)
+                                 :y (+ top (* row (+ line-height character-gap)))
+                                 :width glyph-width :height line-height)
                            tategaki--pixel-positions)
                   (push (tategaki--spacer (/ (- cell glyph-width) 2)
                                           line-height ascent) parts))
@@ -312,8 +398,12 @@ Relative widths remain stable across the two replacement strings."
                                    line-height ascent)
                         (make-string (max 0 (- cell glyph-width)) ?\s)) parts)))))
         (push (apply #'concat (nreverse parts)) rows)))
-    (let* ((display (propertize (mapconcat #'identity (nreverse rows) "\n")
-                                'line-height t 'line-spacing 0))
+    (let* ((display (propertize
+                     (concat (tategaki--vertical-space top graphic)
+                             (mapconcat #'identity (nreverse rows)
+                                        (concat "\n" (tategaki--vertical-space
+                                                      character-gap graphic))))
+                     'line-height t 'line-spacing 0))
            (caret (text-property-any 0 (length display) 'cursor t display)))
       (setq tategaki--display-string display)
       ;; Split BOTH the source range and the display at the native point.
@@ -362,6 +452,10 @@ Relative widths remain stable across the two replacement strings."
                (key (list (buffer-chars-modified-tick) (point-min) (point-max)
                           (window-body-width window t) (window-body-height window t)
                           tategaki-column-height tategaki-layout-use-vertical-forms
+                          tategaki-padding-top tategaki-padding-bottom
+                          tategaki-padding-left tategaki-padding-right
+                          tategaki-line-spacing tategaki-column-spacing
+                          tategaki-character-spacing
                           tategaki-layout-newline-symbol tategaki-layout-tab-symbol
                           tategaki-layout-eof-symbol tategaki-layout-zero-width-symbol
                           tategaki-layout-control-symbol
@@ -372,11 +466,7 @@ Relative widths remain stable across the two replacement strings."
           (unless (equal-including-properties key tategaki--cache-key)
             (let* ((text (tategaki--virtual-text))
                    (metrics (and graphic (tategaki--measure text window)))
-                   ;; Reserve a row for the native cursor at the end of a
-                   ;; replacement string, and for font backend rounding.
-                   (available (max 1 (1- (if graphic
-                                             (/ (window-body-height window t) (nth 2 metrics))
-                                           (window-body-height window)))))
+                   (available (plist-get (tategaki--geometry window metrics) :rows))
                    (height (min available (max 1 (or tategaki-column-height available)))))
               (setq tategaki--metrics metrics
                     tategaki--layout (tategaki-layout-render text height nil (point-min))
@@ -390,8 +480,17 @@ Relative widths remain stable across the two replacement strings."
 
 (defun tategaki--post-command ()
   "Update the display after native editing and movement commands."
-  (unless (memq this-command '(tategaki-forward-column tategaki-backward-column))
-    (setq tategaki--goal-row nil))
+  ;; Command-loop startup (including keyboard macros) can run this hook
+  ;; with no command.  Prefix input also prepares a move rather than ending
+  ;; the previous one; neither should lose a clamped page's desired cell.
+  (when (and this-command
+             (not (memq this-command '(universal-argument universal-argument-more
+                                      digit-argument negative-argument))))
+    (unless (memq this-command '(tategaki-forward-page tategaki-backward-page))
+      (setq tategaki--page-goal nil))
+    (unless (memq this-command '(tategaki-forward-column tategaki-backward-column
+                                tategaki-forward-page tategaki-backward-page))
+      (setq tategaki--goal-row nil)))
   (tategaki-refresh))
 
 (defun tategaki--changed (&rest _)
@@ -422,27 +521,73 @@ START, END, WINDOW and OVERLAY follow `redisplay-highlight-region-function'."
   (interactive "^p")
   (backward-char (or count 1)))
 
+(defun tategaki--goto-cell (column row)
+  "Move to COLUMN's nearest existing cell to ROW in the current layout."
+  (let (best)
+    (seq-doseq (item (plist-get tategaki--layout :positions))
+      (when (and (= (aref item 3) column)
+                 (or (not best)
+                     (< (abs (- (aref item 2) row))
+                        (abs (- (aref best 2) row)))))
+        (setq best item)))
+    (when best (goto-char (tategaki--source-position (aref best 0))))))
+
 (defun tategaki-forward-column (&optional count)
   "Move COUNT columns left, preserving the desired row."
   (interactive "^p")
   (tategaki-refresh)
-  (let* ((entry (tategaki--entry))
-         (target (+ (aref entry 3) (or count 1)))
-         (goal (or tategaki--goal-row (aref entry 2)))
-         best)
-    (setq tategaki--goal-row goal)
-    (seq-doseq (item (plist-get tategaki--layout :positions))
-      (when (and (= (aref item 3) target)
-                 (or (not best)
-                     (< (abs (- (aref item 2) goal))
-                        (abs (- (aref best 2) goal)))))
-        (setq best item)))
-    (when best (goto-char (tategaki--source-position (aref best 0))))))
+  (let ((entry (tategaki--entry)))
+    (setq tategaki--goal-row (or tategaki--goal-row (aref entry 2)))
+    (tategaki--goto-cell (+ (aref entry 3) (or count 1)) tategaki--goal-row)))
 
 (defun tategaki-backward-column (&optional count)
   "Move COUNT columns right, preserving the desired row."
   (interactive "^p")
   (tategaki-forward-column (- (or count 1))))
+
+(defun tategaki-forward-page (&optional count)
+  "Move COUNT vertical pages forward (left), preserving the screen cell.
+COUNT defaults to one; negative values move backward.  Short columns and
+the final page use the nearest existing cell.  Moving beyond the first
+or last page goes to the accessible buffer boundary."
+  (interactive "^p")
+  (unless tategaki-mode (user-error "Vertical editing is not active"))
+  (setq count (or count 1))
+  (unless (zerop count)
+    (tategaki-refresh)
+    ;; Copilot normally clears after motion.  Clear before computing a page
+    ;; so unaccepted ghost columns cannot absorb the move at one source point.
+    ;; Native IME composition and Corfu's candidate navigation stay native.
+    (when (eq tategaki--preview-kind 'copilot)
+      (tategaki-completion-dismiss-copilot)
+      (tategaki-refresh))
+    (let* ((entry (tategaki--entry))
+           (positions (plist-get tategaki--layout :positions))
+           (height (plist-get tategaki--layout :height))
+           (last-column (aref (aref positions (1- (length positions))) 3))
+           (target-page (+ tategaki--page (* count tategaki--page-size))))
+      (when (and tategaki--page-goal
+                 (or (/= (car tategaki--page-goal) tategaki--page-size)
+                     (/= (cadr tategaki--page-goal) height)))
+        ;; Reflow changes point's visual cell.  Start from its new row as
+        ;; well as its new column instead of restoring a pre-resize goal.
+        (setq tategaki--page-goal nil tategaki--goal-row nil))
+      (unless tategaki--page-goal
+        (setq tategaki--page-goal
+              (list tategaki--page-size height (- (aref entry 3) tategaki--page))))
+      (setq tategaki--goal-row (or tategaki--goal-row (aref entry 2)))
+      (cond
+       ((< target-page 0) (goto-char (point-min)))
+       ((> target-page last-column) (goto-char (point-max)))
+       (t (tategaki--goto-cell
+           (min last-column (+ target-page (nth 2 tategaki--page-goal)))
+           tategaki--goal-row)))
+      (tategaki-refresh))))
+
+(defun tategaki-backward-page (&optional count)
+  "Move COUNT vertical pages backward (right), preserving the screen cell."
+  (interactive "^p")
+  (tategaki-forward-page (- (or count 1))))
 
 (defun tategaki--mouse-position (position)
   "Find the source position of a display cell at mouse POSITION."
@@ -498,6 +643,7 @@ START, END, WINDOW and OVERLAY follow `redisplay-highlight-region-function'."
         tategaki--preedit-length 0 tategaki--caret-position nil
         tategaki--preview-end nil tategaki--preview-kind nil tategaki--pixel-positions nil
         tategaki--cache-key nil tategaki--saved-locals nil)
+  (setq tategaki--goal-row nil tategaki--page-goal nil)
   (remove-hook 'post-command-hook #'tategaki--post-command t)
   (remove-hook 'after-change-functions #'tategaki--changed t)
   (remove-hook 'isearch-update-post-hook #'tategaki-refresh t)
@@ -523,12 +669,15 @@ START, END, WINDOW and OVERLAY follow `redisplay-highlight-region-function'."
     map)
   "Keys for vertical editing; other keys retain their normal meanings.")
 
+(tategaki-navigation-install tategaki-mode-map)
+
 ;;;###autoload
 (define-minor-mode tategaki-mode
   "Edit text directly through a vertical display layer.
 The actual source buffer stays selected.  Typing, input methods, undo,
 regions and file saving retain their native semantics.  Arrow keys move
-in vertical display coordinates; ordinary Emacs keys retain their meanings.
+in vertical display coordinates.  `tategaki-physical-navigation' also
+enables physical directions for C-f, C-b, C-n and C-p.
 The mode applies to text-mode and derived modes; markup is shown literally."
   :lighter " 縦編集"
   :keymap tategaki-mode-map

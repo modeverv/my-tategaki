@@ -26,6 +26,7 @@ Emacs 31.1での実画面です。明朝体・配色と上部のキー案内は�
 | 縦書き編集を開始 | `M-x tategaki-edit` |
 | 読む順序で次／前の文字へ | `↓` / `↑` |
 | 左／右の縦列へ | `←` / `→` |
+| 次／前の縦書きページへ | `C-v` / `M-v`、`PageDown` / `PageUp` |
 | 文字の位置へ移動 | その文字をクリック |
 | 範囲を選択 | `C-SPC` の後に移動、または文字から文字へドラッグ |
 | 切り取り／コピー／貼り付け | `C-w` / `M-w` / `C-y` |
@@ -34,9 +35,13 @@ Emacs 31.1での実画面です。明朝体・配色と上部のキー案内は�
 | 再描画 | `C-c C-l` / `M-x tategaki-refresh` |
 | 横書きへ戻る | `C-c C-c` / `M-x tategaki-quit` |
 
-上下の矢印は原文の1文字単位で進み、列の末尾では次の列へ移ります。左右の矢印は縦列を移動し、できるだけ同じ高さを保ちます。カーソルが表示範囲を越えると、対応する列を含むページへ表示が切り替わります。`C-f` / `C-b` などの通常の編集キーは元の割り当てを保ちます。選択範囲も原文の順序に沿った連続した範囲になります。
+上下の矢印は原文の1文字単位で進み、列の末尾では次の列へ移ります。左右の矢印は縦列を移動し、できるだけ同じ高さを保ちます。カーソルが表示範囲を越えると、対応する列を含むページへ表示が切り替わります。`C-f` / `C-b` などは初期設定では元の割り当てを保ち、以下の設定で画面上の方向へ切り替えられます。選択範囲も原文の順序に沿った連続した範囲になります。
 
 対象は `text-mode` とその派生モードです。Markdown・Org でも使えますが、見出し記号などを含めて原文をそのまま並べます。新規バッファが `fundamental-mode` の場合は、先に `M-x text-mode` を実行してください。
+
+`C-v` は左側の次ページ、`M-v` は右側の前ページへ移動します。1ページは現在のウィンドウに収まる縦列数で、余白・間隔・リサイズも反映します。できるだけ同じ画面上の行・列を保ち、短い最終ページから戻るときも元の位置を使います。ページ範囲を越える操作は本文の先頭・末尾へ移動します。数値引数はページ数（例：`C-u 2 C-v`）、負数は逆方向、0は移動なしです。
+
+ページ移動は `tategaki-physical-navigation` の値にかかわらず使えます。Corfuで候補を選択中の `C-v` / `M-v` はCorfuの候補ページ送りを優先します。Copilotの未採用提案は通常の取消処理で消してから本文のページを計算します。
 
 ## 編集モードの表示と設定
 
@@ -53,6 +58,20 @@ GUI ではフォントの幅を測って列を揃え、端末では1文字を半
 (setq tategaki-column-spacing 1
       tategaki-layout-use-vertical-forms t)
 
+;; 上下左右の余白。GUIではピクセル単位。
+(setq tategaki-padding-top 20
+      tategaki-padding-bottom 20
+      tategaki-padding-left 24
+      tategaki-padding-right 24)
+
+;; 行間＝縦列どうしの横方向の空き、文字間＝文字どうしの縦方向の空き。
+(setq tategaki-line-spacing 12
+      tategaki-character-spacing 4)
+
+;; tategaki-mode内で、Emacsの移動キーも画面上の方向に合わせる。
+;; C-f → 右、C-b → 左、C-n → 下、C-p → 上。
+(setq tategaki-physical-navigation t)
+
 ;; 表示記号は、それぞれ幅1〜2セルの1文字を指定する。
 (setq tategaki-layout-newline-symbol "↵"
       tategaki-layout-tab-symbol "⇥"
@@ -63,7 +82,11 @@ GUI ではフォントの幅を測って列を揃え、端末では1文字を半
 ;; (set-face-attribute 'tategaki-cursor-face nil :background "#557a22")
 ```
 
-フォントを変更したら `C-c C-l` で再描画してください。
+余白の既定値はすべて `0`、文字間は `0` です。`tategaki-line-spacing` の既定値 `nil` は従来の `tategaki-column-spacing`（半角幅単位）を使います。明示的な `0` は列間の追加の空きをなくします。端末では上下余白・文字間を行数、左右余白・列間を半角セル数として扱います。
+
+余白と間隔を差し引いて1列の文字数と1ページの列数を決めます。左・下には文字が収まらない分の空きが加わり、右端には描画用の小さな余裕が残ります。小さいウィンドウや極端に大きい設定値では、入力位置を表示できる範囲に余白・間隔を縮めます。本文やUndo履歴には影響しません。
+
+`setq` の変更は次の操作・再描画で反映されます。バッファごとに変える場合は `setq-local` を使えます。移動キー設定を `nil` にすると元の割り当てへ戻り、縦書き以外のバッファには影響しません。数値引数・選択範囲も矢印と同じ扱いで、Corfuの候補選択中はCorfuのキー処理を優先します。フォントを変更したら `C-c C-l` で再描画してください。
 
 文字単位の縦書き編集です。禁則処理、欧文回転、縦中横、ルビには対応していません。結合文字やゼロ幅文字にも個別の編集位置を設け、単独では見えない文字を `◌` などの記号で表示します。編集時は表示対象テキスト全体を組み直すため、長文では入力後の更新に時間がかかります。カーソル移動だけならレイアウトを再利用します。
 
@@ -88,13 +111,15 @@ emacs --batch -Q -L . -l org-tategaki-preview.el -l tategaki-layout.el -l tatega
   -l test/org-tategaki-preview-test.el -l test/tategaki-layout-test.el \
   -l test/tategaki-test.el -l test/tategaki-ime-test.el \
   -l test/tategaki-completion-test.el -l test/tategaki-corfu-test.el \
+  -l test/tategaki-navigation-test.el -l test/tategaki-spacing-test.el \
+  -l test/tategaki-paging-test.el \
   -f ert-run-tests-batch-and-exit
 emacs --batch -Q -L . --eval '(setq byte-compile-error-on-warn t)' \
   -f batch-byte-compile org-tategaki-preview.el tategaki-layout.el tategaki-ime.el \
-  tategaki-completion.el tategaki-corfu.el tategaki.el
+  tategaki-completion.el tategaki-corfu.el tategaki-navigation.el tategaki.el
 ```
 
-Emacs 31.1でバッチの101件中97件成功、GUI専用4件スキップ、失敗0件。レイアウト13件・編集機能23件・IME連携22件・補完連携19件を含みます。バイトコンパイルは警告なしです。
+Emacs 31.1でバッチの128件中124件成功、GUI専用4件スキップ、失敗0件。レイアウト13件・編集機能23件・IME連携22件・補完連携19件・移動設定7件・余白と間隔8件・ページ移動12件を含みます。バイトコンパイルは警告なしです。
 
 専用GUIでは編集モード8件と従来プレビュー8件が全て成功しました。カーソルを全位置へ動かしても文字の画面座標が変わらないこと、小さいウィンドウ・大きいフォントで最下段と文末が見えること、列をまたぐドラッグ選択と切り取りも確認しています。
 
@@ -102,13 +127,20 @@ IME連携追加後の回帰確認では編集モード8件に加え、NS未確�
 
 補完連携は Copilot 20260331.713、Corfu 20260913.1527 で検証しています。実際のパッケージの表示・採用処理を使い、CopilotのGUI3件、CorfuのGUI4件が成功しました。空文書・文末の採用キー、縦列をまたぐ提案、Corfuの実際の候補ウィンドウの座標、下端での上側表示、文字拡大、確定・Undoを検証します。Copilotサーバーへの生成リクエストは行わず、テスト用の提案文を表示関数へ渡します。
 
+余白・間隔・物理方向キーのGUI4件では、1ピクセルの上余白、文字間・列間の実寸、列間を変えても右余白が変わらないこと、全位置の実カーソル、空本文、小さい画面と過大設定での文末表示を検証します。今回の変更後は編集8件を再確認し、IME6件・Copilot3件・Corfu4件も上下左右の余白と間隔を指定した状態で成功しました。
+
+ページ移動追加後は専用GUI4件で `C-v` / `M-v` / `PageDown` / `PageUp` の実カーソル座標、短い最終ページとの往復、数値引数、リサイズ、長いCopilot提案の取消後の移動を確認し、既存の編集GUI8件も再確認しています。Corfuの候補ページ送りと通常バッファのキー保持は、実パッケージを使ったバッチテストで確認します。
+
 実カーソルの画面座標と文字の対応、矢印・挿入・削除、日本語入力、空文書・文末、undo・保存、ページ切替・リサイズ、マウス操作は専用GUIプロセスで検証します。実行中の編集用Emacsには読み込まないでください。
 
 ```sh
 emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-graphical-tests.el
 emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-ime-graphical-tests.el
 emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-completion-graphical-tests.el
-emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-corfu-graphical-tests.el
+emacs -Q -L /path/to/corfu -L /path/to/compat \
+  -l /absolute/path/to/my-tategaki/test/tategaki-corfu-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-spacing-graphical-tests.el
+emacs -Q -l /absolute/path/to/my-tategaki/test/tategaki-paging-graphical-tests.el
 ```
 
 終了コードは成功0、失敗1、起動条件の不備・60秒タイムアウト2です。ログは `temporary-file-directory` 内の `tategaki-gui-tests.log` / `tategaki-ime-gui-tests.log` に保存されます。IME用GUIテストにはNS版Emacsと `ns-put-marked-text` が必要です。
