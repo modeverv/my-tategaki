@@ -34,10 +34,12 @@
 (defcustom tategaki-scrollbar-pixel-height 18
   "Scrollbar height in graphical displays, in logical pixels."
   :type 'natnum :group 'tategaki-scrollbar)
-(defface tategaki-scrollbar-track '((t (:inherit shadow)))
-  "Color of the scrollbar track." :group 'tategaki-scrollbar)
-(defface tategaki-scrollbar-thumb '((t (:inherit font-lock-keyword-face)))
-  "Color of the scrollbar thumb." :group 'tategaki-scrollbar)
+(defface tategaki-scrollbar-track '((t (:inherit tategaki-face)))
+  "Color of the scrollbar track, following the vertical text by default."
+  :group 'tategaki-scrollbar)
+(defface tategaki-scrollbar-thumb '((t (:inherit tategaki-face)))
+  "Color of the scrollbar outline and arrows, following the vertical text."
+  :group 'tategaki-scrollbar)
 
 (defvar tategaki-mode)
 (defvar tategaki--layout)
@@ -52,13 +54,32 @@
 (declare-function tategaki--goto-cell "tategaki" (column row))
 (declare-function tategaki--vertical-space "tategaki" (size graphic))
 (declare-function tategaki-completion-dismiss-copilot "tategaki-completion" ())
-(declare-function tategaki-glyph--color "tategaki-glyph" (value fallback frame))
+(declare-function tategaki-glyph--style "tategaki-glyph" (face frame))
+
+(defun tategaki-scrollbar-line-spacing (window)
+  "Return the native extra pixels Emacs adds to each line in WINDOW.
+The display string's `line-height' property does not cancel this spacing
+on image and stretch glyphs.  Keep the source buffer's setting intact."
+  (let* ((frame (window-frame window))
+         (value (buffer-local-value 'line-spacing (window-buffer window)))
+         (value (if (or (numberp value) (consp value)) value
+                  (frame-parameter frame 'line-spacing))))
+    (if (not (display-graphic-p frame)) 0
+      (max 0
+           (cond ((integerp value) value)
+                 ((floatp value) (truncate (* value (frame-char-height frame))))
+                 ((and (consp value) (integerp (car value)) (integerp (cdr value)))
+                  (+ (car value) (cdr value)))
+                 ((and (consp value) (floatp (car value)) (floatp (cdr value)))
+                  (truncate (* (+ (car value) (cdr value)) (frame-char-height frame))))
+                 (t 0))))))
 
 (defun tategaki-scrollbar-height (window)
   "Return reserved height for the scrollbar in WINDOW, or zero."
   (if (not tategaki-scrollbar) 0
     (if (display-graphic-p (window-frame window))
-        (+ 4 (max 12 tategaki-scrollbar-pixel-height
+        (+ 4 (* 2 (tategaki-scrollbar-line-spacing window))
+           (max 12 tategaki-scrollbar-pixel-height
                   (frame-char-height (window-frame window))))
       1)))
 
@@ -170,24 +191,37 @@
            (geometry (tategaki-scrollbar--geometry
                       width (plist-get tategaki--layout :columns)
                       tategaki--page-size tategaki--page))
+           (spacing (tategaki-scrollbar-line-spacing window))
+           ;; Count the rendered scanlines, including top/character gaps.
+           ;; Padding and the track each occupy another native display line.
+           (native-spacing (* spacing (+ 3 (cl-count ?\n display))))
            (padding (max 0 (- (window-body-height window graphic) content-height height
-                               (if graphic 2 0))))
-           (track-color (if svg-p (tategaki-glyph--color
-                                   (face-foreground 'tategaki-scrollbar-track frame t) "#888888" frame)))
-           (thumb-color (if svg-p (tategaki-glyph--color
-                                   (face-foreground 'tategaki-scrollbar-thumb frame t) "#4488bb" frame)))
+                               native-spacing (if graphic 2 0))))
+           (track-color (and svg-p (plist-get (tategaki-glyph--style
+                                               'tategaki-scrollbar-track frame) :foreground)))
+           (thumb-color (and svg-p (plist-get (tategaki-glyph--style
+                                               'tategaki-scrollbar-thumb frame) :foreground)))
            (bar
             (if svg-p
-                (let ((svg (svg-create width height)))
-                  (svg-rectangle svg (plist-get geometry :button) (- (/ height 2.0) 2)
-                                 (plist-get geometry :track) 4 :fill track-color :rx 2)
-                  (svg-rectangle svg (plist-get geometry :x) 2 (plist-get geometry :thumb)
-                                 (- height 4) :fill thumb-color :rx 4)
+                (let* ((svg (svg-create width height))
+                       (left (plist-get geometry :x))
+                       (right (+ left (plist-get geometry :thumb)))
+                       (middle (/ height 2.0)))
+                  ;; Leave the thumb's interior empty, including the rail.
+                  (svg-line svg (plist-get geometry :button) middle left middle
+                            :stroke track-color :stroke-width 2)
+                  (svg-line svg right middle (- width (plist-get geometry :button)) middle
+                            :stroke track-color :stroke-width 2)
+                  (svg-rectangle svg (+ left 1) 3 (max 0 (- (plist-get geometry :thumb) 2))
+                                 (- height 6) :fill "none" :stroke thumb-color :stroke-width 2)
                   (svg-polygon svg `((2 . ,(/ height 2)) (10 . 3) (10 . ,(- height 3)))
                                :fill thumb-color)
                   (svg-polygon svg `((,(- width 2) . ,(/ height 2)) (,(- width 10) . 3)
                                     (,(- width 10) . ,(- height 3))) :fill thumb-color)
-                  (propertize " " 'display (svg-image svg :ascent 0)))
+                  ;; Geometry and mouse coordinates are already in pixels.
+                  ;; Font-dependent image scaling would widen the track past
+                  ;; the window and push it out of the visible bottom row.
+                  (propertize " " 'display (svg-image svg :ascent 0 :scale 1)))
               (let ((text (make-string width ?-)))
                 (dotimes (i (plist-get geometry :thumb))
                   (aset text (min (1- width) (+ (plist-get geometry :x) i)) ?=))
@@ -197,8 +231,9 @@
       (setq geometry (plist-put geometry :coordinate-scale
                                 (if (and graphic (not svg-p)) (frame-char-width frame) 1)))
       (add-text-properties 0 (length bar)
-                           (list 'keymap tategaki-scrollbar-map 'pointer 'hand
-                                 'tategaki-scrollbar geometry 'mouse-face 'highlight
+                           (list 'face 'tategaki-scrollbar-track
+                                 'keymap tategaki-scrollbar-map 'pointer 'hand
+                                 'tategaki-scrollbar geometry
                                  'help-echo "横スクロール：左が文末・右が文頭。クリック／ドラッグで移動") bar)
       ;; The separator must share the image rows' explicit line height;
       ;; its default font ascent otherwise shifts the native cursor.

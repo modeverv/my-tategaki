@@ -53,6 +53,7 @@
 (declare-function tategaki--install-display "tategaki" (display window &optional content-height))
 (declare-function tategaki--page-start "tategaki" (column capacity))
 (declare-function tategaki-scrollbar-height "tategaki-scrollbar" (window))
+(declare-function tategaki-scrollbar-line-spacing "tategaki-scrollbar" (window))
 (declare-function tategaki--source-position "tategaki" (position))
 (declare-function tategaki--preedit-index "tategaki" (position))
 (declare-function tategaki--face-list "tategaki" (face))
@@ -63,9 +64,10 @@
   (and (display-graphic-p (window-frame window)) tategaki-glyph-use-svg
        (image-type-available-p 'svg)))
 
-(defun tategaki-typeset-view-geometry (window metrics)
+(defun tategaki-typeset-view-geometry (window metrics &optional native-lines)
   "Return fitted page dimensions for WINDOW and font METRICS.
-Fixed manuscripts scale the display, never the number of cells per page."
+Fixed manuscripts scale the display, never the number of cells per page.
+NATIVE-LINES, when non-nil, is the measured number of composed scanlines."
   (let* ((frame (window-frame window))
          (unit (frame-char-width frame))
          (body (nth 1 metrics)) (row-height (nth 2 metrics))
@@ -82,6 +84,8 @@ Fixed manuscripts scale the display, never the number of cells per page."
          (inner-height (- height (car vp) (cdr vp)))
          (gap (max 0 (or tategaki-line-spacing (* unit tategaki-column-spacing))))
          (character-gap (max 0 tategaki-character-spacing))
+         (native-spacing (tategaki-scrollbar-line-spacing window))
+         (spacing-per-row (* native-spacing (if (> character-gap 0) 2 1)))
          (paper (tategaki-manuscript-config))
          (paper-columns (plist-get paper :columns))
          (spread (if (and paper-columns (plist-get paper :spread)) 2 1))
@@ -89,13 +93,17 @@ Fixed manuscripts scale the display, never the number of cells per page."
          (rows (or (plist-get paper :rows)
                    (min (or tategaki-column-height most-positive-fixnum)
                         (max 1 (1- (floor (/ (+ inner-height character-gap)
-                                             (float (+ row-height character-gap)))))))))
+                                             (float (+ row-height character-gap
+                                                       spacing-per-row)))))))))
          (capacity (if paper-columns (* paper-columns spread)
                      (max 1 (floor (/ (+ inner-width gap) (float (+ cell gap)))))))
          (scale (if paper-columns
                     (min 1.0 (/ (float inner-width)
                                 (+ (* capacity cell) (* (1- capacity) gap) paper-gap))
-                         (/ (float inner-height)
+                         (/ (float (max 1 (- inner-height
+                                             (if native-lines (* native-lines native-spacing)
+                                               (* rows spacing-per-row))
+                                             (if (> (car vp) 0) native-spacing 0))))
                             ;; Half a cell remains available for hanging marks.
                             (+ (* (+ rows 0.5) row-height) (* rows character-gap))))
                   1.0)))
@@ -149,9 +157,10 @@ Fixed manuscripts scale the display, never the number of cells per page."
       (setcdr image (plist-put (cdr image) :ascent 0)))
     piece))
 
-(defun tategaki-typeset-view-paint (window)
-  "Compose the visible page's cells into exact scanlines in WINDOW."
-  (let* ((geometry (tategaki-typeset-view-geometry window tategaki--metrics))
+(cl-defun tategaki-typeset-view-paint (window &optional native-lines)
+  "Compose the visible page's cells into exact scanlines in WINDOW.
+NATIVE-LINES reserves native line spacing when refitting a composed page."
+  (let* ((geometry (tategaki-typeset-view-geometry window tategaki--metrics native-lines))
          (capacity (plist-get geometry :capacity))
          (entry (tategaki--entry))
          (column (aref entry 3))
@@ -213,6 +222,16 @@ Fixed manuscripts scale the display, never the number of cells per page."
                                          (plist-get geometry :character-gap)))))
     (push right-edge boundaries)
     (setq boundaries (sort (delete-dups boundaries) #'<))
+    ;; Compression and hanging punctuation can split logical cells into
+    ;; additional scanlines.  Refit fixed paper using that actual count,
+    ;; instead of letting native line spacing push the track off screen.
+    ;; The reservation only increases, so rounding cannot oscillate.
+    (when (and paper-columns (> (tategaki-scrollbar-line-spacing window) 0)
+               (> (1- (length boundaries))
+                  (or native-lines (* (plist-get geometry :rows)
+                                      (if (> tategaki-character-spacing 0) 2 1)))))
+      (cl-return-from tategaki-typeset-view-paint
+        (tategaki-typeset-view-paint window (1- (length boundaries)))))
     (dotimes (index capacity)
       (aset columns index (sort (aref columns index)
                                 (lambda (a b) (< (plist-get a :y) (plist-get b :y))))))

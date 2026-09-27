@@ -8,6 +8,8 @@
         <tr><td>読み順に進む／戻る</td><td><kbd>↓</kbd> / <kbd>↑</kbd></td><td>縦列の下／上へ移動。列末を越えると次の列へ進みます。</td></tr>
         <tr><td>隣の縦列へ</td><td><kbd>←</kbd> / <kbd>→</kbd></td><td>できるだけ同じ高さを保って左右へ移動します。</td></tr>
         <tr><td>次／前の表示ページ</td><td><code>C-v</code> / <code>M-v</code><br><kbd>PageDown</kbd> / <kbd>PageUp</kbd></td><td>左側の続き／右側の前のページへ進みます。</td></tr>
+        <tr><td>文字を拡大／縮小する</td><td><code>M-+</code>（または<code>M-=</code>）/ <code>M--</code></td><td>GUIで現在の原稿の縦書き表示倍率を変えます。</td></tr>
+        <tr><td>文字を標準倍率に戻す</td><td><code>M-0</code></td><td>縦書き表示の拡大・縮小を解除します。</td></tr>
         <tr><td>指定位置へ</td><td>文字をクリック</td><td>対応する本文の挿入位置へ移動します。</td></tr>
         <tr><td>範囲を選ぶ</td><td><code>C-SPC</code>の後に移動、または文字間をドラッグ</td><td>原文の読み順に連続した範囲を選択します。</td></tr>
         <tr><td>切り取り／コピー／貼り付け</td><td><code>C-w</code> / <code>M-w</code> / <code>C-y</code></td><td>表示記号を追加せず、元のテキストを扱います。</td></tr>
@@ -48,6 +50,15 @@
   <pre><code class="language-elisp">(setq tategaki-scrollbar t
       tategaki-scrollbar-pixel-height 18)</code></pre>
   <p><code>tategaki-scrollbar</code>を<code>nil</code>にすると非表示にできます。色は<code>tategaki-scrollbar-track</code>と<code>tategaki-scrollbar-thumb</code>のfaceで調整します。スクロール後に<code>C-v</code>または<code>M-v</code>を押すとページ単位の表示へ戻ります。IMEの未確定入力中はバーで移動できないため、確定・取消してから操作してください。</p>
+</section>
+
+<section aria-labelledby="text-size">
+  <h2 id="text-size">文字の大きさを変える</h2>
+  <p>GUIで縦書き編集中に<code>M-+</code>を押すと文字が大きくなり、<code>M--</code>で小さくなります。<code>+</code>を入力しづらいキーボードでは<code>M-=</code>でも拡大できます。<code>M-0</code>で標準倍率に戻します。</p>
+  <p>表示倍率は原稿ごとに持ちます。現在の原稿の縦書き表示だけが変わり、本文・Undo履歴・他のバッファ・Emacs全体のフォント設定は保たれます。通常の<code>text-scale-adjust</code>とは独立した倍率です。</p>
+  <p>1段階の倍率には<code>text-scale-mode-step</code>（既定は1.2）を使います。<code>C-u 3 M-+</code>なら3段階拡大します。倍率はバッファを開いている間保持され、縦書きを終了して再開しても引き継ぎます。原稿ファイルには保存しません。</p>
+  <p>画面に合わせた版面では、拡大すると一度に表示できる字数・列数が減ります。固定の「20字×20列」などでは字数・列数を維持して紙面全体を拡大し、画面に収まる上限で止まります。さらに大きく表示するには、ウィンドウを広げるか、原稿用紙の版面を変更してください。</p>
+  <p><code>M-x tategaki-text-scale-increase</code>、<code>M-x tategaki-text-scale-decrease</code>、<code>M-x tategaki-text-scale-reset</code>からも操作できます。</p>
 </section>
 
 <section aria-labelledby="spacing">

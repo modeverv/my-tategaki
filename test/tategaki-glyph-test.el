@@ -135,11 +135,51 @@
   (dolist (unit '((:text "字" :kind glyph :span 1)
                   (:text "字" :kind ruby :span 1 :ruby "じ")
                   (:text "字" :kind glyph :span 1 :emphasis dot)))
-    (let ((svg (tategaki-glyph-test--svg
-                (tategaki-glyph-render
+    (let* ((svg (tategaki-glyph--svg
                  (append unit '(:body-width 40 :annotation-width 20))
-                 60 40 30 'default))))
-      (should (string-match-p "x=\"20.0\">&#23383;</text>" svg)))))
+                 60 40 '(:family "sans-serif" :foreground "#000000"
+                        :background "#ffffff") nil))
+           (texts (dom-by-tag svg 'text))
+           (body (car texts)))
+      ;; Compare the em-square center, not the SVG text origin: a CJK
+      ;; glyph's left side bearing belongs inside its full-width cell.
+      (should (= (+ (dom-attr body 'x) (/ (dom-attr body 'font-size) 2.0))
+                 20.0))
+      (when (plist-get unit :ruby)
+        (let ((ruby (cadr texts)))
+          (should (= (+ (dom-attr ruby 'x) (/ (dom-attr ruby 'font-size) 2.0))
+                     50.0)))))))
+
+(ert-deftest tategaki-glyph-svg-fullwidth-cjk-centers-the-em-square ()
+  (let ((style '(:family "sans-serif" :foreground "#000000" :background "#ffffff")))
+    (dolist (dimensions '((24 34) (40 40) (13 17)))
+      (let ((width (car dimensions)) (height (cadr dimensions)))
+        (dolist (text '("日" "本" "人" "・" "｜" "ー" "、" "︑" "﹁"
+                        "Ａ" "！" "？" "한" "ㄅ" "か\u3099" "字\U000e0100"))
+          (ert-info ((format "Glyph %S in %sx%s cell" text width height))
+            (let* ((svg (tategaki-glyph--svg (list :text text :kind 'glyph :span 1)
+                                            width height style nil))
+                   (node (car (dom-by-tag svg 'text))))
+              (should (equal (dom-attr node 'text-anchor) "start"))
+              (should (= (+ (dom-attr node 'x) (/ (dom-attr node 'font-size) 2.0))
+                         (/ width 2.0))))))))))
+
+(ert-deftest tategaki-glyph-svg-other-text-retains-advance-centering ()
+  (let ((style '(:family "sans-serif" :foreground "#000000" :background "#ffffff")))
+    (dolist (unit '((:text "a" :kind glyph :span 1)
+                    (:text "日本" :kind glyph :span 1)
+                    (:text "ﾊ" :kind glyph :span 1)
+                    (:text "ｶﾞ" :kind glyph :span 1)
+                    (:text "☆" :kind glyph :span 1)
+                    (:text "🙂" :kind glyph :span 1)
+                    (:text "🇯🇵" :kind glyph :span 1)
+                    (:text "❤️" :kind glyph :span 1)
+                    (:text "12" :kind tcy :span 1)
+                    (:text "Emacs" :kind latin :span 3)))
+      (let* ((svg (tategaki-glyph--svg unit 40 40 style nil))
+             (node (car (dom-by-tag svg 'text))))
+        (should (equal (dom-attr node 'text-anchor) "middle"))
+        (should (= (dom-attr node 'x) (if (eq (plist-get unit :kind) 'latin) 0 20.0)))))))
 
 (ert-deftest tategaki-glyph-resolves-highlight-colors-and-underline ()
   (let ((svg (tategaki-glyph-test--svg

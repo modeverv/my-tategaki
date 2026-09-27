@@ -34,12 +34,16 @@
 <tr><td>縦書き編集の有効・無効を切り替える</td><td><code>tategaki-mode</code></td><td>—</td></tr>
 <tr><td>横書きへ戻る</td><td><code>tategaki-quit</code></td><td><kbd>C-c C-c</kbd></td></tr>
 <tr><td>再描画</td><td><code>tategaki-refresh</code></td><td><kbd>C-c C-l</kbd></td></tr>
+<tr><td>文字を拡大する（GUI）</td><td><code>tategaki-text-scale-increase</code></td><td><kbd>M-+</kbd> / <kbd>M-=</kbd></td></tr>
+<tr><td>文字を縮小する（GUI）</td><td><code>tategaki-text-scale-decrease</code></td><td><kbd>M--</kbd></td></tr>
+<tr><td>文字を標準倍率に戻す（GUI）</td><td><code>tategaki-text-scale-reset</code></td><td><kbd>M-0</kbd></td></tr>
 <tr><td>読む順序で次／前の文字へ</td><td><code>tategaki-next-character</code> / <code>tategaki-previous-character</code></td><td><kbd>↓</kbd> / <kbd>↑</kbd></td></tr>
 <tr><td>左／右の縦列へ</td><td><code>tategaki-forward-column</code> / <code>tategaki-backward-column</code></td><td><kbd>←</kbd> / <kbd>→</kbd></td></tr>
 <tr><td>次／前のページへ</td><td><code>tategaki-forward-page</code> / <code>tategaki-backward-page</code></td><td><kbd>C-v</kbd> / <kbd>M-v</kbd>、<kbd>PageDown</kbd> / <kbd>PageUp</kbd></td></tr>
 <tr><td>指定ページの先頭へ</td><td><code>tategaki-goto-page</code></td><td><kbd>C-c C-p</kbd></td></tr>
 <tr><td>表示を左／右へ1列ずつ送る</td><td><code>tategaki-scroll-left</code> / <code>tategaki-scroll-right</code></td><td>横方向のホイール、スクロールバー両端の矢印</td></tr>
 </tbody></table>
+<p>文字の拡大・縮小は現在の原稿の縦書き表示に適用し、通常のEmacsの文字拡大とは独立しています。固定原稿用紙は字数・列数を維持し、画面に収まる範囲で拡大します。詳しくは<a href="editing.html#text-size">文字の大きさ</a>を参照してください。</p>
 <h3 id="annotation-commands">注記・原稿用紙</h3>
 <p>注記の挿入は原文を編集し、通常のUndo対象になります。組版／原文記法の切り替えと原稿用紙の表示設定は本文を書き換えません。固定版面・見開き・罫線にはGUIとSVGによる組版表示が必要です。</p>
 <table><thead><tr><th>操作</th><th>コマンド</th><th>キー</th></tr></thead><tbody>

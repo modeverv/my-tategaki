@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'face-remap)
 (require 'tategaki-layout)
 (require 'tategaki-ime)
 (require 'tategaki-completion)
@@ -124,6 +125,10 @@ Nil uses the existing `tategaki-column-spacing' setting."
 (defvar-local tategaki--metrics nil)
 (defvar-local tategaki--font-key nil)
 (defvar-local tategaki--font-metrics nil)
+(defvar-local tategaki--text-scale-amount 0
+  "Number of buffer-local zoom steps for the vertical display only.")
+(defvar-local tategaki--text-scale-cookie nil
+  "Face remapping owned by the vertical display's zoom commands.")
 (defvar-local tategaki--source-key nil)
 (defvar-local tategaki--source-text nil)
 (defvar-local tategaki--typeset-cache nil)
@@ -187,6 +192,53 @@ errors.  Nil retains the caller's threshold."
     (list frame (face-all-attributes 'default frame)
           (face-all-attributes 'fixed-pitch frame)
           (face-all-attributes 'tategaki-face frame) face-remapping-alist)))
+
+(defun tategaki--text-scale-apply ()
+  "Apply this buffer's vertical zoom without changing other face remappings."
+  (when tategaki--text-scale-cookie
+    (face-remap-remove-relative tategaki--text-scale-cookie)
+    (setq tategaki--text-scale-cookie nil))
+  (unless (zerop tategaki--text-scale-amount)
+    (setq tategaki--text-scale-cookie
+          (face-remap-add-relative
+           'tategaki-face :height
+           (expt text-scale-mode-step tategaki--text-scale-amount))))
+  ;; Face-remap functions may mutate the lists retained in our cache keys.
+  (setq tategaki--font-key nil tategaki--font-metrics nil
+        tategaki--cache-key nil
+        tategaki--goal-row nil tategaki--page-goal nil
+        tategaki--scroll-start nil))
+
+(defun tategaki-text-scale-increase (&optional steps)
+  "Enlarge vertical text in this buffer by STEPS (default one).
+Negative STEPS shrink the text; zero restores its original size.
+Use `text-scale-mode-step' as the multiplier per step, independently of
+ordinary `text-scale-mode'.  Fixed manuscript dimensions are preserved,
+so their display stops growing when the paper fills the window."
+  (interactive "p")
+  (unless tategaki-mode (user-error "Vertical editing is not active"))
+  (unless (display-graphic-p) (user-error "Vertical text zoom requires a graphical display"))
+  (let* ((steps (or steps 1))
+         (amount (if (zerop steps) 0 (+ tategaki--text-scale-amount steps)))
+         (scale (expt text-scale-mode-step amount)))
+    ;; Avoid requesting unusably tiny or enormous native fonts, including
+    ;; accidental large numeric prefixes.  Reset always remains available.
+    (unless (<= 0.1 scale 10.0)
+      (user-error "Vertical text scale must stay between 10%% and 1000%%"))
+    (setq tategaki--text-scale-amount amount)
+    (tategaki--text-scale-apply)
+    (tategaki-refresh)))
+
+(defun tategaki-text-scale-decrease (&optional steps)
+  "Shrink vertical text in this buffer by STEPS (default one)."
+  (interactive "p")
+  (tategaki-text-scale-increase (- (or steps 1))))
+
+(defun tategaki-text-scale-reset ()
+  "Restore this buffer's original vertical text size.
+Leave ordinary `text-scale-mode' and user face remappings unchanged."
+  (interactive)
+  (tategaki-text-scale-increase 0))
 
 (defun tategaki--measure (text window)
   "Return (WIDTHS CELL HEIGHT ASCENT) for TEXT in WINDOW.
@@ -309,25 +361,42 @@ virtual insertion cursor, including completion and IME previews."
         ;; Read the rendered glyph, not hidden source posn-at-point.  Row
         ;; heights can grow due to fallback fonts or an underline, so using
         ;; row * nominal-font-height accumulates an error near the bottom.
-        (cl-loop with x = (+ (plist-get pixel :x) (/ (plist-get pixel :width) 2))
-                 for y from 0 below (window-body-height window t)
-                 by (max 1 (/ (frame-char-height (window-frame window)) 2))
-                 for posn = (posn-at-x-y x y window)
-                 for object = (and posn (posn-string posn))
-                 when (and object
-                           (or (= virtual (or (get-text-property (cdr object)
-                                                'tategaki-virtual-position (car object)) -1))
-                               (let ((start (get-text-property (cdr object) 'tategaki-unit-start (car object)))
-                                     (end (get-text-property (cdr object) 'tategaki-unit-end (car object))))
-                                 (and start end (<= start virtual) (< virtual end)))))
-                 return (list :x (- (car (posn-x-y posn)) (car (posn-object-x-y posn)))
-                              :y (- (cdr (posn-x-y posn)) (cdr (posn-object-x-y posn))
-                                    (or (get-text-property (cdr object) 'tategaki-slice-offset
-                                                           (car object)) 0))
-                              :width (car (posn-object-width-height posn))
-                              :height (or (get-text-property (cdr object) 'tategaki-unit-height
-                                                              (car object))
-                                          (cdr (posn-object-width-height posn)))))))))
+        (cl-labels
+            ((matches (object)
+               (and object
+                    (or (= virtual (or (get-text-property (cdr object)
+                                          'tategaki-virtual-position (car object)) -1))
+                        (let ((start (get-text-property (cdr object) 'tategaki-unit-start (car object)))
+                              (end (get-text-property (cdr object) 'tategaki-unit-end (car object))))
+                          (and start end (<= start virtual) (< virtual end)))))))
+          (cl-loop with x = (+ (plist-get pixel :x) (/ (plist-get pixel :width) 2))
+                   for y from 0 below (window-body-height window t)
+                   by (max 1 (min (/ (frame-char-height (window-frame window)) 2)
+                                  (/ (plist-get pixel :height) 2)))
+                   for posn = (posn-at-x-y x y window)
+                   when (matches (and posn (posn-string posn)))
+                   ;; A coarse hit can land in a later slice of a compressed
+                   ;; cell.  Native line spacing separates slices, and image
+                   ;; offsets already include the slice origin.  Locate the
+                   ;; first slice instead of subtracting a nominal offset.
+                   return
+                   (let* ((first
+                           (cl-loop for probe from y downto 0
+                                    for candidate = (posn-at-x-y x probe window)
+                                    for object = (and candidate (posn-string candidate))
+                                    when (and (matches object)
+                                              (zerop (or (get-text-property
+                                                          (cdr object) 'tategaki-slice-offset
+                                                          (car object)) 0)))
+                                    return candidate))
+                          (object (and first (posn-string first))))
+                     (when object
+                       (list :x (- (car (posn-x-y first)) (car (posn-object-x-y first)))
+                             :y (- (cdr (posn-x-y first)) (cdr (posn-object-x-y first)))
+                             :width (car (posn-object-width-height first))
+                             :height (or (get-text-property (cdr object) 'tategaki-unit-height
+                                                             (car object))
+                                         (cdr (posn-object-width-height first))))))))))))
 
 (defun tategaki--entry (&optional position)
   "Return the layout entry for source POSITION, defaulting to point."
@@ -381,6 +450,8 @@ GUI values are logical pixels; terminal values are cells and rows."
                    (max 0 (or tategaki-line-spacing (* unit tategaki-column-spacing)))))
          (character-gap (min (max 0 (- inner-height row-height))
                              (max 0 tategaki-character-spacing)))
+         (native-spacing (* (tategaki-scrollbar-line-spacing window)
+                            (if (> character-gap 0) 2 1)))
          (pitch (+ cell gap))
          (capacity (max 1 (/ (+ inner-width gap) pitch))))
     (list :cell cell :gap gap :pitch pitch :capacity capacity
@@ -388,7 +459,7 @@ GUI values are logical pixels; terminal values are cells and rows."
           :top (car vertical) :bottom (cdr vertical)
           :character-gap character-gap
           :rows (max 1 (1- (/ (+ inner-height character-gap)
-                              (+ row-height character-gap))))))))
+                              (+ row-height character-gap native-spacing))))))))
 
 (defun tategaki--vertical-space (size graphic)
   "Return display-only vertical space of SIZE pixels or terminal rows.
@@ -577,6 +648,7 @@ A space glyph defines the complete height; the newline adds no font height."
                           tategaki-padding-left tategaki-padding-right
                           tategaki-line-spacing tategaki-column-spacing
                           tategaki-character-spacing
+                          (tategaki-scrollbar-line-spacing window)
                           tategaki-scrollbar tategaki-scrollbar-pixel-height
                           tategaki-typesetting (tategaki-typeset-options-key)
                           tategaki-manuscript-size tategaki-manuscript-spread
@@ -773,6 +845,9 @@ or last page goes to the accessible buffer boundary."
 
 (defun tategaki--cleanup ()
   "Remove the layer and restore the original buffer settings."
+  (when tategaki--text-scale-cookie
+    (face-remap-remove-relative tategaki--text-scale-cookie)
+    (setq tategaki--text-scale-cookie nil))
   (tategaki-ime-disable)
   (tategaki-corfu-disable)
   (tategaki-completion-disable)
@@ -821,6 +896,10 @@ or last page goes to the accessible buffer boundary."
     (define-key map (kbd "C-c C-a") #'tategaki-toggle-annotations)
     (define-key map (kbd "C-c C-p") #'tategaki-goto-page)
     (define-key map (kbd "C-c C-o") #'tategaki-outline)
+    (define-key map (kbd "M-+") #'tategaki-text-scale-increase)
+    (define-key map (kbd "M-=") #'tategaki-text-scale-increase)
+    (define-key map (kbd "M--") #'tategaki-text-scale-decrease)
+    (define-key map (kbd "M-0") #'tategaki-text-scale-reset)
     (define-key map [wheel-left] #'tategaki-scroll-left)
     (define-key map [wheel-right] #'tategaki-scroll-right)
     (define-key map [down-mouse-1] #'tategaki-mouse-set-point)
@@ -838,6 +917,7 @@ The actual source buffer stays selected.  Typing, input methods, undo,
 regions and file saving retain their native semantics.  Arrow keys move
 in vertical display coordinates.  `tategaki-physical-navigation' also
 enables physical directions for C-f, C-b, C-n and C-p.
+M-+ and M-- change vertical text size; M-0 restores it.
 The mode applies to text-mode and derived modes.  `tategaki-typesetting'
 enables composed typography and supported Aozora annotations on SVG displays."
   :lighter " 縦編集"
@@ -872,6 +952,7 @@ enables composed typography and supported Aozora annotations on SVG displays."
             (tategaki-highlight-enable #'tategaki-refresh)
             (tategaki-manuscript-enable)
             (tategaki-writing-enable)
+            (tategaki--text-scale-apply)
             (tategaki-refresh))
         (error
          (setq tategaki-mode nil)

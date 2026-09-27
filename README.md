@@ -70,6 +70,8 @@ git clone https://github.com/modeverv/my-tategaki.git ~/src/my-tategaki
 | 読む順序で次／前の文字へ | `↓` / `↑` |
 | 左／右の縦列へ | `←` / `→` |
 | 次／前の画面へ | `C-v` / `M-v`、`PageDown` / `PageUp` |
+| 文字を拡大／縮小する（GUI） | `M-+`（または `M-=`）/ `M--` |
+| 文字を標準倍率に戻す（GUI） | `M-0` |
 | 範囲選択 | `C-SPC` の後に移動、またはドラッグ |
 | コピー／切り取り／貼り付け | `M-w` / `C-w` / `C-y` |
 | 選択範囲にルビを付ける | `C-c C-r` / `M-x tategaki-insert-ruby` |
@@ -81,6 +83,8 @@ git clone https://github.com/modeverv/my-tategaki.git ~/src/my-tategaki
 | 再描画／縦書きを終了 | `C-c C-l` / `C-c C-c` |
 
 `C-v` / `M-v` は画面単位、`tategaki-goto-page` は文書の版面単位で移動します。Corfuなどの補完候補を選んでいる間は、補完側の移動キーを優先します。
+
+`M-+` / `M--` は現在の原稿の縦書き表示を拡大・縮小します。固定原稿用紙では字数・列数を維持し、画面に収まる大きさまで拡大できます。通常のEmacsの文字拡大とは独立した操作です。詳しくは[文字の大きさ](https://modeverv.github.io/my-tategaki/manual/editing.html#text-size)を参照してください。
 
 ## 設定例
 

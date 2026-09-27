@@ -149,16 +149,35 @@ Zero disables this cache.  Emacs also maintains its own image cache."
 
 (defun tategaki-glyph--svg-text (svg text x y size style &rest attributes)
   "Add TEXT to SVG at X,Y with SIZE and STYLE plus ATTRIBUTES."
-  (apply #'svg-text svg text
-         :x x :y y :font-size size
-         :font-family (plist-get style :family)
-         :font-weight (if (memq (plist-get style :weight)
-                               '(bold semi-bold extra-bold ultra-bold)) "bold" "normal")
-         :font-style (if (memq (plist-get style :slant) '(italic oblique))
-                         "italic" "normal")
-         :fill (plist-get style :foreground)
-         :text-anchor "middle"
-         attributes))
+  ;; Some SVG backends (notably macOS) center the ink bounds instead of
+  ;; the advance, but still apply the glyph's left side bearing.  Narrow
+  ;; ink such as 日, ・ and ｜ then drifts right by different amounts.
+  ;; Place a fullwidth CJK grapheme's em square explicitly.  This also
+  ;; preserves the intentional upper-right position of vertical commas
+  ;; and the smaller kana's position within their fullwidth square.
+  ;; Latin runs, tate-chu-yoko, halfwidth kana and emoji retain shaping
+  ;; and measured centering rather than being treated as one CJK em.
+  (let ((fullwidth (and (> (length text) 0)
+                        (= (char-width (aref text 0)) 2)
+                        (memq (aref char-script-table (aref text 0))
+                              '(han kana cjk-misc vertical-form hangul bopomofo))
+                        ;; Combining dakuten can report a spacing width
+                        ;; before Emacs auto-composition runs.  Classify
+                        ;; the grapheme, not its native display width.
+                        (cl-loop for index from 1 below (length text)
+                                 always (memq (get-char-code-property
+                                               (aref text index) 'general-category)
+                                              '(Mn Mc Me))))))
+    (apply #'svg-text svg text
+           :x (if fullwidth (- x (/ size 2.0)) x) :y y :font-size size
+           :font-family (plist-get style :family)
+           :font-weight (if (memq (plist-get style :weight)
+                                 '(bold semi-bold extra-bold ultra-bold)) "bold" "normal")
+           :font-style (if (memq (plist-get style :slant) '(italic oblique))
+                           "italic" "normal")
+           :fill (plist-get style :foreground)
+           :text-anchor (if fullwidth "start" "middle")
+           attributes)))
 
 (defun tategaki-glyph--svg (unit width height style grid)
   "Build the SVG document for UNIT in WIDTH by HEIGHT pixel cells."
