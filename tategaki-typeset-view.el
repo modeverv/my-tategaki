@@ -66,7 +66,8 @@
 
 (defun tategaki-typeset-view-geometry (window metrics &optional native-lines)
   "Return fitted page dimensions for WINDOW and font METRICS.
-Fixed manuscripts scale the display, never the number of cells per page.
+Fixed manuscripts retain their logical rows and columns.  Unless whole-page
+fitting is requested, fit only the height and scroll columns horizontally.
 NATIVE-LINES, when non-nil, is the measured number of composed scanlines."
   (let* ((frame (window-frame window))
          (unit (frame-char-width frame))
@@ -89,7 +90,8 @@ NATIVE-LINES, when non-nil, is the measured number of composed scanlines."
          (paper (tategaki-manuscript-config))
          (paper-columns (plist-get paper :columns))
          (spread (if (and paper-columns (plist-get paper :spread)) 2 1))
-         (paper-gap (if (> spread 1) cell 0))
+         (fit-width (and paper-columns tategaki-manuscript-fit-window))
+         (paper-gap (if (and paper-columns (or (> spread 1) (not fit-width))) cell 0))
          (rows (or (plist-get paper :rows)
                    (min (or tategaki-column-height most-positive-fixnum)
                         (max 1 (1- (floor (/ (+ inner-height character-gap)
@@ -99,7 +101,10 @@ NATIVE-LINES, when non-nil, is the measured number of composed scanlines."
                      (max 1 (floor (/ (+ inner-width gap) (float (+ cell gap)))))))
          (scale (if paper-columns
                     (min 1.0 (/ (float inner-width)
-                                (+ (* capacity cell) (* (1- capacity) gap) paper-gap))
+                                (if fit-width
+                                    (+ (* capacity cell) (* (1- capacity) gap)
+                                       (* (ceiling (1- capacity) paper-columns) paper-gap))
+                                  cell))
                          (/ (float (max 1 (- inner-height
                                              (if native-lines (* native-lines native-spacing)
                                                (* rows spacing-per-row))
@@ -115,14 +120,37 @@ NATIVE-LINES, when non-nil, is the measured number of composed scanlines."
           character-gap (min (max 0 (- inner-height row-height))
                              (floor (* character-gap scale)))
           paper-gap (floor (* paper-gap scale)))
-    (let ((used (+ (* capacity cell) (* (1- capacity) gap) paper-gap)))
+    (when (and paper-columns (not fit-width))
+      (setq capacity (min capacity (max 1 (floor (/ (+ inner-width gap)
+                                                   (float (+ cell gap)))))))
+      ;; Reserve room for any logical sheet boundaries crossed by scrolling.
+      (while (and (> capacity 1)
+                  (> (+ (* capacity cell) (* (1- capacity) gap)
+                        (* (ceiling (1- capacity) paper-columns) paper-gap))
+                     inner-width))
+        (setq capacity (1- capacity))))
+    (let ((used (+ (* capacity cell) (* (1- capacity) gap)
+                   (if paper-columns
+                       (* (ceiling (1- capacity) paper-columns) paper-gap) 0))))
       (list :cell cell :body body :gutter gutter :gap gap :pitch (+ cell gap)
             :row-height row-height :row-pitch (+ row-height character-gap)
             :ascent (max 1 (floor (* (nth 3 metrics) scale)))
             :character-gap character-gap :capacity capacity :rows rows
             :paper-columns paper-columns :paper-gap paper-gap :scale scale
+            :right (+ (car hp) inner-width)
             :left (+ (car hp) (max 0 (- inner-width used)))
             :top (car vp) :bottom (cdr vp)))))
+
+(defun tategaki-typeset-view--column-x (geometry first visual)
+  "Return the x position of VISUAL column with FIRST logical column visible.
+Page gaps follow absolute manuscript boundaries even in a partial viewport."
+  (let* ((offset (- (plist-get geometry :capacity) 1 visual))
+         (paper-columns (plist-get geometry :paper-columns))
+         (gaps (if paper-columns
+                   (- (/ (+ first offset) paper-columns) (/ first paper-columns)) 0)))
+    (- (plist-get geometry :right) (plist-get geometry :cell)
+       (* offset (plist-get geometry :pitch))
+       (* gaps (plist-get geometry :paper-gap)))))
 
 (defun tategaki-typeset-view--face (unit window)
   "Resolve UNIT's preview, selection, search, cursor and source faces."
@@ -165,7 +193,6 @@ NATIVE-LINES reserves native line spacing when refitting a composed page."
          (entry (tategaki--entry))
          (column (aref entry 3))
          (cell (plist-get geometry :cell))
-         (pitch (plist-get geometry :pitch))
          (row-pitch (plist-get geometry :row-pitch))
          (row-height (plist-get geometry :row-height))
          (ascent (plist-get geometry :ascent))
@@ -188,8 +215,7 @@ NATIVE-LINES reserves native line spacing when refitting a composed page."
                                     (round (* (/ (float advance) span)
                                               (plist-get geometry :character-gap))))))
              (visual (- capacity 1 (- (aref item 3) tategaki--page)))
-             (x (+ (plist-get geometry :left) (* visual pitch)
-                   (if paper-columns (* (/ visual paper-columns) (plist-get geometry :paper-gap)) 0)))
+             (x (tategaki-typeset-view--column-x geometry tategaki--page visual))
              (face (tategaki-typeset-view--face unit window))
              (caret (or (and (<= start tategaki--caret-position) (< tategaki--caret-position end))
                         (and (= start end) (= start tategaki--caret-position)))))
@@ -239,12 +265,10 @@ NATIVE-LINES reserves native line spacing when refitting a composed page."
       (let* ((y (pop boundaries)) (bottom (car boundaries)) (height (- bottom y)) parts)
         (dotimes (visual capacity)
           (let* ((items (aref columns visual))
-                 (x (+ (plist-get geometry :left) (* visual pitch)
-                       (if paper-columns (* (/ visual paper-columns) (plist-get geometry :paper-gap)) 0)))
+                 (x (tategaki-typeset-view--column-x geometry tategaki--page visual))
                  (previous-x (if (zerop visual) 0
-                               (+ (plist-get geometry :left) (* (1- visual) pitch) cell
-                                  (if paper-columns (* (/ (1- visual) paper-columns)
-                                                       (plist-get geometry :paper-gap)) 0)))))
+                               (+ (tategaki-typeset-view--column-x
+                                   geometry tategaki--page (1- visual)) cell))))
             (while (and items (<= (plist-get (car items) :bottom) y)) (pop items))
             (aset columns visual items)
             (push (tategaki--spacer (- x previous-x) height 0) parts)

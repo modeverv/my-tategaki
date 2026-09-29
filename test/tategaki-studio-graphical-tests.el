@@ -1,0 +1,380 @@
+;;; tategaki-studio-graphical-tests.el --- Isolated Studio GUI integration -*- lexical-binding: t; -*-
+;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run ONLY in a dedicated Emacs: emacs -Q -l /absolute/path/to/this-file.el
+;; This runner exits that Emacs and writes a log in temporary-file-directory.
+
+(require 'ert)
+(require 'cl-lib)
+(setq load-prefer-newer t)
+(let* ((directory (file-name-directory (or load-file-name buffer-file-name)))
+       (root (file-name-directory (directory-file-name directory))))
+  (add-to-list 'load-path root)
+  (load (expand-file-name "tategaki-studio-test.el" directory) nil nil t))
+(require 'tategaki-settings)
+(require 'tategaki-diff)
+(require 'tategaki-assistant)
+(require 'tategaki-tts)
+(require 'tategaki-export)
+(require 'tategaki-highlight)
+
+(defun tategaki-studio-gui--click-header (command)
+  "Dispatch COMMAND's mouse handler found in the rendered header pixel map.
+Native pointer injection is verified separately through Computer Use."
+  (redisplay t)
+  (let* ((window (selected-window))
+         (height (window-header-line-height window))
+         (position
+          (cl-loop for x from 0 below (window-pixel-width window) by 2
+                   for pos = (posn-at-x-y x (max 1 (/ height 2)) window)
+                   for object = (and pos (posn-string pos))
+                   when (and object
+                             (equal (get-text-property (cdr object) 'help-echo (car object))
+                                    (symbol-name command))) return pos)))
+    (should position)
+    (should (eq (posn-area position) 'header-line))
+    (message "Studio GUI toolbar click %s at %S" command (posn-x-y position))
+    (let ((handler (key-binding [header-line mouse-1] nil nil position)))
+      (should (commandp handler))
+      (funcall handler (list 'mouse-1 position)))
+    (message "Studio GUI after click: selected=%s current=%s"
+             (buffer-name (window-buffer (selected-window))) (buffer-name))
+    (set-buffer (window-buffer (selected-window)))
+    (redisplay t)))
+
+(defun tategaki-studio-gui--assert-source (source text undo modified)
+  "Assert SOURCE still has TEXT, UNDO and MODIFIED state."
+  (with-current-buffer source
+    (should (equal (buffer-string) text))
+    (should (eq buffer-undo-list undo))
+    (should (eq (buffer-modified-p) modified))))
+
+(defun tategaki-studio-gui--assert-scrollbar-bounds ()
+  "Ensure the rendered scrollbar stays within the selected window."
+  (let* ((height (window-body-height nil t))
+         (width (window-body-width nil t))
+         (position
+          (cl-loop for y from (max 0 (- height 60)) below height
+                   for pos = (posn-at-x-y (/ width 2) y)
+                   for object = (and pos (posn-string pos))
+                   when (and object (get-text-property (cdr object) 'tategaki-scrollbar
+                                                       (car object)))
+                   return pos)))
+    (should position)
+    (let* ((object (posn-string position))
+           (geometry (get-text-property (cdr object) 'tategaki-scrollbar (car object)))
+           (image (get-text-property (cdr object) 'display (car object)))
+           (size (image-size image t (selected-frame)))
+           (offset (posn-object-x-y position))
+           (origin (posn-x-y position))
+           (left (- (car origin) (car offset)))
+           (top (- (cdr origin) (cdr offset))))
+      (should (= (car size) (plist-get geometry :width)))
+      (should (>= left 0))
+      (should (>= top 0))
+      (should (<= (+ left (car size)) width))
+      (should (<= (+ top (cdr size)) height)))))
+
+(defun tategaki-studio-gui--assert-geometry (source)
+  "Ensure SOURCE has a live rendered caret within its actual window."
+  (let ((window (get-buffer-window source)))
+    (should window)
+    (with-selected-window window
+      (tategaki-refresh)
+      (redisplay t)
+      (should (overlayp tategaki--overlay))
+      (should (stringp tategaki--display-string))
+      (should (> (length tategaki--display-string) 0))
+      (tategaki-studio-gui--assert-scrollbar-bounds)
+      (let ((pixel (tategaki-position-pixel (point) window)))
+        (should pixel)
+        (should (>= (plist-get pixel :x) 0))
+        (should (>= (plist-get pixel :y) 0))
+        (should (<= (+ (plist-get pixel :x) (plist-get pixel :width))
+                    (+ 2 (window-body-width window t))))
+        (should (<= (+ (plist-get pixel :y) (plist-get pixel :height))
+                    (+ 2 (window-body-height window t))))))))
+
+(ert-deftest tategaki-studio-gui-toolbar-settings-preview-and-layout ()
+  (should (display-graphic-p))
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (buffer-enable-undo) (setq buffer-undo-list nil)
+    (set-buffer-modified-p nil)
+    (let ((text (buffer-string)) (undo buffer-undo-list) settings)
+      (tategaki-studio-mode 1)
+      (tategaki-studio-gui--assert-geometry source)
+      (tategaki-studio-gui--click-header 'tategaki-settings)
+      (setq settings (current-buffer))
+      (unwind-protect
+          (progn
+            (should (derived-mode-p 'tategaki-settings-mode))
+            (should (eq (tategaki-studio-source-buffer) source))
+            (should (eq (window-parameter (selected-window) 'window-side) 'right))
+            (tategaki-settings-set 'title "設定画面の実原稿テスト")
+            (tategaki-settings-set 'author "検証著者")
+            (tategaki-settings--step 'text-scale 1)
+            (tategaki-settings-set 'font-family (face-attribute 'default :family nil t))
+            (tategaki-settings-set 'manuscript-size '(20 . 20))
+            (tategaki-settings-set 'manuscript-grid t)
+            (tategaki-settings-set 'manuscript-spread t)
+            (tategaki-settings-set 'character-spacing 2)
+            (tategaki-settings-set 'padding-top 1)
+            (with-current-buffer source
+              (should (equal tategaki-manuscript-size '(20 . 20)))
+              (should tategaki-manuscript-spread)
+              (should tategaki-manuscript-grid)
+              (should (= tategaki--text-scale-amount 1))
+              (should (equal (plist-get (tategaki-project-metadata) :title)
+                             "設定画面の実原稿テスト")))
+            (tategaki-studio-gui--assert-geometry source)
+            (tategaki-studio-gui--assert-source source text undo nil)
+            (tategaki-settings-revert)
+            (with-current-buffer source
+              (should-not tategaki-manuscript-size)
+              (should (= tategaki--text-scale-amount 0)))
+            (tategaki-settings-discard)
+            (select-window (get-buffer-window source))
+            (tategaki-studio-gui--click-header 'tategaki-studio-review)
+            (should (eq tategaki-studio-state 'review))
+            (should (get-buffer-window tategaki-outline--buffer))
+            (tategaki-studio-gui--click-header 'tategaki-studio-write)
+            (should (= (length (window-list)) 2))
+            (should (get-buffer-window tategaki-outline--buffer))
+            (should (eq (window-buffer (selected-window)) source))
+            (tategaki-studio-gui--assert-source source text undo nil))
+        (when (buffer-live-p settings)
+          (with-current-buffer settings
+            (when (derived-mode-p 'tategaki-settings-mode)
+              (tategaki-settings-discard))))))))
+
+(ert-deftest tategaki-studio-gui-history-diff-and-reader-restore-source ()
+  (should (display-graphic-p))
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (tategaki-studio-mode 1)
+    (let ((record (tategaki-history-snapshot 'manual)))
+      (goto-char (point-max)) (insert "推敲した一文。\n")
+      (goto-char 5)
+      (let ((text (buffer-string)) (undo buffer-undo-list) copies)
+        (setq copies (tategaki-history-diff record))
+        (should (= (length copies) 2))
+        (dolist (copy copies)
+          (with-current-buffer copy
+            (should tategaki-mode)
+            (should buffer-read-only))
+          (tategaki-studio-gui--assert-geometry copy))
+        (with-current-buffer (cadr copies)
+          (should tategaki-diff--overlays))
+        (with-current-buffer (car copies) (tategaki-diff-quit))
+        (should-not (cl-some #'buffer-live-p copies))
+        (select-window (get-buffer-window source))
+        (tategaki-studio-gui--assert-source source text undo t)
+        (tategaki-studio-review)
+        (let ((header header-line-format) (position (point))
+              (count (length (window-list))))
+          (tategaki-reader-mode 1)
+          (should buffer-read-only)
+          (should tategaki-manuscript-spread)
+          (should (= 1 (length (window-list))))
+          (tategaki-studio-gui--assert-geometry source)
+          (tategaki-reader-mode -1)
+          (should-not buffer-read-only)
+          (should (equal header-line-format header))
+          (should (eq tategaki-studio-state 'review))
+          (should (= position (point)))
+          (should (= count (length (window-list)))))
+        (tategaki-studio-gui--assert-source source text undo t)))))
+
+(defun tategaki-studio-gui--projected-face-p (face position)
+  "Whether FACE is projected at source POSITION into the actual display."
+  (cl-loop for offset from 0 below (length tategaki--display-string)
+           thereis (let ((faces (get-text-property offset 'face tategaki--display-string)))
+                     (and (equal position (get-text-property offset 'tategaki-position
+                                                             tategaki--display-string))
+                          (or (eq face faces) (and (listp faces) (memq face faces)))))))
+
+(ert-deftest tategaki-studio-gui-assistant-bottom-window-and-citation-jump ()
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (setq-local tategaki-ai-enabled t)
+    (setq-local tategaki-ai-model "gui-fixture-model")
+    (setq-local tategaki-ai-endpoint "http://localhost:11434/v1")
+    (buffer-enable-undo) (setq buffer-undo-list nil)
+    (set-buffer-modified-p nil)
+    (tategaki-studio-mode 1)
+    (let* ((text (buffer-string)) (undo buffer-undo-list)
+           (chunk (seq-find (lambda (item)
+                              (and (<= (plist-get item :start) (point))
+                                   (> (plist-get item :end) (point))))
+                            (tategaki-semantic-chunks)))
+           (citation (format "[%s:%d]" (plist-get chunk :chapter) (plist-get chunk :start)))
+           panel)
+      (unwind-protect
+          (progn
+            (cl-letf (((symbol-function 'tategaki-ai-chat)
+                       (lambda (_messages callback &optional _authorized)
+                         (funcall callback
+                                  (list :ok t :text
+                                        (concat "原稿から確認できること\n引用した場面です。" citation
+                                                "\n推測\n仮説はありません。\n不明\n未確定です。"))))))
+              (tategaki-ask "この場面について教えてください"))
+            (setq panel (window-buffer (selected-window)))
+            (with-current-buffer panel
+              (should (derived-mode-p 'tategaki-assistant-mode))
+              (should-not tategaki-assistant--busy)
+              (should (eq (window-parameter (get-buffer-window panel) 'window-side) 'bottom))
+              (goto-char (point-min))
+              (search-forward citation)
+              (let ((button (button-at (1- (point)))))
+                (should button)
+                (button-activate button)))
+            (should (eq (window-buffer (selected-window)) source))
+            (with-current-buffer source
+              (should (= (point) (plist-get chunk :start))))
+            (tategaki-studio-gui--assert-geometry source)
+            (tategaki-studio-gui--assert-source source text undo nil))
+        (when (buffer-live-p panel) (kill-buffer panel))))))
+
+(ert-deftest tategaki-studio-gui-diagnostic-overlay-projection-and-reader-hide ()
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (buffer-enable-undo) (setq buffer-undo-list nil)
+    (set-buffer-modified-p nil)
+    (tategaki-studio-mode 1)
+    (let ((text (buffer-string)) (undo buffer-undo-list))
+      (tategaki-diagnostics-set
+       'gui '((:id "gui-visible-warning" :severity warning :start 6 :end 11
+               :code "gui-projection" :message "画面確認用の指摘")))
+      (tategaki-refresh) (redisplay t)
+      (should (memq 'tategaki-diagnostics-warning
+                    (tategaki-highlight-faces 6 7 (selected-window))))
+      (should (tategaki-studio-gui--projected-face-p 'tategaki-diagnostics-warning 6))
+      (let ((overlay (car tategaki-diagnostics--overlays)))
+        (tategaki-reader-mode 1)
+        (redisplay t)
+        (should (overlay-buffer overlay))
+        (should-not (overlay-get overlay 'face))
+        (should-not (tategaki-studio-gui--projected-face-p 'tategaki-diagnostics-warning 6))
+        (tategaki-reader-mode -1)
+        (redisplay t)
+        (should (overlay-buffer overlay))
+        (should (tategaki-studio-gui--projected-face-p 'tategaki-diagnostics-warning 6)))
+      (tategaki-studio-gui--assert-source source text undo nil))))
+
+(ert-deftest tategaki-studio-gui-tts-highlight-pause-resume-stop-and-live-say ()
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (buffer-enable-undo) (setq buffer-undo-list nil)
+    (set-buffer-modified-p nil)
+    (tategaki-studio-mode 1)
+    (let ((text (buffer-string)) (undo buffer-undo-list)
+          (program (expand-file-name "silent-say" directory))
+          (audio (expand-file-name "live-say.aiff" directory)))
+      ;; A real silent process gives deterministic pause/resume timing while
+      ;; checking the production highlight, signal and teardown path.
+      (with-temp-file program
+        (insert "#!/bin/sh\nwhile IFS= read -r line; do :; done\nexec /bin/sleep 10\n"))
+      (set-file-modes program #o700)
+      (let ((tategaki-tts-program program))
+        (unwind-protect
+            (progn
+              (tategaki-tts-play)
+              (should (eq tategaki-tts-state 'playing))
+              (let ((process tategaki-tts--process)
+                    (start (overlay-start tategaki-tts--overlay)))
+                (redisplay t)
+                (should (process-live-p process))
+                (should (tategaki-studio-gui--projected-face-p 'tategaki-tts-face start))
+                (tategaki-tts-pause)
+                (should (eq tategaki-tts-state 'paused))
+                (should (eq process tategaki-tts--process))
+                (tategaki-tts-resume)
+                (should (eq tategaki-tts-state 'playing))
+                (should (eq process tategaki-tts--process))
+                (tategaki-tts-stop)
+                (should-not (process-live-p process))
+                (should-not tategaki-tts--overlay)
+                (should (eq tategaki-tts-state 'stopped))))
+          (tategaki-tts-stop)))
+      ;; Validate the installed macOS synthesis engine independently, with
+      ;; synthetic text written to a temporary audio file, never speakers.
+      (should (eq system-type 'darwin))
+      (should (file-executable-p "/usr/bin/say"))
+      (with-temp-buffer
+        (insert "音読の動作確認です。")
+        (should (= 0 (call-process-region (point-min) (point-max) "/usr/bin/say"
+                                          nil nil nil "-v" "Kyoko" "-o" audio "-f" "-"))))
+      (should (> (file-attribute-size (file-attributes audio)) 100))
+      (message "Studio GUI live say generated %d bytes of synthetic audio"
+               (file-attribute-size (file-attributes audio)))
+      (tategaki-studio-gui--assert-source source text undo nil))))
+
+(ert-deftest tategaki-studio-gui-project-metadata-restores-and-overrides-export ()
+  (tategaki-studio-test--with-manuscript
+    (setq-local tategaki-typesetting t)
+    (buffer-enable-undo) (setq buffer-undo-list nil)
+    (set-buffer-modified-p nil)
+    (tategaki-studio-mode 1)
+    (let ((text (buffer-string)) (undo buffer-undo-list) settings fresh)
+      (unwind-protect
+          (progn
+            (setq settings (tategaki-settings source))
+            (with-current-buffer settings
+              (tategaki-settings-set 'title "保存して復元する作品")
+              (tategaki-settings-set 'author "画面検証著者")
+              (tategaki-settings-set 'language "ja")
+              (tategaki-settings-set 'identifier "urn:tategaki:gui-fixture")
+              (tategaki-settings-set 'manuscript-size '(20 . 20))
+              (tategaki-settings-set 'manuscript-grid t)
+              (setq tategaki-settings--scope 'project)
+              (tategaki-settings-save)
+              (tategaki-settings-close))
+            (setq fresh (generate-new-buffer " *Studio fresh manuscript*"))
+            (switch-to-buffer fresh)
+            (text-mode)
+            (setq default-directory (file-name-as-directory directory))
+            (setq buffer-file-name (expand-file-name "fresh.txt" directory))
+            (insert text)
+            (goto-char 5)
+            (tategaki-studio-mode 1)
+            (should (equal (plist-get (tategaki-project-metadata) :title) "保存して復元する作品"))
+            (should (equal (plist-get (tategaki-project-metadata) :author) "画面検証著者"))
+            (should (equal tategaki-manuscript-size '(20 . 20)))
+            (should tategaki-manuscript-grid)
+            (let* ((snapshot (tategaki-export-model-snapshot nil '((title . "明示した出力タイトル"))))
+                   (metadata (alist-get 'metadata (plist-get snapshot :model))))
+              (should (equal (alist-get 'title metadata) "明示した出力タイトル"))
+              (should (equal (alist-get 'author metadata) "画面検証著者"))
+              (should (equal (alist-get 'identifier metadata) "urn:tategaki:gui-fixture"))
+              (should (equal (plist-get snapshot :text) text)))
+            (tategaki-studio-gui--assert-geometry fresh)
+            (tategaki-studio-gui--assert-source source text undo nil))
+        (when (buffer-live-p settings)
+          (with-current-buffer settings (tategaki-settings-discard)))
+        (when (buffer-live-p fresh)
+          (with-current-buffer fresh
+            (when tategaki-studio-mode (tategaki-studio-mode -1))
+            (when tategaki-mode (tategaki-mode -1))
+            (set-buffer-modified-p nil))
+          (kill-buffer fresh))))))
+
+(defun tategaki-studio-gui-run ()
+  "Run Studio GUI integration checks and exit this dedicated Emacs."
+  (let ((status 2))
+    (condition-case error-data
+        (progn
+          (unless (display-graphic-p) (error "A dedicated graphical Emacs is required"))
+          (set-frame-size (selected-frame) 150 48)
+          (let ((stats (ert-run-tests-batch "^tategaki-studio-gui-")))
+            (setq status (if (and (= (ert-stats-total stats) 6)
+                                  (= (ert-stats-completed-expected stats) 6)
+                                  (zerop (ert-stats-skipped stats))) 0 1))))
+      (error (message "Studio GUI setup failure: %S" error-data)))
+    (with-current-buffer "*Messages*"
+      (write-region (point-min) (point-max)
+                    (expand-file-name "tategaki-studio-gui-tests.log" temporary-file-directory)))
+    (kill-emacs status)))
+
+(run-at-time 120 nil (lambda () (message "Studio GUI timeout") (kill-emacs 2)))
+(run-at-time 1 nil #'tategaki-studio-gui-run)
+;;; tategaki-studio-graphical-tests.el ends here

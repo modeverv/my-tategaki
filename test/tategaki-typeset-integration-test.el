@@ -206,6 +206,7 @@
 
 (ert-deftest tategaki-rich-model-fixed-page-geometry-fits-without-repagination ()
   (tategaki-rich-test--with-text "原稿"
+    (setq-local tategaki-manuscript-fit-window t)
     (dolist (size '((20 . 20) (40 . 30)))
       (setq-local tategaki-manuscript-size size tategaki-manuscript-spread nil)
       (let ((geometry (tategaki-typeset-view-geometry (selected-window) '(nil 24 30 24))))
@@ -216,6 +217,46 @@
       (let ((geometry (tategaki-typeset-view-geometry (selected-window) '(nil 24 30 24))))
         (should (= (plist-get geometry :rows) (car size)))
         (should (= (plist-get geometry :capacity) (* 2 (cdr size))))))))
+
+(ert-deftest tategaki-rich-model-fixed-pages-prioritize-readable-text ()
+  (let ((tategaki-manuscript-size '(20 . 20))
+        (tategaki-manuscript-spread t)
+        (tategaki-manuscript-fit-window nil)
+        (tategaki-line-spacing 14) (tategaki-character-spacing 0)
+        (tategaki-padding-left 40) (tategaki-padding-right 40)
+        (tategaki-padding-top 40) (tategaki-padding-bottom 40))
+    (cl-letf (((symbol-function 'window-body-width) (lambda (&rest _) 1386))
+              ((symbol-function 'window-body-height) (lambda (&rest _) 768))
+              ((symbol-function 'frame-char-width) (lambda (&rest _) 13))
+              ((symbol-function 'tategaki-scrollbar-height) (lambda (&rest _) 24))
+              ((symbol-function 'tategaki-scrollbar-line-spacing) (lambda (&rest _) 0)))
+      (let* ((small (tategaki-typeset-view-geometry (selected-window) '(nil 15 19 15)))
+             (large (tategaki-typeset-view-geometry (selected-window) '(nil 26 33 26)))
+             (tategaki-manuscript-fit-window t)
+             (fitted (tategaki-typeset-view-geometry (selected-window) '(nil 26 33 26))))
+        (should (> (plist-get large :body) (plist-get small :body)))
+        (should (> (plist-get large :body) (plist-get fitted :body)))
+        (should (< (plist-get large :capacity) (plist-get small :capacity)))
+        (should (= (plist-get fitted :capacity) 40))
+        (dolist (geometry (list small large fitted))
+          (should (= (plist-get geometry :rows) 20))
+          (should (= (plist-get geometry :paper-columns) 20))
+          ;; Every partial view remains on screen, including views crossing
+          ;; one or two paper boundaries at arbitrary scrollbar positions.
+          (dotimes (first 40)
+            (let ((capacity (plist-get geometry :capacity)))
+              (should (>= (tategaki-typeset-view--column-x geometry first 0) 0))
+              (should (<= (+ (tategaki-typeset-view--column-x geometry first (1- capacity))
+                             (plist-get geometry :cell)) 1386)))))))))
+
+(ert-deftest tategaki-rich-model-partial-viewport-gaps-follow-paper-boundaries ()
+  (let* ((geometry '(:capacity 8 :paper-columns 20 :paper-gap 24 :pitch 40
+                    :right 500 :cell 30))
+         (xs (cl-loop for visual downfrom 7 to 0
+                      collect (tategaki-typeset-view--column-x geometry 17 visual))))
+    ;; Logical columns 17,18,19,20,21,... go right to left.  Only the
+    ;; 19->20 sheet boundary gains the extra paper gap.
+    (should (equal (cl-mapcar #'- (butlast xs) (cdr xs)) '(40 40 64 40 40 40 40)))))
 
 (provide 'tategaki-typeset-integration-test)
 ;;; tategaki-typeset-integration-test.el ends here

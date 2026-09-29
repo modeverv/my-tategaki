@@ -39,7 +39,7 @@
 (defcustom tategaki-manuscript-size nil
   "Fixed paper size as (ROWS . COLUMNS), or nil to fit the window.
 Both dimensions must be positive integers.  Resizing a window changes the
-display scale of a fixed page, not its logical number of rows or columns."
+visible columns or display scale, not its logical number of rows or columns."
   :type '(choice (const :tag "Fit window" nil)
                  (cons :tag "Fixed paper" (integer :tag "Rows")
                        (integer :tag "Columns")))
@@ -53,6 +53,15 @@ Page numbers and page counts continue to refer to individual paper pages."
 
 (defcustom tategaki-manuscript-grid nil
   "Whether the renderer draws manuscript cell guides."
+  :type 'boolean
+  :group 'tategaki-manuscript)
+
+(defcustom tategaki-manuscript-fit-window nil
+  "Whether to shrink a complete paper page or spread to the window width.
+When nil, keep the requested text size and show the columns that fit;
+horizontal scrolling reveals the rest.  Fixed rows still fit the window
+height so every character remains accessible.  Logical page dimensions and
+page counts are unchanged."
   :type 'boolean
   :group 'tategaki-manuscript)
 
@@ -101,6 +110,7 @@ heading text.  Text before the first heading is a separate preamble."
   :group 'tategaki-manuscript)
 
 (dolist (variable '(tategaki-manuscript-size tategaki-manuscript-spread
+                    tategaki-manuscript-fit-window
                     tategaki-manuscript-grid tategaki-manuscript-status
                     tategaki-manuscript-target-characters
                     tategaki-manuscript-count-whitespace

@@ -15,6 +15,10 @@ Emacsで日本語の原稿を縦書きのまま編集する拡張です。元の
 - macOS NS版のIME、Copilot・Corfuとの表示連携
 - 横書き編集を残す読み取り専用プレビュー
 - 任意のDocker環境によるTXT・DOCX・PDF・EPUB・HTML出力
+- Novel StudioのWrite/Review画面、クリック操作の設定、作品メタデータ、自動履歴と前回位置の復元
+- ローカル校正、作品設定・時系列・伏線・話者候補、人物の知識差、任意のAI相談と参照付き検索
+- 明示登録した複数原稿・資料の意味索引と横断検索
+- Reader、macOS音読、旧稿の縦書き比較と場面の別案
 
 ## 要件
 
@@ -61,6 +65,20 @@ git clone https://github.com/modeverv/my-tategaki.git ~/src/my-tategaki
 
 表示の切り替えは本文を変更しません。ルビの挿入、自動字下げ、脚本整形は通常の本文編集なので、保存・Undoの対象です。読み取り専用のバッファはその制限を引き継ぎます。
 
+## 小説を書くためのNovel Studio
+
+`(require 'tategaki)` の後に **`M-x tategaki-studio`** を実行すると、開始画面から新しい小説、既存の原稿、最近の原稿を開けます。原稿で開始した場合はすぐWrite画面になります。上部の `[⚙設定]` でタイトル・著者名、フォント・文字サイズ・原稿用紙、余白、履歴、校正、AI、音読を操作できます。設定のプレビューは本文・Undo・未保存マークを変更しません。
+
+Writeは原稿中心、Reviewは辞書・校正・設定資料・Assistantを開く画面です。設定は「このセッションだけ」「この作品」「全作品の既定値」に保存でき、作品メタデータはEmacsからの出力にも渡ります。履歴の復元は原稿を置き換えず別コピーで行います。
+
+上部の `[目次]` または `C-c s o` で、執筆中も章・節のアウトラインを表示できます。見出しをクリックして移動、三角で折りたたみ、本文の位置と見出しの編集に追従します。`# 第一章` / `## 第一節` に加えて `#第一章` も認識します。
+
+AIは既定で無効です。Ollama、LM Studio、llama.cpp等のOpenAI-compatible接続先を明示設定した時に利用でき、未作成/古い意味索引では語句検索に切り替えます。外部接続先への本文送信には確認を求めます。辞書にはEmacs Lookup、音読にはmacOS `say`、縦書き差分には `diff` が必要ですが、基本編集はそれらがなくても使えます。
+
+`M-x tategaki-corpus` で複数原稿・資料を個別に登録し、検索対象を選べます。作品設定・日時・伏線のAI抽出は根拠付きの候補として保存し、作者が採用します。人物相談は作者が許可した出典範囲に絞り、`M-x tategaki-knowledge-compare` で読者との知識差を確認できます。
+
+開始手順、キー、保存場所、AIの接続例、資料や人物の知識範囲、各機能の制限は **[Novel Studioマニュアル](docs/novel-studio.md)** を参照してください。
+
 ## 主要コマンドとキー
 
 | 操作 | コマンド・キー |
@@ -84,7 +102,7 @@ git clone https://github.com/modeverv/my-tategaki.git ~/src/my-tategaki
 
 `C-v` / `M-v` は画面単位、`tategaki-goto-page` は文書の版面単位で移動します。Corfuなどの補完候補を選んでいる間は、補完側の移動キーを優先します。
 
-`M-+` / `M--` は現在の原稿の縦書き表示を拡大・縮小します。固定原稿用紙では字数・列数を維持し、画面に収まる大きさまで拡大できます。通常のEmacsの文字拡大とは独立した操作です。詳しくは[文字の大きさ](https://modeverv.github.io/my-tategaki/manual/editing.html#text-size)を参照してください。
+`M-+` / `M--` は現在の原稿の縦書き表示を拡大・縮小します。固定原稿用紙でも文字の大きさを優先し、入りきらない列は横スクロールで表示します。用紙の字数・列数とページ数は変わりません。縦の字数は画面高に収まる範囲で拡大されます。全体を縮小して見る場合は設定の「用紙全体を画面に収める」を有効にします。通常のEmacsの文字拡大とは独立した操作です。詳しくは[文字の大きさ](https://modeverv.github.io/my-tategaki/manual/editing.html#text-size)を参照してください。
 
 ## 設定例
 
@@ -156,6 +174,7 @@ CLIではUTF-8の原稿を指定します。
 
 | 目的 | 読むページ |
 |---|---|
+| Studioで執筆・履歴・校正・AI相談を使う | [Novel Studioマニュアル](docs/novel-studio.md) |
 | 入力・移動・余白を調整する | [編集の基本](https://modeverv.github.io/my-tategaki/manual/editing.html#editing-basics)・[余白と間隔](https://modeverv.github.io/my-tategaki/manual/editing.html#spacing) |
 | IME・Copilot・Corfuを使う | [日本語入力](https://modeverv.github.io/my-tategaki/manual/editing.html#ime)・[補完連携](https://modeverv.github.io/my-tategaki/manual/editing.html#completion) |
 | ルビ・禁則・縦中横を使う | [ルビと注記](https://modeverv.github.io/my-tategaki/manual/typesetting.html#ruby)・[禁則](https://modeverv.github.io/my-tategaki/manual/typesetting.html#kinsoku)・[縦中横](https://modeverv.github.io/my-tategaki/manual/typesetting.html#tcy-and-latin) |
@@ -176,7 +195,7 @@ CLIではUTF-8の原稿を指定します。
 - EPUBのフォント埋め込み・画像表紙は未対応です。Apple Books 9.0では `&` / `<` / `>` を含む章名の目次に既知の問題があり、Kindle Previewerは未検証です。
 - Dockerの実機検証はApple Silicon / linux/aarch64で行っています。amd64での実行は未確認です。
 
-実施した検査と残る制約は[編集・組版の検証記録](docs/vertical-typesetting-validation.md)と[出力の検証記録](docs/docker-export-validation.md)に記載しています。
+実施した検査と残る制約は[Novel Studioの検証記録](docs/novel-studio-validation.md)、[編集・組版の検証記録](docs/vertical-typesetting-validation.md)、[出力の検証記録](docs/docker-export-validation.md)に記載しています。Studioの検証には実Emacs再起動、ローカル実モデル疎通、EPUB実生成とApple Booksでの表示確認を含みます。
 
 ## 開発・確認
 
@@ -184,7 +203,7 @@ CLIではUTF-8の原稿を指定します。
 
 ```sh
 emacs --batch -Q -L . --eval '(setq load-prefer-newer t)' \
-  --eval '(dolist (file (directory-files "test" t "-test\\.el$")) (load file nil t))' \
+  --eval '(dolist (file (directory-files "test" t "-test\\.el$")) (unless (featurep (intern (file-name-base file))) (load file nil t)))' \
   -f ert-run-tests-batch-and-exit
 ```
 

@@ -25,6 +25,7 @@
 ;; Loading this module never starts Docker or changes editor key bindings.
 
 ;;; Code:
+(require 'tategaki-pane)
 
 (require 'cl-lib)
 (require 'json)
@@ -83,14 +84,8 @@ are interpreted; Markdown/Org body text is never parsed as those languages."
     'full))
 
 (defun tategaki-export--metadata (&optional profile-metadata)
-  "Merge PROFILE-METADATA with buffer metadata and a useful default title."
-  (let ((metadata (copy-tree profile-metadata)))
-    (dolist (entry tategaki-export-metadata)
-      (setf (alist-get (car entry) metadata) (cdr entry)))
-    (when (member (tategaki-export-model--get 'title metadata) '(nil "" "無題"))
-      (setq metadata (assq-delete-all 'title metadata))
-      (push (cons 'title (if buffer-file-name (file-name-base buffer-file-name) (buffer-name))) metadata))
-    metadata))
+  "Merge PROFILE-METADATA beneath project and buffer metadata."
+  (tategaki-export-model-resolve-metadata nil profile-metadata))
 
 (defun tategaki-export--read-profile (profile)
   "Read named or file PROFILE without loading arbitrary Emacs code."
@@ -185,7 +180,8 @@ Never overwrite an existing report or claim validation that did not run."
     (user-error "出力形式が指定されていないか未対応です: %S" formats))
   (when (and (eq scope 'region) (not (use-region-p)))
     (user-error "選択範囲がありません"))
-  (let* ((profile-config (tategaki-export--read-profile profile))
+  (let* ((manuscript (current-buffer))
+         (profile-config (tategaki-export--read-profile profile))
          (input (copy-tree (alist-get 'input profile-config)))
          (_ (dolist (entry tategaki-export-input-options)
               (setf (alist-get (car entry) input) (cdr entry))))
@@ -202,6 +198,7 @@ Never overwrite an existing report or claim validation that did not run."
          (directory (expand-file-name id out))
          (buffer (get-buffer-create (format "*Tategaki export %s*" id)))
          (job (list :id id :state 'starting :source-hash hash :source (alist-get 'source model)
+                    :source-buffer manuscript
                     :profile profile :formats formats :started-at (current-time)
                     :directory directory :snapshot-directory input-dir :buffer (buffer-name buffer)))
          process)
@@ -212,6 +209,7 @@ Never overwrite an existing report or claim validation that did not run."
           (tategaki-export-model-write-json model model-file)
           (with-current-buffer buffer
             (special-mode)
+            (tategaki-pane-install manuscript nil "出力ログ")
             (let ((inhibit-read-only t))
               (insert (format "原稿出力: %s\n取得日時: %s\nSHA-256: %s\nプロファイル: %s\n出力先: %s\n\n"
                               id (alist-get 'timestamp (alist-get 'source model)) hash profile directory))))
@@ -274,13 +272,23 @@ A prefix argument asks for SCOPE explicitly; default scope is the full buffer."
         (let ((inhibit-read-only t))
           (erase-buffer)
           (insert (format "ジョブ: %s\n状態: %s\nSHA-256: %s\n\n" id (plist-get job :state) (plist-get job :source-hash)))
-          (insert-text-button "ログを表示" 'action (lambda (_) (pop-to-buffer (plist-get job :buffer))) 'follow-link t)
+          (insert-text-button "ログを表示" 'action
+                              (lambda (_)
+                                (pop-to-buffer (plist-get job :buffer))
+                                (tategaki-pane-install (plist-get job :source-buffer) nil "出力ログ"))
+                              'follow-link t)
           (insert "  ")
-          (insert-text-button "出力フォルダー" 'action (lambda (_) (dired (plist-get job :directory))) 'follow-link t)
+          (insert-text-button "出力フォルダー" 'action
+                              (lambda (_)
+                                (dired (plist-get job :directory))
+                                (tategaki-pane-install (plist-get job :source-buffer) nil "出力フォルダー"))
+                              'follow-link t)
           (insert "\n\n")
           (if (file-exists-p report) (insert-file-contents report)
             (insert "レポートはまだ生成されていません。進行状況はログを確認してください。\n")))
-        (special-mode) (goto-char (point-min)))
+        (special-mode)
+        (tategaki-pane-install (plist-get job :source-buffer) nil "出力状態")
+        (goto-char (point-min)))
       (pop-to-buffer buffer))))
 
 (defun tategaki-export--cancel-attempt (id deadline)

@@ -29,6 +29,70 @@
 (require 'tategaki)
 (require 'tategaki-outline)
 
+(defvar tategaki-outline-gui--idle-fixture nil)
+
+(defun tategaki-outline-gui--prepare-idle-fixture ()
+  "Type in a private source, then return to the real GUI event loop."
+  (let ((source (generate-new-buffer " *Outline idle typing QA*")))
+    (switch-to-buffer source)
+    (delete-other-windows)
+    (text-mode)
+    (insert "#第一章\n本文\n")
+    (setq-local tategaki-typesetting t
+                tategaki-column-height 8
+                tategaki-outline-update-delay 0.05)
+    (buffer-enable-undo)
+    (tategaki-mode 1)
+    (tategaki-outline)
+    (select-window (get-buffer-window source))
+    (goto-char (point-max))
+    (execute-kbd-macro (vconcat "##第一節\n新しい本文"))
+    (should (timerp tategaki-outline--timer))
+    (setq tategaki-outline-gui--idle-fixture
+          (list source (buffer-string) (point) buffer-undo-list
+                (buffer-chars-modified-tick)))))
+
+(ert-deftest tategaki-outline-gui-automatic-idle-update-after-keyboard-input ()
+  (pcase-let ((`(,source ,text ,position ,undo ,tick)
+                tategaki-outline-gui--idle-fixture))
+    (unwind-protect
+        (with-current-buffer source
+          (should (eq (window-buffer (selected-window)) source))
+          ;; No manual refresh: the dedicated GUI's normal event loop fired
+          ;; the idle timer between fixture preparation and this test.
+          (should-not tategaki-outline--timer)
+          (should (= (length tategaki-outline--entries) 2))
+          (should (= (point) position))
+          (should (= (buffer-chars-modified-tick) tick))
+          (should (equal-including-properties (buffer-string) text))
+          (should (equal buffer-undo-list undo))
+          (with-current-buffer tategaki-outline--buffer
+            (should (string-match-p "第一節" (buffer-string)))
+            (should (equal (overlay-get tategaki-outline--highlight 'help-echo)
+                           "執筆位置: 第一節"))))
+      (when (buffer-live-p source)
+        (with-current-buffer source
+          (tategaki-outline-cleanup)
+          (tategaki-mode -1)
+          (set-buffer-modified-p nil))
+        (kill-buffer source)))))
+
+(defun tategaki-outline-gui--click-button (position)
+  "Click the actual rendered text button at POSITION through its mouse path."
+  (redisplay t)
+  (let* ((where (posn-at-point position))
+         (xy (and where (posn-x-y where)))
+         (pixel (and xy (posn-at-x-y (1+ (car xy))
+                                     (+ (cdr xy) (window-header-line-height) 2)
+                                     (selected-window)))))
+    (should pixel)
+    (should (integerp (posn-point pixel)))
+    (should (button-at (posn-point pixel)))
+    ;; mouse-1's follow-link action dispatches the button's mouse-2 binding.
+    (push-button (list 'mouse-2 pixel) t)
+    (set-buffer (window-buffer (selected-window)))
+    (redisplay t)))
+
 (defmacro tategaki-outline-gui--with-text (text &rest body)
   "Run BODY in an isolated graphical vertical source containing TEXT."
   (declare (indent 1) (debug t))
@@ -152,7 +216,37 @@
         (should-not buffer-undo-list)
         (should-not (memq #'tategaki-outline--after-change after-change-functions))))))
 
+(ert-deftest tategaki-outline-gui-mouse-disclosure-current-child-and-title-jump ()
+  (tategaki-outline-gui--with-text
+      "#第一章\n本文\n##第一節\n続き\n#第二章\n末尾\n"
+    (forward-line 3)
+    (let ((position (point)) (text (buffer-string))
+          (tick (buffer-chars-modified-tick)))
+      (tategaki-outline)
+      (let ((sidebar (current-buffer)))
+        (tategaki-outline-gui--click-button (point-min))
+        (should (eq (current-buffer) sidebar))
+        (should (equal (get-text-property (point-min) 'display) "▸"))
+        (should (= (overlay-start tategaki-outline--highlight) (point-min)))
+        (should (equal (overlay-get tategaki-outline--highlight 'help-echo)
+                       "執筆位置: 第一節"))
+        (let ((entries (buffer-local-value 'tategaki-outline--entries source)))
+          (should (invisible-p (aref (aref entries 1) 3)))
+          (with-current-buffer source (should (= (point) position)))
+          ;; The title next to a folded triangle still jumps to the source.
+          (tategaki-outline-gui--click-button (+ (aref (aref entries 0) 3) 2)))
+        (should (eq (current-buffer) source))
+        (should (looking-at "#第一章"))
+        (tategaki-outline-gui--caret)
+        (should (equal-including-properties (buffer-string) text))
+        (should (= (buffer-chars-modified-tick) tick))
+        (should-not buffer-undo-list)
+        (should-not (buffer-modified-p))))))
+
 (unless noninteractive
+  (set-frame-parameter nil 'name "Tategaki Outline Writing QA")
+  (set-frame-size (selected-frame) 100 36)
+  (run-at-time 0.1 nil #'tategaki-outline-gui--prepare-idle-fixture)
   (run-at-time 60 nil (lambda () (kill-emacs 2)))
   (run-at-time
    1 nil
@@ -165,7 +259,7 @@
                (error "A graphical Emacs with SVG and window-cursor-info is required"))
              (set-frame-size (selected-frame) 100 36)
              (let ((stats (ert-run-tests-batch "^tategaki-outline-gui-")))
-               (setq status (if (and (= (ert-stats-completed-expected stats) 4)
+               (setq status (if (and (= (ert-stats-completed-expected stats) 6)
                                     (= (ert-stats-completed-unexpected stats) 0)) 0 1))))
          (error (message "Outline GUI setup failed: %S" err)))
        (with-current-buffer "*Messages*"

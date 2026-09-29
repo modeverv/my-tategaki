@@ -197,7 +197,7 @@
           (should (overlay-buffer tategaki-outline--highlight))
           (should (equal (buffer-substring-no-properties
                           (overlay-start tategaki-outline--highlight)
-                          (overlay-end tategaki-outline--highlight)) "三章\n")))))))
+                          (overlay-end tategaki-outline--highlight)) "  三章\n")))))))
 
 (ert-deftest tategaki-outline-button-follows-heading-level-edit-before-idle-refresh ()
   (tategaki-outline-test--with-source "# 章\n本文\n"
@@ -334,6 +334,144 @@
       (tategaki-outline--post-command)
       (with-current-buffer tategaki-outline--buffer
         (should (= (overlay-start tategaki-outline--highlight) (point-min)))))))
+
+(ert-deftest tategaki-outline-compact-numbered-headings-exclude-ordinary-hashtags ()
+  (tategaki-outline-test--with-source
+      "#第一章 出会い\n##第一節 雨\n###第２場 再会\n#旅行\n##東京散歩\n#123\n#######第一章\n第十章 終わり\n"
+    (let ((entries (tategaki-outline--headings)))
+      (should (equal (mapcar (lambda (entry) (aref entry 2)) entries)
+                     '("第一章 出会い" "第一節 雨" "第２場 再会" "第十章 終わり")))
+      (should (equal (mapcar (lambda (entry) (aref entry 1)) entries) '(1 2 3 1))))))
+
+(ert-deftest tategaki-outline-disclosure-click-folds-without-source-changes ()
+  (tategaki-outline-test--with-source "#第一章\n本文\n##第一節\n続き\n#第二章\n"
+    (forward-line 3)
+    (let ((text (buffer-string)) (position (point)) (tick (buffer-chars-modified-tick)))
+      (tategaki-outline)
+      (let* ((sidebar (current-buffer))
+             (button (button-at (point-min))))
+        (should (button-get button 'tategaki-outline-disclosure))
+        (button-activate button)
+        (should (eq (current-buffer) sidebar))
+        (should (equal (get-text-property (point-min) 'display) "▸"))
+        (let ((entries (buffer-local-value 'tategaki-outline--entries source)))
+          (should (invisible-p (aref (aref entries 1) 3)))
+          (should (= (overlay-start tategaki-outline--highlight) (point-min)))
+          (should (equal (overlay-get tategaki-outline--highlight 'help-echo)
+                         "執筆位置: 第一節")))
+        (button-activate (button-at (point-min)))
+        (should (equal (get-text-property (point-min) 'display) "▾"))
+        (with-current-buffer source
+          (should (= (point) position))
+          (should (= (buffer-chars-modified-tick) tick))
+          (should (equal-including-properties (buffer-string) text))
+          (should-not buffer-undo-list)
+          (should-not (buffer-modified-p)))))))
+
+(ert-deftest tategaki-outline-disclosure-ret-still-visits-heading ()
+  (tategaki-outline-test--with-source "#第一章\n##第一節\n"
+    (goto-char (point-max))
+    (tategaki-outline)
+    (goto-char (point-min))
+    (should (eq (key-binding (kbd "RET")) #'tategaki-outline--visit-line))
+    (call-interactively (key-binding (kbd "RET")))
+    (should (eq (current-buffer) source))
+    (should (= (point) (point-min)))))
+
+(ert-deftest tategaki-outline-source-typing-defers-scanning-until-idle ()
+  (tategaki-outline-test--with-source "#第一章\n本文\n"
+    (tategaki-outline)
+    (select-window (get-buffer-window source))
+    (goto-char (point-max))
+    (let ((entries tategaki-outline--entries)
+          (render (symbol-function 'tategaki-outline--render)) (calls 0))
+      (cl-letf (((symbol-function 'tategaki-outline--render)
+                 (lambda () (cl-incf calls) (funcall render))))
+        (dolist (char (string-to-list "#第二章\n追記"))
+          (insert char)
+          (tategaki-outline--post-command)
+          (should (eq tategaki-outline--entries entries)))
+        (should (= calls 0))
+        (should (timerp tategaki-outline--timer))
+        (let ((text (buffer-string)) (position (point))
+              (undo buffer-undo-list) (tick (buffer-chars-modified-tick)))
+          (cancel-timer tategaki-outline--timer)
+          (tategaki-outline--idle-refresh source)
+          (should (= calls 1))
+          (should (= (length tategaki-outline--entries) 2))
+          (should-not tategaki-outline--timer)
+          (should-not tategaki-outline--pending-bounds)
+          (should (eq (selected-window) (get-buffer-window source)))
+          (should (= (point) position))
+          (should (= (buffer-chars-modified-tick) tick))
+          (should (eq buffer-undo-list undo))
+          (should (equal-including-properties (buffer-string) text)))))))
+
+(ert-deftest tategaki-outline-pending-edit-does-not-hide-narrowing-changes ()
+  (tategaki-outline-test--with-source "#第一章\n本文\n#第二章\n末尾\n"
+    (tategaki-outline)
+    (select-window (get-buffer-window source))
+    (goto-char (point-max))
+    (insert "追記")
+    (goto-char (point-min))
+    (search-forward "#第二章")
+    (beginning-of-line)
+    (narrow-to-region (point) (point-max))
+    (let ((start (point-min)))
+      (tategaki-outline--post-command)
+      (should (= (point-min) start))
+      (should-not tategaki-outline--timer)
+      (should (= (length tategaki-outline--entries) 1))
+      (should (equal (aref (aref tategaki-outline--entries 0) 2) "第二章")))))
+
+(ert-deftest tategaki-outline-refresh-preserves-sidebar-selected-heading ()
+  (tategaki-outline-test--with-source "#第一章\n本文\n#第二章\n末尾\n"
+    (tategaki-outline)
+    (let ((sidebar (current-buffer)) (window (selected-window)))
+      (forward-line 1)
+      (with-current-buffer source
+        (goto-char (point-min))
+        (insert "前書き\n")
+        (let ((position (point)))
+          (tategaki-outline-refresh)
+          (should (= (point) position))))
+      (should (eq (selected-window) window))
+      (should (eq (current-buffer) sidebar))
+      (should (string-match-p "第二章" (buffer-substring-no-properties
+                                         (line-beginning-position) (line-end-position)))))))
+
+(ert-deftest tategaki-outline-q-closes-and-cancels-pending-refresh ()
+  (tategaki-outline-test--with-source "#第一章\n本文\n"
+    (tategaki-outline)
+    (let ((sidebar (current-buffer)))
+      (with-current-buffer source (goto-char (point-max)) (insert "追記"))
+      (should (eq (key-binding (kbd "q")) #'tategaki-outline-close))
+      (call-interactively (key-binding (kbd "q")))
+      (should-not (buffer-live-p sidebar))
+      (with-current-buffer source
+        (should-not tategaki-outline--timer)
+        (should-not tategaki-outline--buffer)
+        (should-not (memq #'tategaki-outline--post-command post-command-hook))))))
+
+(ert-deftest tategaki-outline-fold-button-tracks-prefix-edits-before-idle ()
+  (tategaki-outline-test--with-source "# 前の章\n# 第一章\n本文\n### 第一節\n続き\n"
+    (tategaki-outline)
+    (forward-line 1)
+    (let ((sidebar (current-buffer)))
+      (with-current-buffer source
+        (goto-char (point-min))
+        (forward-line 1)
+        (insert "#"))
+      (button-activate (button-at (point)))
+      (should (eq (current-buffer) sidebar))
+      (should (string-match-p "第一章" (buffer-substring-no-properties
+                                         (line-beginning-position) (line-end-position))))
+      (should (equal (get-text-property (point) 'display) "▸"))
+      (should (invisible-p (save-excursion (forward-line 1) (point))))
+      (tategaki-outline-refresh)
+      (should (equal (get-text-property (point) 'display) "▸"))
+      (button-activate (button-at (point)))
+      (should-not (invisible-p (save-excursion (forward-line 1) (point)))))))
 
 (provide 'tategaki-outline-test)
 ;;; tategaki-outline-test.el ends here

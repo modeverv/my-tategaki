@@ -28,6 +28,29 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'tategaki-project)
+
+(defun tategaki-export-model-resolve-metadata (&optional override defaults)
+  "Resolve current manuscript metadata, with explicit OVERRIDE highest.
+Order is OVERRIDE, project/session metadata, buffer metadata, DEFAULTS,
+then filename/language fallbacks.  All inputs and output are alists."
+  (let ((metadata (copy-tree defaults))
+        (project (tategaki-project-metadata)))
+    (dolist (entry (and (boundp 'tategaki-export-metadata)
+                       (symbol-value 'tategaki-export-metadata)))
+      (setf (alist-get (car entry) metadata) (cdr entry)))
+    (dolist (key tategaki-project-metadata-keys)
+      (let ((property (intern (concat ":" (symbol-name key)))))
+        (when (plist-member project property)
+          (setf (alist-get key metadata) (plist-get project property)))))
+    (dolist (entry override)
+      (setf (alist-get (car entry) metadata) (cdr entry)))
+    (when (member (alist-get 'title metadata) '(nil "" "無題"))
+      (setf (alist-get 'title metadata)
+            (if buffer-file-name (file-name-base buffer-file-name) (buffer-name))))
+    (when (member (alist-get 'language metadata) '(nil ""))
+      (setf (alist-get 'language metadata) "ja"))
+    metadata))
 (require 'json)
 (require 'subr-x)
 (require 'tategaki-typeset)
@@ -226,7 +249,8 @@ cut by an explicit range remains literal and produces an error diagnostic."
              (text (substring full start finish))
              (options (append `((source_name . ,(or buffer-file-name (buffer-name)))
                                 (range_start . ,start) (range_end . ,finish)) options))
-             (model (tategaki-export-model-create text metadata options)))
+             (model (tategaki-export-model-create
+                     text (tategaki-export-model-resolve-metadata metadata) options)))
         (when (tategaki-export-model--cut-annotation-p full start finish)
           ;; Context is required to recognize a cut suffix/outer annotation.
           ;; Retain that boundary line wholly rather than deleting any fragments.

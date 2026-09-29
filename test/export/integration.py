@@ -38,6 +38,11 @@ def main():
     report = job('representative', FIXTURES / 'representative.txt', FIXTURES / 'representative-profile.json',
                  formats='txt,docx,pdf,epub,html')
     assert all(v['status'] == 'succeeded' for v in report['formats'].values())
+    # Docker uses the host UID, which usually has no passwd entry in the image.
+    # Java's default user.home becomes "?" and XMLResolver mistakes its cache
+    # path for a URI query.  Keep that cache out of artifacts and logs clean.
+    assert '[Fatal Error]' not in report['formats']['epub']['validation']['epubcheck']['output']
+    assert not (suite / 'representative' / 'epub' / '?').exists()
     expected = json.loads((FIXTURES / 'representative-expected.json').read_text())
     model = json.loads((suite / 'representative/document.json').read_text())
     assert model['expectations']['body_text'] == expected['body_text']

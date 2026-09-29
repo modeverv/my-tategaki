@@ -30,6 +30,7 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'button)
+(require 'tategaki-pane)
 (require 'outline)
 
 (defgroup tategaki-outline nil
@@ -39,7 +40,9 @@
 (defcustom tategaki-outline-heading-regexp 'auto
   "Headings shown in the vertical editor's outline.
 `auto' recognizes Org stars, Markdown ATX headings and Japanese numbered
-parts, chapters, sections, acts and scenes.  `outline' uses `outline-regexp'
+parts, chapters, sections, acts and scenes, including #第一章 and ##第一節.
+Ordinary hashtags without a heading space are not listed.
+`outline' uses `outline-regexp'
 and `outline-level' from the source buffer.  A regexp selects custom heading
 lines; `tategaki-outline-level-function' can supply their hierarchy.
 Only headings inside the current narrowing are listed."
@@ -73,9 +76,14 @@ Nil uses the heading syntax, or `outline-level' for the `outline' preset."
   :type 'number
   :group 'tategaki-outline)
 
+(defconst tategaki-outline--numbered-regexp
+  "第[0-9０-９一二三四五六七八九十百千万〇零]+[部章節幕場]"
+  "Numbered Japanese heading prefix, excluding ordinary hashtags.")
+
 (defconst tategaki-outline--auto-regexp
   (concat "^\\(?:\\*+[ \t]+\\|#\\{1,6\\}[ \t]+\\|"
-          "[ 　]*第[0-9０-９一二三四五六七八九十百千万〇零]+[部章節幕場]"
+          "#\\{1,6\\}" tategaki-outline--numbered-regexp "\\|"
+          "[ 　]*" tategaki-outline--numbered-regexp
           "\\)")
   "Heading prefixes understood by the automatic outline.")
 
@@ -84,6 +92,7 @@ Nil uses the heading syntax, or `outline-level' for the `outline' preset."
 (defvar-local tategaki-outline--cache-key nil)
 (defvar-local tategaki-outline--buffer nil)
 (defvar-local tategaki-outline--timer nil)
+(defvar-local tategaki-outline--pending-bounds nil)
 (defvar-local tategaki-outline--source nil)
 (defvar-local tategaki-outline--highlight nil)
 (defvar-local tategaki-outline--folded nil
@@ -98,6 +107,7 @@ Nil uses the heading syntax, or `outline-level' for the `outline' preset."
     ;; Text buttons take precedence over the major-mode keymap.
     (define-key map (kbd "TAB") #'tategaki-outline-toggle-subtree)
     (define-key map (kbd "<tab>") #'tategaki-outline-toggle-subtree)
+    (define-key map (kbd "RET") #'tategaki-outline--visit-line)
     map)
   "Button bindings for outline navigation and sidebar subtree folding.")
 
@@ -119,6 +129,8 @@ Nil uses the heading syntax, or `outline-level' for the `outline' preset."
          ((eq tategaki-outline-heading-regexp 'outline)
           (funcall outline-level))
          ((looking-at "\\(\\*+\\|#+\\)[ \t]")
+          (length (match-string-no-properties 1)))
+         ((looking-at (concat "\\(#+\\)" tategaki-outline--numbered-regexp))
           (length (match-string-no-properties 1)))
          ((looking-at "[ 　]*第[^\n部章節幕場]+[節場]") 2)
          (t 1)))))
@@ -158,6 +170,9 @@ Preserve point, narrowing, match data, source properties and undo."
                     (when (eq tategaki-outline-heading-regexp 'auto)
                       (setq title (replace-regexp-in-string
                                    "\\`\\(?:\\*+\\|#+\\)[ \t]+" "" title)))
+                    (when (and (eq tategaki-outline-heading-regexp 'auto)
+                               (string-match (concat "\\`\\(#+\\)" tategaki-outline--numbered-regexp) title))
+                      (setq title (substring title (match-end 1))))
                     (push (vector (copy-marker start t) level title nil)
                           entries)))
                 (goto-char start)
@@ -224,19 +239,44 @@ Preserve point, narrowing, match data, source properties and undo."
 (defun tategaki-outline--render ()
   "Render the current source buffer's headings in its outline buffer."
   (when (buffer-live-p tategaki-outline--buffer)
-    (let ((entries (tategaki-outline--headings))
+    (let* ((selected-marker
+            (with-current-buffer tategaki-outline--buffer
+              (save-excursion
+                (beginning-of-line)
+                (let* ((button (next-button (point) t))
+                       (marker (and button (<= (button-start button) (line-end-position))
+                                    (button-get button 'tategaki-outline-marker))))
+                  (when (and (markerp marker) (marker-buffer marker))
+                    (with-current-buffer (marker-buffer marker)
+                      (save-excursion
+                        (goto-char marker)
+                        (copy-marker (line-beginning-position) t))))))))
+          (entries (tategaki-outline--headings))
           (sidebar tategaki-outline--buffer)
           (name (buffer-name)))
       (with-current-buffer sidebar
         (let ((inhibit-read-only t))
           (erase-buffer)
           (setq header-line-format (format " %s  |  RET 移動  TAB 開閉  g 更新  q 閉じる" name))
+          (tategaki-pane-install tategaki-outline--source #'tategaki-outline-close)
           (if (= (length entries) 0)
               (insert "見出しがありません。\n\n# 第一章\n## 第一節\n第1章 始まり\n\nなどの見出しを本文に書くと\nここに表示されます。\n")
-            (mapc
-             (lambda (entry)
+            (cl-loop
+             for entry across entries for index from 0 do
+             (progn
                (insert (make-string (* 2 (min 8 (1- (aref entry 1)))) ?\s))
                (aset entry 3 (point))
+               (let ((parent (and (< (1+ index) (length entries))
+                                  (> (aref (aref entries (1+ index)) 1)
+                                     (aref entry 1)))))
+                 (insert-text-button
+                  (if parent "▾ " "  ")
+                  'follow-link t 'keymap tategaki-outline-button-map
+                  'face 'shadow
+                  'help-echo (if parent "クリック: 子見出しを開閉" "クリック: 本文の見出しへ移動")
+                  'tategaki-outline-marker (aref entry 0)
+                  'tategaki-outline-disclosure parent
+                  'action (if parent #'tategaki-outline--toggle-button #'tategaki-outline--activate-button)))
                (insert-text-button
                 (aref entry 2)
                 'follow-link t 'help-echo "RET / mouse-1: 本文の見出しへ移動"
@@ -244,12 +284,27 @@ Preserve point, narrowing, match data, source properties and undo."
                 'face (if (= (aref entry 1) 1) 'bold 'default)
                 'tategaki-outline-marker (aref entry 0)
                 'action #'tategaki-outline--activate-button)
-               (insert "\n"))
-             entries))
+               (insert "\n"))))
           (tategaki-outline--apply-folds entries)
-          (goto-char (point-min))
+          (let ((entry (and selected-marker
+                            (cl-find (marker-position selected-marker) entries
+                                     :key (lambda (item) (marker-position (aref item 0)))))))
+            (goto-char (if entry (aref entry 3) (point-min))))
           (set-buffer-modified-p nil)))
+      (when selected-marker (set-marker selected-marker nil))
       (tategaki-outline--follow))))
+
+(defun tategaki-outline--toggle-button (button)
+  "Toggle BUTTON's subtree without visiting or modifying the manuscript."
+  (goto-char (button-start button))
+  (tategaki-outline-toggle-subtree))
+
+(defun tategaki-outline--visit-line ()
+  "Visit this line's heading, including when point is on its triangle."
+  (interactive)
+  (let ((button (button-at (save-excursion (back-to-indentation) (point)))))
+    (unless button (user-error "No heading on this line"))
+    (tategaki-outline--activate-button button)))
 
 (defun tategaki-outline--subtree-end (entries index)
   "Return the first index after INDEX's subtree in ENTRIES."
@@ -279,6 +334,7 @@ All invisible properties belong to sidebar overlays, never the source."
              (end (and index (tategaki-outline--subtree-end entries index))))
         (if (not (and end (> end (1+ index))))
             (set-marker marker nil)
+          (set-marker marker position (marker-buffer marker))
           (push marker retained)
           (let* ((parent (aref (aref entries index) 3))
                  (start (save-excursion
@@ -297,7 +353,15 @@ All invisible properties belong to sidebar overlays, never the source."
             (overlay-put badge 'after-string (propertize " …" 'face 'shadow))
             (push overlay tategaki-outline--fold-overlays)
             (push badge tategaki-outline--fold-overlays)))))
-    (setq tategaki-outline--folded (nreverse retained))))
+    (setq tategaki-outline--folded (nreverse retained)))
+  (let ((inhibit-read-only t))
+    (mapc (lambda (entry)
+            (let* ((position (aref entry 3)) (button (button-at position)))
+              (when (and button (button-get button 'tategaki-outline-disclosure))
+                (put-text-property position (1+ position) 'display
+                                   (if (cl-find (marker-position (aref entry 0))
+                                                tategaki-outline--folded :key #'marker-position)
+                                       "▸" "▾"))))) entries)))
 
 (defun tategaki-outline-toggle-subtree ()
   "Expand or collapse this heading's children in the sidebar only."
@@ -307,7 +371,10 @@ All invisible properties belong to sidebar overlays, never the source."
   (let* ((button (button-at (save-excursion (back-to-indentation) (point))))
          (marker (and button (button-get button 'tategaki-outline-marker)))
          (source tategaki-outline--source)
-         (position (and marker (marker-position marker)))
+         (position (and (markerp marker) (marker-buffer marker)
+                        (with-current-buffer (marker-buffer marker)
+                          (save-excursion
+                            (goto-char marker) (line-beginning-position)))))
          (sidebar (current-buffer)))
     (unless position (user-error "No heading on this line"))
     (with-current-buffer source (tategaki-outline--render))
@@ -351,6 +418,8 @@ All invisible properties belong to sidebar overlays, never the source."
             (move-overlay tategaki-outline--highlight
                           (line-beginning-position) (1+ (line-end-position)))
             (overlay-put tategaki-outline--highlight 'face 'highlight)
+            (overlay-put tategaki-outline--highlight 'help-echo
+                         (concat "執筆位置: " (aref entry 2)))
             ;; Keep the active section visible, but do not steal the user's
             ;; selection while they are navigating inside the outline itself.
             (dolist (window (get-buffer-window-list (current-buffer) nil t))
@@ -362,19 +431,21 @@ All invisible properties belong to sidebar overlays, never the source."
   (when (buffer-live-p tategaki-outline--buffer)
     ;; Source edits are debounced.  Point movement needs only binary lookup.
     (if (and tategaki-outline--cache-key
-             (equal (cdr tategaki-outline--cache-key)
-                    (list (point-min) (point-max) (tategaki-outline--regexp)
-                          tategaki-outline-level-function
-                          (and (eq tategaki-outline-heading-regexp 'outline)
-                               outline-level))))
+             (equal (nthcdr 3 tategaki-outline--cache-key)
+                    (list (tategaki-outline--regexp) tategaki-outline-level-function
+                          (and (eq tategaki-outline-heading-regexp 'outline) outline-level)))
+             (equal (list (point-min) (point-max))
+                    (if (timerp tategaki-outline--timer) tategaki-outline--pending-bounds
+                      (list (nth 1 tategaki-outline--cache-key)
+                            (nth 2 tategaki-outline--cache-key)))))
         (tategaki-outline--follow)
-      (tategaki-outline--render))))
+      (tategaki-outline-refresh))))
 
 (defun tategaki-outline--idle-refresh (source)
   "Refresh SOURCE after coalescing pending source edits."
   (when (buffer-live-p source)
     (with-current-buffer source
-      (setq tategaki-outline--timer nil)
+      (setq tategaki-outline--timer nil tategaki-outline--pending-bounds nil)
       (tategaki-outline--render))))
 
 (defun tategaki-outline--after-change (&rest _)
@@ -384,7 +455,8 @@ All invisible properties belong to sidebar overlays, never the source."
       (cancel-timer tategaki-outline--timer))
     (setq tategaki-outline--timer
           (run-with-idle-timer (max 0 tategaki-outline-update-delay) nil
-                              #'tategaki-outline--idle-refresh (current-buffer)))))
+                              #'tategaki-outline--idle-refresh (current-buffer))
+          tategaki-outline--pending-bounds (list (point-min) (point-max)))))
 
 (defun tategaki-outline-refresh ()
   "Refresh the open outline from its source text."
@@ -392,7 +464,7 @@ All invisible properties belong to sidebar overlays, never the source."
   (with-current-buffer (tategaki-outline--source-buffer)
     (when (timerp tategaki-outline--timer)
       (cancel-timer tategaki-outline--timer)
-      (setq tategaki-outline--timer nil))
+      (setq tategaki-outline--timer nil tategaki-outline--pending-bounds nil))
     (tategaki-outline--render)))
 
 (defun tategaki-outline--sidebar-killed ()
@@ -411,7 +483,7 @@ All invisible properties belong to sidebar overlays, never the source."
   "Close this source buffer's outline and remove only its own local hooks."
   (when (timerp tategaki-outline--timer)
     (cancel-timer tategaki-outline--timer))
-  (setq tategaki-outline--timer nil)
+  (setq tategaki-outline--timer nil tategaki-outline--pending-bounds nil)
   (remove-hook 'after-change-functions #'tategaki-outline--after-change t)
   (remove-hook 'post-command-hook #'tategaki-outline--post-command t)
   (remove-hook 'kill-buffer-hook #'tategaki-outline-cleanup t)
@@ -431,7 +503,7 @@ All invisible properties belong to sidebar overlays, never the source."
     (define-key map (kbd "n") #'next-line)
     (define-key map (kbd "p") #'previous-line)
     (define-key map (kbd "g") #'tategaki-outline-refresh)
-    (define-key map (kbd "q") #'kill-current-buffer)
+    (define-key map (kbd "q") #'tategaki-outline-close)
     map))
 
 (define-derived-mode tategaki-outline-mode special-mode "縦書き目次"
@@ -440,6 +512,14 @@ All invisible properties belong to sidebar overlays, never the source."
   (setq-local cursor-type nil)
   (add-to-invisibility-spec 'tategaki-outline)
   (add-hook 'kill-buffer-hook #'tategaki-outline--sidebar-killed nil t))
+
+(defun tategaki-outline-close ()
+  "Close this outline pane and release its source hooks and markers."
+  (interactive)
+  (let ((window (get-buffer-window (current-buffer)))
+        (source (tategaki-outline--source-buffer)))
+    (when (window-live-p window) (quit-window nil window))
+    (with-current-buffer source (tategaki-outline-cleanup))))
 
 ;;;###autoload
 (defun tategaki-outline (&optional close)

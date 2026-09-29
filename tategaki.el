@@ -53,6 +53,12 @@
 (autoload 'tategaki-export-status "tategaki-export" nil t)
 (autoload 'tategaki-export-cancel "tategaki-export" nil t)
 
+;; The optional Novel IDE has no cost until a Studio command is requested.
+(autoload 'tategaki-studio "tategaki-studio" nil t)
+(autoload 'tategaki-studio-mode "tategaki-studio" nil t)
+(autoload 'tategaki-settings "tategaki-settings" nil t)
+(autoload 'tategaki-session-open-last "tategaki-session" nil t)
+
 (defgroup tategaki nil
   "Edit text through a vertical display layer."
   :group 'text)
@@ -214,7 +220,8 @@ errors.  Nil retains the caller's threshold."
 Negative STEPS shrink the text; zero restores its original size.
 Use `text-scale-mode-step' as the multiplier per step, independently of
 ordinary `text-scale-mode'.  Fixed manuscript dimensions are preserved,
-so their display stops growing when the paper fills the window."
+so display stops growing when the rows fill the window height.
+With `tategaki-manuscript-fit-window', the whole page fits the width too."
   (interactive "p")
   (unless tategaki-mode (user-error "Vertical editing is not active"))
   (unless (display-graphic-p) (user-error "Vertical text zoom requires a graphical display"))
@@ -341,7 +348,8 @@ Measure display strings without inserting anything into the source buffer."
       boundaries)))
 
 (defun tategaki-position-pixel (position &optional window)
-  "Return visible POSITION's (:x :y :width :height) in WINDOW text pixels.
+  "Return visible POSITION's (:x :y :width :height) in WINDOW body pixels.
+Coordinates exclude the header and tab lines, as `posn-x-y' does for text.
 Return nil outside the vertical owner or visible page.  At point, use the
 virtual insertion cursor, including completion and IME previews."
   (setq window (or window (selected-window)))
@@ -370,7 +378,12 @@ virtual insertion cursor, including completion and IME previews."
                               (end (get-text-property (cdr object) 'tategaki-unit-end (car object))))
                           (and start end (<= start virtual) (< virtual end)))))))
           (cl-loop with x = (+ (plist-get pixel :x) (/ (plist-get pixel :width) 2))
-                   for y from 0 below (window-body-height window t)
+                   ;; posn-at-x-y's input includes header/tab lines although
+                   ;; its returned text coordinates exclude them.  Scan the
+                   ;; full body, including the final rows below tall headers.
+                   with top = (+ (window-header-line-height window)
+                                 (window-tab-line-height window))
+                   for y from top below (+ top (window-body-height window t))
                    by (max 1 (min (/ (frame-char-height (window-frame window)) 2)
                                   (/ (plist-get pixel :height) 2)))
                    for posn = (posn-at-x-y x y window)
@@ -381,7 +394,7 @@ virtual insertion cursor, including completion and IME previews."
                    ;; first slice instead of subtracting a nominal offset.
                    return
                    (let* ((first
-                           (cl-loop for probe from y downto 0
+                           (cl-loop for probe from y downto top
                                     for candidate = (posn-at-x-y x probe window)
                                     for object = (and candidate (posn-string candidate))
                                     when (and (matches object)
@@ -652,6 +665,7 @@ A space glyph defines the complete height; the newline adds no font height."
                           tategaki-scrollbar tategaki-scrollbar-pixel-height
                           tategaki-typesetting (tategaki-typeset-options-key)
                           tategaki-manuscript-size tategaki-manuscript-spread
+                          tategaki-manuscript-fit-window
                           tategaki-manuscript-grid face-remapping-alist
                           tategaki-layout-newline-symbol tategaki-layout-tab-symbol
                           tategaki-layout-eof-symbol tategaki-layout-zero-width-symbol
