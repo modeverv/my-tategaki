@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OllamaとLM Studioの接続、モデル選択、原稿・資料の検索と出典付き相談。">
+<meta name="theme-color" content="#f7f6f0">
+<title>ローカルAI・検索・資料 | my-tategaki</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/manual.css">
+<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
+<script src="../assets/manual.js" defer></script>
+</head>
+<body data-root="../" class="page-ai">
+<a class="skip-link" href="#main">本文へ移動</a>
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html" aria-current="page"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav>
+<div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
+</aside>
+<div class="site-body">
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 07</span>
+<div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html" aria-current="page"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav></details>
+<main id="main" tabindex="-1">
+<div class="page-heading"><p class="eyebrow">CHAPTER 07</p><h1>ローカルAI・検索・資料</h1><p class="lead">OllamaとLM Studioの接続、モデル選択、原稿・資料の検索と出典付き相談。</p></div>
+<div class="document-grid"><article><p class="lead">原稿の関連箇所を探し、出典を添えてAIへ相談します。AIは既定では無効です。本文の編集や目次、履歴、ローカル校正は、AIを設定しなくても使えます。</p>
+<p>AIの答えは補助資料として表示し、原稿へ自動で書き込みません。まず短い合成文や公開してよい文章で接続を確かめ、その後に自分の作品で使ってください。設定画面の基本は <a href="studio.html">Studioと設定</a>を参照してください。</p>
+
+<h2 id="connection">Ollama・LM Studioへ接続する</h2>
+<ol>
+  <li>使うAIサーバーを別途起動し、必要なモデルをサーバー側で用意します。Novel Studioはサーバーのインストールやモデルのダウンロードを代行しません。</li>
+  <li>Studioの <strong>[⚙設定]</strong> を開き、AIの <strong>Provider</strong> でOllamaまたはLM Studioを選びます。</li>
+  <li><strong>Endpoint</strong> が、起動したサーバーのURLと一致することを確認します。</li>
+  <li><strong>[接続テスト]</strong> を押します。これはモデル一覧APIへの接続を試し、原稿本文は送信しません。</li>
+  <li>次の節の手順でModelとEmbedding Modelを指定し、AIを有効にします。今後も使う設定なら保存先を選び <strong>[保存]</strong> を押します。</li>
+</ol>
+<table>
+  <thead><tr><th>Provider</th><th>標準Endpoint</th></tr></thead>
+  <tbody>
+    <tr><td>Ollama</td><td><code>http://127.0.0.1:11434/v1</code></td></tr>
+    <tr><td>LM Studio</td><td><code>http://127.0.0.1:1234/v1</code></td></tr>
+    <tr><td>llama.cpp</td><td><code>http://127.0.0.1:8080/v1</code></td></tr>
+    <tr><td>OpenAI-compatible</td><td>使用する互換サーバーのAPIルートを入力します。</td></tr>
+  </tbody>
+</table>
+<p>通信にはOpenAI-compatible APIを使います。Endpointは <code>/v1</code> までを指定し、<code>/chat/completions</code> は付けません。Providerを変更したとき、Endpointが標準URLなら新しいProviderのURLへ切り替えます。手入力したカスタムURLは保持します。<strong>[標準URLを使う]</strong> で選択中のProviderの標準値に戻せます。</p>
+<p>接続テストの成功は、選んだモデルの文章生成やembeddingが成功する保証ではありません。モデルが未読込、embeddingに非対応、メモリ不足などの場合は、実際の操作で返る案内を確認してください。</p>
+
+<h3 id="models">ModelとEmbedding Modelを選ぶ</h3>
+<p><strong>[モデル一覧を取得]</strong> を押すと、サーバーが公開しているモデル名を取得します。<strong>[一覧からModelを選択]</strong> と <strong>[一覧からEmbeddingを選択]</strong> でそれぞれを選べます。名前を直接入力することもできます。</p>
+<table>
+  <thead><tr><th>項目</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Model</strong></td><td>質問への回答、作品設定・日時・伏線の候補抽出に使うチャットモデル。</td></tr>
+    <tr><td><strong>Embedding Model</strong></td><td>文章を比較用の数値へ変換し、意味索引や関連箇所の検索に使うモデル。</td></tr>
+  </tbody>
+</table>
+<p>モデル一覧だけでは、そのモデルの用途を判定できません。embeddingに対応するモデルを選んでください。Embedding Modelが空欄の場合はModelの名前を使うため、チャット専用モデルを指定していると索引作成に失敗することがあります。現在はチャットとembeddingに同じEndpointを使います。</p>
+<p>一覧取得はAIが無効でも実行でき、本文は送りません。EndpointやProviderを変更すると古い一覧と取得途中の応答を破棄します。0件の場合はサーバー側のモデルとAPIの状態を確認してください。</p>
+
+<h2 id="privacy">送信される内容を理解する</h2>
+<table>
+  <thead><tr><th>操作</th><th>接続先へ渡すもの</th></tr></thead>
+  <tbody>
+    <tr><td>接続テスト・モデル一覧</td><td>原稿本文を含まないAPIリクエスト。</td></tr>
+    <tr><td>意味索引を作成・更新</td><td>対象原稿や登録ファイルを分割した本文。</td></tr>
+    <tr><td>意味検索</td><td>検索語のembeddingリクエスト。語句検索へ切り替わった場合はローカルで検索します。</td></tr>
+    <tr><td>通常のAI相談</td><td>質問、選択箇所や現在位置の周辺、検索で見つかった本文、採用済み作品設定・作品時間、選ばれた別原稿・資料の一部。</td></tr>
+    <tr><td>人物・日時・伏線の候補抽出</td><td>指定した範囲、または順番に分割した現在の原稿全文。</td></tr>
+  </tbody>
+</table>
+<p>これらの本文送信は、索引作成・相談・抽出などの明示操作から始まります。Novel Studioは <code>localhost</code> / <code>127.0.0.1</code> / <code>::1</code> のhttp(s)接続をローカルと判定します。それ以外の接続先では、本文送信の前に確認を求めます。<code>tategaki-ai-allow-remote</code> を明示的に <code>t</code> にすると確認なしの外部送信を許可するため、通常は既定の <code>nil</code> のままにします。</p>
+<p>この判定は接続先のhostを確認するものです。ローカルサーバーが裏で別のサービスへ転送するかどうかまでは判定しません。完全にローカルで使いたい場合は、サーバー側のモデルと転送設定も確認してください。HTTPリダイレクトには追従しません。</p>
+<p>APIキーが必要な場合は、<code>tategaki-ai-api-key-function</code> にキーを返す引数なしの関数を設定します。例えばEmacsの <code>auth-source</code> から取得する関数を利用できます。原稿や作品JSONへキーを記入する必要はありません。</p>
+<p>Copilotによる補完は、このAI設定とは独立しています。Copilotの接続先・認証・送信条件はCopilot側の設定に従います。</p>
+
+<h2 id="search">現在の原稿を検索する</h2>
+<ol>
+  <li>作品フォルダへ原稿を保存し、AI設定を確認します。</li>
+  <li><strong>[AI]</strong> でAssistantを開き、<strong>[意味索引を作成]</strong> を押します。原稿上では <code>M-x tategaki-semantic-index</code> でも実行できます。</li>
+  <li><strong>[検索]</strong>、<kbd>C-c s /</kbd>、または <code>M-x tategaki-semantic-search</code> で探したい内容を入力します。</li>
+  <li>結果の章・位置をクリックして、原稿を読みます。</li>
+</ol>
+<p>索引は現在の原稿を段落や章・場面の区切りで分け、長い段落は既定800字を目安に分割します。採用済みの人物名・別名の出現、登録Sceneの登場人物・視点、採用済みの時系列も手掛かりにします。名前が出たことと、その人物が内容を知っていることは区別します。</p>
+<p>索引は作品の <code>.tategaki/index/</code> に保存します。原稿内容、Endpoint、Embedding Modelが一致するときだけ再利用します。本文を変更した後は索引を作り直してください。</p>
+<p>索引が未作成・古い、AIが無効、またはembedding通信が失敗した場合は、語句の一致による <strong>lexical検索</strong> へ切り替えます。結果に示される検索方式を確認してください。AIを設定しなくても、この語句検索は使えます。</p>
+
+<h2 id="assistant">原稿について相談する</h2>
+<p><strong>[AI]</strong>、<kbd>C-c s a</kbd>、または <code>M-x tategaki-assistant</code> で、画面下側に相談ペインを開きます。<code>&gt;</code> の後に質問を書き、<kbd>RET</kbd> または <kbd>C-c C-c</kbd> で送信します。例えば「主人公が鍵を見つけた場面を確認したい」のように、確かめたい対象を具体的に書きます。</p>
+<p>プリセットから相談内容を選ぶこともできます。選択した文章については <code>M-x tategaki-ask-region</code>、指定人物については <code>M-x tategaki-ask-character</code> を使います。人物相談には後述の知識範囲の制限がかかります。</p>
+<p>回答は「原稿から確認できること」「推測」「不明」「参照箇所」を分けるようモデルへ指示しています。ただし、モデルが正しく読み取ることや、必ずこの形式に従うことは保証しません。結論だけでなく参照箇所を開いて確認してください。</p>
+
+<h3 id="citations">出典から本文を確かめる</h3>
+<p><code>[第3章:1234]</code> のようなラベルが回答に出た場合、実際にモデルへ渡した出典に一致するものだけがリンクになります。<strong>数字は行番号ではなくEmacsの原稿位置</strong>です。別原稿は <code>[原稿:ファイル名:章:位置]</code>、資料は <code>[資料:ファイル名:位置]</code> と区別し、同名の出典が重なれば <code>#2</code> などを付けます。</p>
+<p>回答待ちに原稿や参照ファイル、コレクションの対象が変わった場合は、古い文脈や出典をそのまま使いません。引用を開くときにも内容を照合し、変わっていれば再検索を求めます。古い回答の位置が現在の本文を正しく指すと推測しないための仕組みです。</p>
+
+<h3 id="cancel">取消・閉じる・再開</h3>
+<p><strong>[取消]</strong> または <kbd>C-c C-k</kbd> で処理中の相談を取り消します。上部の <strong>[閉じる]</strong>、<kbd>q</kbd>、<kbd>C-c C-q</kbd> は、処理を中止してAssistantのペインを閉じ、原稿へ戻ります。設定など他のペインは残します。</p>
+<p>会話と入力途中の質問はAssistantのバッファに残り、再度開くと続けられます。閉じた後に遅れて届いた回答でペインを再表示することはありません。この保持は開いているEmacs内のもので、会話を永続的に保存する機能ではありません。</p>
+
+<h2 id="corpus">別原稿と資料をコレクションへ登録する</h2>
+<p><strong>[原稿]</strong> メニューの原稿・資料コレクション、<kbd>C-c s c</kbd>、または <code>M-x tategaki-corpus</code> で管理画面を開きます。現在の原稿だけの索引とは別に、作者が選んだファイルを横断検索できます。</p>
+<ol>
+  <li><strong>[原稿を登録]</strong> / <strong>[資料を登録]</strong> でローカルファイルを1つずつ選びます。登録はパスを記録するだけで、この段階では本文の読込・AI送信を行いません。</li>
+  <li><strong>[対象]</strong> / <strong>[除外]</strong> で検索に使うものを決めます。</li>
+  <li><strong>[意味索引を更新]</strong> を押すと、対象ファイルの本文をembeddingサーバーへ送ります。</li>
+  <li><strong>[検索]</strong> または <code>M-x tategaki-corpus-search</code> で検索し、結果から出典へ移動します。処理中は <strong>[中止]</strong> で止められます。</li>
+</ol>
+<p>通常のAssistant相談にも、有効なコレクションの検索結果を文脈上限まで組み込みます。ファイルがEmacsで編集中なら未保存のバッファ本文を優先し、ディスクの内容で置き換えません。内容・対象一覧・接続先・モデルが途中で変わると古い結果を破棄します。索引が使えないときは語句検索へ切り替えます。</p>
+<p>登録は <code>.tategaki/corpus.json</code>、索引は <code>.tategaki/corpus-index.json</code> に保存します。除外や登録解除は元ファイルを削除しません。フォルダ全体の自動登録や再帰走査は行いません。ファイルはテキストとして読み、PDF・Word・画像の変換やOCRは提供しません。既定の1ファイル上限は5MiBです。</p>
+
+<h3 id="resource-folder">作品フォルダに直接置く資料</h3>
+<p>作品の <code>.tategaki/resources/</code> 直下にある <code>.txt</code> / <code>.md</code> / <code>.org</code> は、通常の相談時に語句検索の対象になります。サブフォルダを再帰的には読みません。シンボリックリンクは除外し、最大100ファイル、既定では1ファイル2MB・一度に合計4MBまで読みます。</p>
+<p>この方法で置いた資料も、文脈として選ばれればAIへ送信されます。コレクションに登録して <strong>[除外]</strong> にしたファイルは、この資料フォルダ内にあっても通常相談から除外します。</p>
+
+<h2 id="knowledge-boundary">人物と「この時点」の知識を制限する</h2>
+<p>人物相談は現在の原稿位置を上限とし、さらに、その人物が知っていると作者が登録した範囲だけを参照します。本文として許可されるのは、その人物を <code>known-by</code> に含む採用済みFactの出典、または採用済みSceneの <code>visibility</code> で許可した引用範囲です。</p>
+<p>Sceneの視点人物や登場人物に名前があるだけでは、その場の情報を知ったとは扱いません。未注釈の周辺本文、章名、資料、別原稿、一般の時系列を人物の知識へ混ぜず、許可した情報がなければ不明として回答するよう指示します。「この時点」など位置を制限する一般質問も、資料・別原稿の検索を行いません。</p>
+<p>これは原稿上の位置と、作者が採用した注釈による制限です。回想・予告・嘘・伝聞を完全に理解したり、人物が何を認識したかを自動で確定したりする機能ではありません。注釈の付け方と読者との差の確認は <a href="world.html#knowledge">人物・作品設定の知識比較</a>を参照してください。</p>
+<p>接続エラーや古い索引の対処は <a href="troubleshooting.html">トラブルシューティング</a>、コマンドを探す場合は <a href="reference.html">リファレンス</a>を使ってください。</p>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/history.html"><small>前の章</small>履歴・再開・読み返し <span aria-hidden="true">→</span></a><a href="../manual/world.html"><small>次の章</small>人物・作品設定を整理する <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#connection">Ollama・LM Studioへ接続する</a></li><li class="h3"><a href="#models">ModelとEmbedding Modelを選ぶ</a></li><li class="h2"><a href="#privacy">送信される内容を理解する</a></li><li class="h2"><a href="#search">現在の原稿を検索する</a></li><li class="h2"><a href="#assistant">原稿について相談する</a></li><li class="h3"><a href="#citations">出典から本文を確かめる</a></li><li class="h3"><a href="#cancel">取消・閉じる・再開</a></li><li class="h2"><a href="#corpus">別原稿と資料をコレクションへ登録する</a></li><li class="h3"><a href="#resource-folder">作品フォルダに直接置く資料</a></li><li class="h2"><a href="#knowledge-boundary">人物と「この時点」の知識を制限する</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+</main>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/ai.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
+</div>
+</body></html>

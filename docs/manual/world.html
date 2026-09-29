@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="人物、Fact、Scene、時系列、伏線、話し方と知識差を根拠付きで管理する。">
+<meta name="theme-color" content="#f7f6f0">
+<title>人物・作品設定を整理する | my-tategaki</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/manual.css">
+<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
+<script src="../assets/manual.js" defer></script>
+</head>
+<body data-root="../" class="page-world">
+<a class="skip-link" href="#main">本文へ移動</a>
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html" aria-current="page"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav>
+<div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
+</aside>
+<div class="site-body">
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 08</span>
+<div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html" aria-current="page"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav></details>
+<main id="main" tabindex="-1">
+<div class="page-heading"><p class="eyebrow">CHAPTER 08</p><h1>人物・作品設定を整理する</h1><p class="lead">人物、Fact、Scene、時系列、伏線、話し方と知識差を根拠付きで管理する。</p></div>
+<div class="document-grid"><article><p class="lead">人物、場所、設定上の事実、場面、時系列、伏線を、本文の出典と一緒に管理します。作者が記録した内容とAIの候補を区別し、確認したものを採用してから推敲に使います。</p>
+<p>登録やローカル検査はAIなしで使えます。AIで候補を抽出する場合だけ、先に <a href="ai.html#connection">AI接続</a>を設定してください。どの操作も、設定カードの内容を原稿へ自動で書き込みません。</p>
+
+<h2 id="records">人物・場所・設定を登録する</h2>
+<ol>
+  <li>作品フォルダに原稿を保存し、根拠にしたい本文の位置へ移動します。引用範囲を選択しておくと、その文章を出典として扱えます。</li>
+  <li>Studioの <strong>[人物]</strong>、<strong>[原稿] → [人物・設定]</strong>、または <code>M-x tategaki-world</code> を開きます。</li>
+  <li><strong>[人物・設定を登録]</strong> で種類と名前を入力します。事実を記録する場合は <strong>[事実を登録]</strong> から始められます。</li>
+  <li>カードの根拠とリンクを確認します。内容を直すときは <strong>[編集]</strong>、原稿上の根拠を選び直したときは <strong>[位置更新]</strong> を使います。</li>
+</ol>
+<table>
+  <thead><tr><th>種類</th><th>記録するもの</th></tr></thead>
+  <tbody>
+    <tr><td><code>Character</code></td><td>人物。</td></tr>
+    <tr><td><code>Place</code> / <code>Organization</code></td><td>場所・組織。</td></tr>
+    <tr><td><code>Object</code> / <code>Event</code></td><td>物・出来事。</td></tr>
+    <tr><td><code>Relationship</code></td><td>関係や正式名と別名の対応。</td></tr>
+    <tr><td><code>Fact</code></td><td>対象・属性・値を持つ具体的な事実。</td></tr>
+    <tr><td><code>Scene</code></td><td>引用範囲に対する視点・登場人物・情報の共有範囲。</td></tr>
+  </tbody>
+</table>
+<p>直接登録するコマンドは <code>M-x tategaki-world-add</code> です。人物カードには採用済みの別名も含めた初出と、原稿の登場箇所へのリンクを表示します。これは名前の文字列を手掛かりにした表示で、同名の別人まで自動で判別するものではありません。</p>
+
+<h3 id="states">本文の観察・推測・作者確認を区別する</h3>
+<table>
+  <thead><tr><th>状態</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>observed</code></td><td>本文で観察された内容。</td></tr>
+    <tr><td><code>inferred</code></td><td>未採用の推測・候補。AI抽出の結果はこの状態で入ります。</td></tr>
+    <tr><td><code>author-confirmed</code></td><td>作者が登録・採用した内容。</td></tr>
+    <tr><td><code>rejected</code></td><td>作者が却下した内容。</td></tr>
+  </tbody>
+</table>
+<p>カードの <strong>[採用]</strong> は作者確認済みへ、<strong>[却下]</strong> は却下へ変更します。候補は、採用するまで確定した作品設定として相談に使いません。原稿が変わり候補の出典が古くなった場合は、再抽出や出典の確認を求めます。</p>
+
+<h2 id="facts">Factで同じ条件の設定を揃える</h2>
+<p>Factには、名前に加えて対象 <code>subject</code>、属性 <code>attribute</code>、値 <code>value</code>、同じ時点・場面を表す <code>context</code>、知っている人物 <code>known-by</code> を記録します。</p>
+<table>
+  <thead><tr><th>入力項目</th><th>例</th></tr></thead>
+  <tbody>
+    <tr><td>事実の名前</td><td>駅に着いたときの鞄の色</td></tr>
+    <tr><td>対象</td><td>花子の鞄</td></tr>
+    <tr><td>属性</td><td><code>color</code></td></tr>
+    <tr><td>値</td><td>青</td></tr>
+    <tr><td>同一時点・場面</td><td>第一章・駅への到着</td></tr>
+    <tr><td>知っている人物</td><td><code>花子,reader</code></td></tr>
+  </tbody>
+</table>
+<p><code>reader</code> は読者です。複数名はカンマで区切ります。別の場面で鞄を持ち替えたのであれば、contextも分けます。時点を区別せず両方を同じ条件へ登録すると、意図した変化も不一致の候補になります。</p>
+<p>人物が情報を知ったことは <code>knowledge:鍵の場所</code> のような属性で記録できます。AI抽出候補には、見た・聞いた・読んだ・推測などの獲得経路も保持します。登場人物がその場にいることだけで、情報を知ったとは扱いません。</p>
+<h3 id="aliases">別名を対応付ける</h3>
+<p><code>Relationship</code> を登録し、属性を <code>alias</code>、対象を正式名、値を別名にします。採用した別名は人物の初出・言及の検索に使います。似た名前を自動で同じ人物へ統合する機能ではありません。</p>
+
+<h2 id="scenes">Sceneの視点と知識範囲を分ける</h2>
+<p>Sceneを登録する前に、注釈を付けたい本文の引用範囲を選びます。次の3項目は別々の意味を持ちます。</p>
+<table>
+  <thead><tr><th>項目</th><th>意味</th></tr></thead>
+  <tbody>
+    <tr><td><code>pov</code></td><td>視点人物。</td></tr>
+    <tr><td><code>characters</code></td><td>登場人物。</td></tr>
+    <tr><td><code>visibility</code></td><td>選択した引用の内容を知る人物。人物相談に引用を渡せる範囲を決めます。</td></tr>
+  </tbody>
+</table>
+<p>例えば花子視点の場面に太郎が登場しても、花子の心中まで太郎が知るとは限りません。<code>pov</code> と <code>characters</code> から知識を推定せず、共有した情報だけを <code>visibility</code> に登録してください。</p>
+<p>カードには「採用で許可する範囲」とその引用を表示します。範囲を広げるには広げた範囲そのものの正確な引用が必要です。章や明示的な場面区切りをまたいだ引用を、人物の許可範囲として使いません。</p>
+
+<h2 id="extraction">本文から候補を抽出し、確認して採用する</h2>
+<ol>
+  <li>作品設定の画面で <strong>[選択範囲から候補抽出]</strong>、または <strong>[本文全文から候補抽出]</strong> を押します。</li>
+  <li>進捗を確認します。全文は既定5000字を目安に分け、順番に処理します。止めるときは <strong>[抽出を中止]</strong> を押します。</li>
+  <li>完了後、一覧を更新して候補の種類、属性、引用、Sceneの許可範囲を読みます。</li>
+  <li>本文の根拠が適切な候補だけ <strong>[採用]</strong> し、不要なものは <strong>[却下]</strong> します。</li>
+</ol>
+<p><code>M-x tategaki-world-extract</code> は選択範囲、未選択なら現在の段落を対象にします。<code>M-x tategaki-world-extract-all</code> は現在の原稿全文を対象にします。保存していない編集内容も、実行時の本文として扱います。</p>
+<p>候補には処理範囲内の正確な根拠引用が必要です。モデルが勝手に返したIDや採用済み状態をそのまま保存しません。全処理が成功し、原稿とAI設定が変わっていない場合にまとめて保存します。途中で中止・失敗した場合は途中候補を保存しません。</p>
+<p>根拠が一致することは、モデルの解釈が正しいことまで保証しません。曖昧な代名詞、比喩、嘘、推測、回想などは本文を読み直して判断してください。送信範囲と接続先の扱いは <a href="ai.html#privacy">AIとプライバシー</a>で説明します。</p>
+
+<h2 id="consistency">登録した事実の不一致を検査する</h2>
+<p><strong>[矛盾検査]</strong> または <code>M-x tategaki-world-check</code> は、同じcontextにある登録Factを比較します。年齢、日付・曜日、場所、左右、色、所有、関係、呼称、生死、知識、一人称などの値が食い違う場合に候補を提示します。指摘一覧から根拠へ移動して確認します。</p>
+<p>これは登録した事実の比較です。未登録の設定まで原稿全体から理解して、すべての矛盾を発見するものではありません。原稿上の根拠が古くなった項目も確認が必要です。位置だけを信じて変更後の文章へ飛ぶことはありません。</p>
+
+<h2 id="timeline">原稿順と作品時間を見比べる</h2>
+<p><strong>[原稿] → [時系列]</strong>、<kbd>C-c s t</kbd>、または <code>M-x tategaki-timeline</code> で時系列を開きます。<strong>[場面を登録]</strong> で場面名と日時を入力し、<strong>[原稿順]</strong> / <strong>[作品時間順]</strong> で並べ方を切り替えます。</p>
+<table>
+  <thead><tr><th>日時状態</th><th>入力する内容</th></tr></thead>
+  <tbody>
+    <tr><td><code>exact</code></td><td>明示する日時。形式は <code>YYYY-MM-DD HH:MM</code>。</td></tr>
+    <tr><td><code>relative</code></td><td>基準場面と、そこから何分後か。前なら負数を指定します。</td></tr>
+    <tr><td><code>inferred</code></td><td>推測として扱う日時。</td></tr>
+    <tr><td><code>unknown</code></td><td>日時が不明。</td></tr>
+  </tbody>
+</table>
+<p>日時の確かさと、作者が採用したかどうかは別に管理します。相対日時は、先に基準場面を登録・採用してから扱います。基準がないものや循環して参照するものは未解決になります。不明な年を現在年で補うことはありません。</p>
+<p><strong>[本文全文から日時候補]</strong> または <code>M-x tategaki-timeline-extract</code> で、明示日時や「翌日」などの候補を抽出できます。選択範囲だけのボタンもあります。候補を読み、必要なら <strong>[編集]</strong> で基準や日時を直してから採用します。AIが原稿中の時間をすべて自動確定する機能ではありません。</p>
+
+<h2 id="foreshadow">伏線の配置と回収を対応付ける</h2>
+<p><strong>[原稿] → [伏線]</strong>、<kbd>C-c s f</kbd>、または <code>M-x tategaki-foreshadow</code> で一覧を開きます。配置した箇所で <strong>[伏線を登録]</strong> を押し、名前を付けます。未回収の項目には <strong>[現在位置で回収]</strong> があり、回収場面へ移動してから使います。</p>
+<p>AIを使う場合は <strong>[本文全文から配置・回収候補]</strong> または <strong>[選択範囲から候補]</strong> を実行します。<code>M-x tategaki-foreshadow-extract</code> は全文抽出です。結果は未採用の候補として表示します。</p>
+<ol>
+  <li>配置候補の引用を確認し、採用して未回収の伏線にします。</li>
+  <li>回収候補を採用するとき、対応する未回収の伏線を作者が選びます。</li>
+  <li>配置と回収の両方の引用、および回収位置が配置より後であることを確認します。</li>
+</ol>
+<p>候補が出ただけで既存の伏線を回収済みにしません。未回収・回収済み・候補・却下を分け、採用した回収候補は対応付けの記録を残します。作品の意図として伏線かどうか、回収が十分かどうかは作者が判断します。</p>
+
+<h2 id="voice">人物ごとの話し方を確認する</h2>
+<p>先に作品設定へ人物を登録してから、<strong>[原稿] → [人物の話し方]</strong>、<kbd>C-c s v</kbd>、または <code>M-x tategaki-voice</code> を開きます。</p>
+<ol>
+  <li>本文の台詞を選び、<strong>[選択台詞を見本に登録]</strong> で人物を指定します。</li>
+  <li><strong>[話し方を設定]</strong> で一人称、二人称、語尾、使わない語彙、文長、敬語の方針を入力します。語の欄を空にすると、その項目は制約なしです。</li>
+  <li><strong>[選択台詞を検査]</strong> または <strong>[原稿を検査]</strong> で、登録した規則と比較します。</li>
+</ol>
+<p>台詞の見本から頻出表現も表示します。複数の句に現れる3〜12文字の反復を数え、同じ出現数なら長い表現を優先します。形態素解析ではないため、単語の途中からの候補も含まれます。登録した見本の文面は、後で原稿を変更しても例文として残ります。</p>
+<h3 id="speaker-candidates">普通の会話文に話者を付ける</h3>
+<p><code>「台詞」</code> の前後にある「花子は言った」「と太郎は答えた」などの描写や、登録見本の反復表現・一人称から、話者候補を示します。根拠がなければ不明、競合すれば複数候補のままです。<strong>[人物名として採用]</strong> を押した台詞だけを、その人物の見本として登録します。</p>
+<p>採用前の候補を口調検査へ混ぜません。原稿が変わって候補が古くなったら、候補を更新してください。話し方の検査は文字列や文長などのローカル比較であり、文体の良し悪しを採点したり、入れ子の会話・引用・皮肉の本当の話者を網羅的に判定したりするものではありません。</p>
+
+<h2 id="knowledge">読者と人物の知識差を確認する</h2>
+<p>原稿の確認したい位置へ移動し、<strong>[原稿] → [読者と人物の知識を比較]</strong>、<kbd>C-c s k</kbd>、または <code>M-x tategaki-knowledge-compare</code> を実行して人物を選びます。Assistantの <strong>[読者との知識差]</strong> からも開けます。</p>
+<p>現在位置までの登録Factを「読者だけ」「人物だけ」「両方」に分け、出典リンクを表示します。Factの <code>known-by</code> に <code>reader</code> を含めると読者側の知識として扱います。記録がない情報は不明です。未登録であることから、その人物が知らないと断定しません。</p>
+<p>人物への <a href="ai.html#knowledge-boundary">AI相談</a>では、この知識注釈とSceneの許可範囲を使って本文の参照を制限します。人物の心理や認識を自動で完全に理解するものではないため、共有してよい引用範囲を作者が確認してください。</p>
+
+<h2 id="storage">保存場所と日常の使い方</h2>
+<p>作品フォルダの <code>.tategaki/</code> に、<code>world.json</code>、<code>timeline.json</code>、<code>foreshadow.json</code>、<code>voice.json</code>、<code>voice-profiles.json</code> を保存します。名前を付けていない原稿ではメモリ上の記録となるため、続けて使う作品は保存先を決めてから登録してください。</p>
+<p>原稿を書き直したら、必要なカードの根拠と時点を確認します。AI抽出を毎回やり直す必要はなく、少数のFactや伏線を手で登録するところから始められます。検査をまとめて確認する入口は <a href="writing.html#review">レビュー一覧</a>です。補助画面を読み終えたら上部の <strong>[閉じる]</strong> で原稿へ戻れます。</p>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/ai.html"><small>前の章</small>ローカルAI・検索・資料 <span aria-hidden="true">→</span></a><a href="../manual/export.html"><small>次の章</small>原稿を出力する <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#records">人物・場所・設定を登録する</a></li><li class="h3"><a href="#states">本文の観察・推測・作者確認を区別する</a></li><li class="h2"><a href="#facts">Factで同じ条件の設定を揃える</a></li><li class="h3"><a href="#aliases">別名を対応付ける</a></li><li class="h2"><a href="#scenes">Sceneの視点と知識範囲を分ける</a></li><li class="h2"><a href="#extraction">本文から候補を抽出し、確認して採用する</a></li><li class="h2"><a href="#consistency">登録した事実の不一致を検査する</a></li><li class="h2"><a href="#timeline">原稿順と作品時間を見比べる</a></li><li class="h2"><a href="#foreshadow">伏線の配置と回収を対応付ける</a></li><li class="h2"><a href="#voice">人物ごとの話し方を確認する</a></li><li class="h3"><a href="#speaker-candidates">普通の会話文に話者を付ける</a></li><li class="h2"><a href="#knowledge">読者と人物の知識差を確認する</a></li><li class="h2"><a href="#storage">保存場所と日常の使い方</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+</main>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/world.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
+</div>
+</body></html>

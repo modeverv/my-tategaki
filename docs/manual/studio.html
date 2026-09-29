@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="WriteとReview、ペインの閉じ方、文字サイズ、作品情報、設定の保存先。">
+<meta name="theme-color" content="#f7f6f0">
+<title>Studioの画面と設定 | my-tategaki</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/manual.css">
+<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
+<script src="../assets/manual.js" defer></script>
+</head>
+<body data-root="../" class="page-studio">
+<a class="skip-link" href="#main">本文へ移動</a>
+<aside class="sidebar">
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html" aria-current="page"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav>
+<div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
+</aside>
+<div class="site-body">
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 02</span>
+<div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html" aria-current="page"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav></details>
+<main id="main" tabindex="-1">
+<div class="page-heading"><p class="eyebrow">CHAPTER 02</p><h1>Studioの画面と設定</h1><p class="lead">WriteとReview、ペインの閉じ方、文字サイズ、作品情報、設定の保存先。</p></div>
+<div class="document-grid"><article><h2 id="workspace">原稿を中心にした執筆画面</h2>
+<p>Novel Studioは、縦書きの原稿に設定・目次・履歴・辞書・校正・AI相談を添える画面です。<code>M-x tategaki-studio</code>で開始します。テキストの原稿を開いていればそのまま執筆画面へ入り、それ以外のバッファでは開始画面から原稿を選びます。</p>
+<p>本文は通常のEmacsバッファです。原稿を保存するには上部の<strong>［原稿］→［保存］</strong>、または<kbd>C-x C-s</kbd>を使います。設定の［保存］は表示や作品情報を保存する操作で、本文の保存とは別です。</p>
+<h3 id="layout">WriteとReviewを切り替える</h3>
+<table><thead><tr><th>画面</th><th>使う場面</th><th>ウィンドウの動き</th></tr></thead><tbody>
+<tr><td>Write</td><td>本文を書き進める</td><td>原稿と、表示中の同じ原稿の目次を残します。他の推敲用ペインを隠します。</td></tr>
+<tr><td>Review</td><td>辞書・校正・人物設定などを見ながら直す</td><td>前回の推敲レイアウトを戻します。初回は目次を開きます。</td></tr>
+</tbody></table>
+<p>どちらの画面でも［原稿］から全操作を開けます。幅が狭いとReviewの上部ボタンは一部に絞られますが、原稿メニューから同じ機能を利用できます。画面の切り替えだけでAI相談や音読が始まることはありません。</p>
+<h3 id="panes">ペインを閉じて原稿へ戻る</h3>
+<p>各補助ペインの上部にある［閉じる］は、スクロールしても残ります。設定、目次、辞書の結果・本文、校正、人物・資料、履歴、AI、出力状態などからマウスで原稿へ戻れます。通常は押したペインだけが閉じ、ほかのペインは残ります。</p>
+<ul><li>設定に未保存の変更があるときは、保存するか破棄するかを選びます。</li><li>AIペインを閉じると実行中の相談を中止します。会話と入力途中の質問は再度開くと続けられます。</li><li>比較画面を閉じると比較を終了し、比較前の配置へ戻ります。</li><li>復元コピーや場面の別案を閉じても、未保存の本文はバッファに残ります。</li><li>出力状態・ログを閉じても、出力処理は継続します。中止するときは出力の取消操作を使います。</li></ul>
+<p>一覧や設定の本文にあるボタンは<kbd>TAB</kbd>で選び、<kbd>RET</kbd>でも実行できます。Emacsの<kbd>C-g</kbd>は入力途中のコマンドを中断するときに使います。</p>
+<h2 id="settings">設定画面を使う</h2>
+<ol class="steps"><li><strong>原稿から［⚙設定］を開く</strong><p>いまの原稿に適用されている値が表示されます。キーボードでは<kbd>C-c s s</kbd>です。</p></li><li><strong>見た目や執筆支援を調整する</strong><p>文字サイズ、フォント、原稿用紙、余白などの変更はその場でプレビューされます。本文、Undo履歴、本文の未保存マークは変わりません。</p></li><li><strong>保存先を選んで［保存］する</strong><p>この原稿だけで使うか、作品全体で使うか、新しい作品の既定値にするかを決めます。</p></li><li><strong>［閉じる］で本文へ戻る</strong><p>プレビューだけで終える場合は［保存せず閉じる］を選びます。原稿の本文は別途保存してください。</p></li></ol>
+<table><thead><tr><th>項目</th><th>調整できること</th><th>詳しい説明</th></tr></thead><tbody>
+<tr><td>作品</td><td>タイトル、著者名、言語、識別子</td><td><a href="#metadata">作品情報と出力</a></td></tr>
+<tr><td>表示</td><td>文字サイズ、フォント、用紙寸法、罫線、見開き、字間・列間・余白</td><td><a href="#paper">用紙と文字サイズ</a></td></tr>
+<tr><td>執筆</td><td>自動字下げ、括弧補完、自動履歴と間隔</td><td><a href="writing.html">執筆支援</a>・<a href="history.html">履歴</a></td></tr>
+<tr><td>校正</td><td>ルール検査、入力中の検査、一文の警告文字数</td><td><a href="writing.html#proofreading">校正</a></td></tr>
+<tr><td>AI</td><td>有効・無効、Provider、接続先、会話・埋め込みモデル</td><td><a href="ai.html#connection">AIの接続</a></td></tr>
+<tr><td>音読</td><td>Voiceと速度</td><td><a href="history.html#tts">読み上げ</a></td></tr>
+</tbody></table>
+<h3 id="metadata">作品情報と出力</h3>
+<p>タイトルや著者名は本文へ挿入せず、設定として保持します。Emacsからのファイル出力でも、設定した書誌情報を利用します。CLIから出力する場合の指定方法は<a href="export.html">出力の章</a>を参照してください。本文の見出し、原稿のファイル名、作品タイトルはそれぞれ別のものです。</p>
+<h3 id="paper">用紙の寸法と文字の大きさ</h3>
+<p>原稿用紙はプリセットから選ぶほか、<strong>縦字数と列数にそれぞれ1〜200の整数</strong>を入力し、［寸法を適用］で指定できます。たとえば27字×43列なら、縦字数に27、列数に43を入力します。入力途中は表示へ反映されません。適用後に保存先を選び、［保存］してください。</p>
+<p>固定寸法を使わない場合は［フリー（文字サイズ優先）］を選びます。フォントとウィンドウの大きさから表示できる字数・列数を決めます。ルビや用紙の組版表示を使うときは、本文ウィンドウへ戻って<code>M-x tategaki-typeset-edit</code>で組版表示を有効にします。</p>
+<p>文字が小さいときは文字サイズの［＋］を押します。［用紙全体を画面に収める］がOFFなら、横幅に入らない列は下部の横スクロールで読めます。固定用紙では縦の字数が画面高へ収まる大きさが拡大の上限です。さらに大きくする場合はフリーを選びます。</p>
+<p>用紙全体や見開きを見渡したいときは［用紙全体を画面に収める］をONにします。全体を収めるため文字は縮小されます。用紙の字数・列数と、画面で一度に見える列数の違いは<a href="typesetting.html#manuscript">原稿用紙の章</a>で説明しています。</p>
+<h2 id="scope">設定をどこに保存するか</h2>
+<table><thead><tr><th>保存先</th><th>対象</th><th>保存場所</th></tr></thead><tbody>
+<tr><td>このセッションだけ</td><td>現在の原稿バッファ</td><td>メモリ上。バッファを閉じると終了します。</td></tr>
+<tr><td>この作品</td><td>同じ作品ルートの原稿</td><td><code>.tategaki/project.json</code></td></tr>
+<tr><td>全作品の既定値</td><td>作品・セッションに指定のない項目</td><td><code>user-emacs-directory</code>内の<code>tategaki/defaults.json</code>。<code>tategaki-project-default-file</code>で変更可能。</td></tr>
+</tbody></table>
+<p>優先順位は<strong>セッション → 作品 → 全作品の既定値 → 通常のLisp設定</strong>です。上位に保存値がある項目は、下位の設定を変えても表示が変わりません。Studio開始時や設定を開いたときに読み込み、手動では<code>M-x tategaki-project-apply-settings</code>で再適用できます。</p>
+<p>［保存］は、その設定画面で編集・適用した項目を選んだ保存先へ書き込みます。同じ画面で保存先を変更すると、その画面で編集した値を別の保存先にも保存できます。現在と同じ用紙寸法を保存し直す場合も、［寸法を適用］を押してから保存してください。</p>
+<h3 id="project-folder">作品ごとにフォルダを作る</h3>
+<p>最初に作品のフォルダを用意し、その中へ原稿を保存してから、設定を「この作品」に保存すると場所を把握しやすくなります。</p>
+<pre><code>夏の終わり/
+  本文.txt
+  .tategaki/
+    project.json       作品情報と設定
+    resources/         任意のテキスト資料</code></pre>
+<p>作品ルートは原稿から親方向へ探した最寄りの<code>.tategaki/project.json</code>があるフォルダです。まだ設定ファイルがない場合は原稿のあるフォルダを使います。未保存の新規原稿ではそのバッファの<code>default-directory</code>を使うため、原稿をどこへ置くか決めてから作品設定を保存してください。</p>
+<p>作品資料、索引、人物設定なども作品ルートの<code>.tategaki/</code>へ保存されます。本文の自動履歴と前回位置は別の場所です。移動・バックアップ時に使う一覧は<a href="history.html">履歴と再開</a>、<a href="world.html#storage">作品資料の保存先</a>を参照してください。</p>
+<h3 id="revert">元に戻す・保存せず閉じる</h3>
+<p>［元に戻す］は設定画面を開いた時点の値へ戻します。途中で保存した場合、この操作自体が新しい変更になります。未保存の変更を残して閉じようとすると、［保存して閉じる］［保存せず閉じる］［戻る］が表示されます。［保存せず閉じる］では最後に保存した状態へ戻します。</p>
+<p>用紙寸法を入力したまま［寸法を適用］していない場合は、保存や終了の前に適用・入力の破棄を選びます。不正な寸法をそのまま保存することはありません。</p>
+<h2 id="keyboard">覚えておくと便利なキー</h2>
+<table><thead><tr><th>操作</th><th>Studio内のキー</th></tr></thead><tbody>
+<tr><td>原稿メニュー</td><td><kbd>C-c s m</kbd></td></tr>
+<tr><td>目次を開く・閉じる</td><td><kbd>C-c s o</kbd></td></tr>
+<tr><td>設定</td><td><kbd>C-c s s</kbd></td></tr>
+<tr><td>Write / Review</td><td><kbd>C-c s w</kbd> / <kbd>C-c s r</kbd></td></tr>
+<tr><td>履歴 / 辞書 / 校正一覧</td><td><kbd>C-c s h</kbd> / <kbd>C-c s d</kbd> / <kbd>C-c s p</kbd></td></tr>
+<tr><td>AI相談 / 関連箇所検索</td><td><kbd>C-c s a</kbd> / <kbd>C-c s /</kbd></td></tr>
+</tbody></table>
+<p><kbd>C-c s o</kbd>は、<kbd>Ctrl</kbd>を押しながら<kbd>c</kbd>、離して<kbd>s</kbd>、続いて<kbd>o</kbd>の順です。全操作は<a href="reference.html">コマンド・設定一覧</a>にまとめています。</p>
+<h2 id="leave">Studioを終了する</h2>
+<p>［原稿］→［Studio を終了］、または<code>M-x tategaki-studio-mode</code>でStudioの専用UIや履歴・検査の連携を終了します。軽量な縦書き編集は残ります。横書きへ戻すには、続けて<kbd>C-c C-c</kbd>で縦書きを終了してください。</p>
+<p>前回の位置へ戻る手順と、記録済みの本文を履歴から取り出す手順は異なります。作業を終える前に原稿を保存し、再開方法は<a href="history.html#session">前回の原稿を再開する</a>で確認してください。</p>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/getting-started.html"><small>前の章</small>導入と最初の原稿 <span aria-hidden="true">→</span></a><a href="../manual/editing.html"><small>次の章</small>縦書きで編集する <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#workspace">原稿を中心にした執筆画面</a></li><li class="h3"><a href="#layout">WriteとReviewを切り替える</a></li><li class="h3"><a href="#panes">ペインを閉じて原稿へ戻る</a></li><li class="h2"><a href="#settings">設定画面を使う</a></li><li class="h3"><a href="#metadata">作品情報と出力</a></li><li class="h3"><a href="#paper">用紙の寸法と文字の大きさ</a></li><li class="h2"><a href="#scope">設定をどこに保存するか</a></li><li class="h3"><a href="#project-folder">作品ごとにフォルダを作る</a></li><li class="h3"><a href="#revert">元に戻す・保存せず閉じる</a></li><li class="h2"><a href="#keyboard">覚えておくと便利なキー</a></li><li class="h2"><a href="#leave">Studioを終了する</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+</main>
+<footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/studio.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
+</div>
+</body></html>

@@ -1,37 +1,77 @@
-# マニュアルの更新とGitHub Pages公開
+# マニュアルの保守
 
-サイトは静的HTML・CSS・JavaScriptです。公開時にNode・Jekyll・Dockerのビルドは不要です。`docs/.nojekyll` により、そのまま配信します。
+利用マニュアルは、リポジトリと一緒に配布する静的HTMLサイトです。READMEは導入と機能の入口、HTMLマニュアルは操作手順、検証記録は実行時点の証拠を担当します。利用者向けの説明は現行コードへ合わせ、過去の検証結果を新しい結果に見せかけて書き換えません。
 
-## 更新する場所
+## 編集対象
 
-- `docs/manual/content/*.html`: 各章の本文。HTML断片で、`html` / `head` / `body` は書きません。
-- `tools/build-manual.py`: 共通レイアウト、章の順番、タイトルと説明。
-- `docs/assets/manual.css`, `manual.js`: 表示、検索、コードのコピー。
-- `docs/images/manual-*.jpg`: 実画面の画像。来歴は `docs/images/README.md`。
-- `docs/examples/`: ダウンロードして試す原稿。
+| 場所 | 内容 |
+|---|---|
+| `README.md` | 導入、Studioの入口、要件、マニュアルへの案内 |
+| `docs/manual/content/*.html` | マニュアルの本文。HTML断片 |
+| `tools/build-manual.py` | 章の順番、ページ名、説明、共通レイアウト、検索索引の生成 |
+| `docs/assets/manual.css` / `manual.js` | 画面幅への対応、検索、コピー、リファレンス絞り込み |
+| `docs/novel-studio.md` | GitHubから読めるStudioの開始ガイド |
+| `docs/docker-export-guide.md` | CLIと開発時の出力ガイド |
+| `docs/examples/` | 公開用の小説・脚本サンプル |
+| `docs/images/` | 過去の実画面資料。来歴は`images/README.md` |
 
-本文の `h2` / `h3` にはページ内で一意な `id` を付けます。リンクの基準は生成後の `docs/manual/` です。ホーム用の `content/index.html` だけは `docs/` が基準です。
+本文の`h2`と`h3`にはページ内で一意の`id`を付けます。既存の公開アンカーは可能な限り保持します。HTML断片へ`html` / `head` / `body`を追加しません。
 
-Python 3.9以降の標準ライブラリだけで生成できます。
+相対リンクは生成後のページを基準に書きます。通常の章は`docs/manual/`、トップページの`content/index.html`だけは`docs/`が基準です。生成物を直接編集すると再生成で上書きされます。
+
+## 章構成
+
+1. 導入と最初の原稿
+2. Studioの画面と設定
+3. 縦書きで編集する
+4. 組版と原稿用紙
+5. 目次・執筆支援・校正
+6. 履歴・再開・読み返し
+7. ローカルAI・検索・資料
+8. 人物・作品設定を整理する
+9. 原稿を出力する
+10. コマンド・設定一覧
+11. 困ったとき
+
+機能を追加する場合は、入口のUI、必要なもの、操作、結果、保存先、取消や戻り方を同じ章で説明します。設定名やキーは実コードと照合します。モデル出力の候補と確定情報、本文の保存と設定の保存、履歴の復元と位置の復元を区別してください。
+
+## 生成とローカル表示
+
+Python 3.9以降の標準ライブラリで生成します。公開側にNode、Jekyll、Dockerのビルドは不要です。
 
 ```sh
 python3 tools/build-manual.py
 python3 -m http.server 8769 --directory docs --bind 127.0.0.1
 ```
 
-ブラウザで `http://127.0.0.1:8769/` を開きます。本文を更新したら再生成し、生成された `docs/index.html`、`docs/manual/*.html`、`docs/assets/search-index.js` も一緒にコミットします。生成物を手で直すと次の生成で上書きされます。
+ブラウザで`http://127.0.0.1:8769/`を開きます。HTMLを直接開いて読むこともできます。検索は同梱の索引をブラウザ内で処理し、検索語をサーバーへ送りません。JavaScript無効でも本文と章のリンクは読めます。
 
-検索は同梱インデックスをブラウザ内で検索し、入力した語をサーバーへ送信しません。JavaScriptを無効にしても本文・章リンク・目次を読めます。JavaScript使用時は検索・コピー・表のスクロール補助が加わります。印刷用スタイルも含みます。
+再生成した次のファイルも本文と一緒にコミットします。
 
-## GitHub Pagesで公開する
+- `docs/index.html`
+- `docs/manual/*.html`
+- `docs/assets/search-index.js`
+- `docs/.nojekyll`
 
-設定はリポジトリ所有者が行います。
+新しい章を追加するときは`PAGES`と対応する本文を用意します。章一覧、前後リンク、ページ内目次、検索索引は同じ生成処理で更新されます。
 
-1. GitHubリポジトリの **Settings → Pages** を開く。
-2. **Build and deployment → Source** を **Deploy from a branch** にする。
-3. **Branch** は `main`、フォルダーは `/docs` を選んで **Save**。
-4. GitHubが表示する公開URLとデプロイ完了を確認する。
+検索索引のURLには章情報と本文から生成した版番号が付きます。改稿後にブラウザが古い索引を使い続けることを防ぐためのもので、手動で更新する必要はありません。
 
-通常の公開先は `https://modeverv.github.io/my-tategaki/` です。既存の独自ドメインや公開設定は、この変更では操作していません。
+## 確認すること
 
-GitHub側の設定については[公式ドキュメント](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)を参照してください。
+- 全ページに見出しがあり、同じページでIDが重複していない。
+- 相対リンクのファイルとアンカーが存在し、章一覧から新しい章を開ける。
+- 用語とコマンド名の検索で適切なページが出る。
+- コードのコピー、リファレンスの絞り込み、ページ内移動が動く。
+- 狭い画面でもメニューが開け、長い表・コードをスクロールできる。
+- READMEと操作手順のコマンド・キー・保存先が実装と一致する。
+- 古いスクリーンショットを現行UIとして提示しない。実画面には公開用の合成原稿を使う。
+- `python3 tools/build-manual.py`を再実行しても差分が増えず、`git diff --check`が通る。
+
+通常の手順書だけを変更した場合は、文書の生成・リンク・表示を検証します。実装へ変更を加えた場合は、その機能のテストも実行します。個別の検証結果は対応する`*-validation.md`に日時・環境・未確認の範囲を記録してください。
+
+## 配布と公開
+
+同梱版の入口は`docs/index.html`、公開サイトのURLは`https://modeverv.github.io/my-tategaki/`です。公開にはリポジトリ側のGitHub Pages設定が必要です。コミットするだけではリモートへのpushや公開操作を行ったことにはなりません。
+
+公開サイトと手元のコードに差があるときは、同じチェックアウトの同梱版を優先します。履歴として残した実装計画、検証ログ、JSONの測定結果は利用手順の正本にしません。

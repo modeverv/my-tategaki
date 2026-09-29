@@ -1,0 +1,73 @@
+<p class="lead">保存前の文章を履歴に残し、旧稿を安全に読み比べ、前回の位置から執筆を再開します。履歴の本文、作業位置の記録、通常のファイル保存は、それぞれ別のものです。</p>
+<p>原稿自体は <kbd>C-x C-s</kbd> で保存します。保存場所や作品設定は <a href="studio.html">Studioと設定</a>、提出用ファイルの生成は <a href="export.html">出力</a>を参照してください。</p>
+
+<h2 id="snapshots">自動履歴と手動記録</h2>
+<p>Studioでは既定で自動履歴が有効です。原稿を保存したときと、操作が一定時間止まったときに、現在の本文を別の場所へ記録します。idleの既定値は120秒です。まだファイルへ保存していない編集内容も履歴に含みます。</p>
+<p><strong>[原稿] → [履歴]</strong>、<kbd>C-c s h</kbd>、または <code>M-x tategaki-history</code> で履歴一覧を開きます。各項目には日時、文字数、ひとつ前の記録との文字数差を表示します。書き直しを始める前など、区切りを残したいときは <strong>[今の原稿を記録]</strong> を押します。原稿上のコマンドは <code>M-x tategaki-history-snapshot</code> です。</p>
+<p>同じ内容が続くときは項目を増やしません。以前と同じ本文に戻った場合は、内容のSHA-256が一致するスナップショットファイルを再利用します。履歴取得で原稿の本文、Undo、未保存状態は変わりません。</p>
+<p>設定の <strong>[自動履歴]</strong> で自動取得を停止できます。保存間隔を <strong>[保存時のみ]</strong> にするとidle取得だけを停止します。変数は <code>tategaki-history-enabled</code> と <code>tategaki-history-idle-interval</code> です。Studio外で独立して使う場合は <code>M-x tategaki-history-mode</code> を有効にします。</p>
+<p>既定の保存先は <code>~/.local/share/my-tategaki/history/</code> です。<code>XDG_DATA_HOME</code> があればその配下を使い、<code>tategaki-history-directory</code> で変更できます。文書ごとの <code>manifest.json</code> と <code>snapshots/&lt;SHA-256&gt;.txt</code> が作られます。現在は古い履歴の自動削除を行いません。ファイル保存や別媒体へのバックアップも併用してください。</p>
+
+<h2 id="restore">旧稿を開く・コピーとして復元する</h2>
+<table>
+  <thead><tr><th>履歴のボタン</th><th>結果</th></tr></thead>
+  <tbody>
+    <tr><td><strong>[開く]</strong></td><td>記録した本文を、読み取り専用の別バッファで開きます。</td></tr>
+    <tr><td><strong>[比較]</strong></td><td>旧稿と、未保存の変更も含む現在の原稿を比較します。</td></tr>
+    <tr><td><strong>[コピー復元]</strong></td><td>旧稿から編集可能な未保存の別バッファを作ります。</td></tr>
+  </tbody>
+</table>
+<p><strong>復元は現在の原稿を上書きしません。</strong> コピーを確認し、残したい場合は <kbd>C-x C-w</kbd> などで別名保存します。元の原稿へ戻す部分を選ぶ場合も、コピーを読んでから作者が編集します。直接実行するコマンドは <code>M-x tategaki-history-restore-as-copy</code> です。</p>
+<p>復元コピーの上部の <strong>[閉じる]</strong> は表示ペインを閉じます。未保存のコピーの本文を自動で破棄する操作ではなく、バッファは残ります。</p>
+
+<h2 id="compare">旧稿と新稿を並べて比べる</h2>
+<p>履歴の <strong>[比較]</strong>、または <code>M-x tategaki-diff-buffers</code> で比較します。後者では旧稿と新稿のバッファを選びます。それぞれの内容をコピーした縦書き画面を並べ、変更された行を色分けします。比較のために元の原稿を変更することはありません。</p>
+<p><kbd>n</kbd> で次の差分、<kbd>p</kbd> で前の差分へ移動します。上部の <strong>[閉じる]</strong> または <kbd>q</kbd> で比較を終了し、元の配置へ戻ります。この比較には外部の <code>diff</code> コマンドが必要です。比較単位は行で、文字ごとの変更追跡や自動マージではありません。</p>
+
+<h2 id="branches">場面の別案を作る</h2>
+<ol>
+  <li>別案にしたい範囲を原稿で選択します。選択しなければ、現在編集できる範囲をコピーします。</li>
+  <li><strong>[原稿] → [この場面の別案を作る]</strong>、<kbd>C-c s b</kbd>、または <code>M-x tategaki-scene-branch</code> を実行します。</li>
+  <li>別案の名前を入力し、新しいバッファで書き直します。必要な案にはファイル名を付けて保存します。</li>
+</ol>
+<p>別案を作る前に、元の原稿全体を履歴へ記録します。別案は独立した編集用コピーです。元の原稿への自動反映やGitブランチの作成は行いません。比較して採用部分を決めたいときは、上のバッファ比較を使います。</p>
+
+<h2 id="session">前回の位置と表示を復元する</h2>
+<p>原稿の保存時、Studio終了時、Emacs終了時に、作業位置と表示状態を記録します。対象にはファイル、カーソル・マーク、ページとスクロール位置、倍率、原稿用紙・見開き・組版、Write/Review、目次の表示状態が含まれます。Reader中に保存しても、執筆に戻ったときの状態を基準に記録します。</p>
+<p>次回は開始画面の <strong>[前回の原稿を復元]</strong>、または <code>M-x tategaki-session-open-last</code> を使います。<code>M-x tategaki-session-restore</code> で最近の原稿を選べます。今の状態を明示的に記録するコマンドは <code>M-x tategaki-session-save</code> です。</p>
+<p>セッションファイルは既定で <code>~/.local/state/my-tategaki/session.json</code> に置きます。<code>XDG_STATE_HOME</code> に対応し、<code>tategaki-session-file</code> で変更できます。<strong>ここには本文を保存しません。</strong> 保存済みの原稿なら、再度そのファイルを開いて履歴を選び、取得済みの時点までをコピー復元できます。最後の履歴取得後の入力まで復旧できるわけではありません。既に編集中の未保存バッファがある場合はそれを再利用し、ディスクから読み直して置き換えません。</p>
+<p>一度も名前を付けて保存していない新規原稿は、セッションの永続的な再開対象になりません。履歴があっても、再起動後に通常の画面から自動で結び直されません。<strong>新規原稿はEmacs終了前に名前を付けて本文を保存してください。</strong></p>
+<h3 id="session-startup">Emacs起動時に再開したい場合</h3>
+<p>自動再開は既定では無効です。必要な場合だけ、初期化ファイルで次のように設定します。</p>
+<pre><code class="language-elisp">(require 'tategaki-session)
+(setq tategaki-session-startup-action 'resume)
+;; 開始画面だけを出すなら 'welcome、通常起動に戻すなら nil。</code></pre>
+<p>設定画面の保存先にある「このセッションだけ」は、設定値を一時的に使う指定です。このページの、次回へ位置を記録するセッションファイルとは別の機能です。</p>
+
+<h2 id="reader">Readerで通して読む</h2>
+<p><strong>[原稿] → [Reader]</strong>、または <code>M-x tategaki-reader-mode</code> で読書用表示へ切り替えます。本文を読み取り専用にし、診断の印や補助画面を隠して、文庫本風の見開きで表示します。既定の版面は40字×17列です。Readerでは紙面全体が収まる表示を使います。</p>
+<table>
+  <thead><tr><th>操作</th><th>キー</th></tr></thead>
+  <tbody>
+    <tr><td>次へ</td><td><kbd>SPC</kbd> / <kbd>n</kbd></td></tr>
+    <tr><td>前へ</td><td><kbd>p</kbd> / <kbd>DEL</kbd></td></tr>
+    <tr><td>執筆へ戻る</td><td><kbd>q</kbd>、または <strong>[閉じる・執筆に戻る]</strong></td></tr>
+  </tbody>
+</table>
+<p>終了時には元の表示設定、診断の表示状態、ウィンドウ配置、読み取り専用だったかどうかを戻します。原稿本文を整形する機能ではありません。画面の版面と、<a href="export.html">PDF等の出力用書式</a>は別々に設定します。</p>
+
+<h2 id="tts">音読でリズムを確かめる</h2>
+<p>音読にはmacOSの <code>say</code> コマンドを使います。<strong>[音読]</strong> または <code>M-x tategaki-tts-play</code> は現在位置から読みます。範囲を指定したい場合は選択して <code>M-x tategaki-tts-read-region</code> を実行します。</p>
+<table>
+  <thead><tr><th>操作</th><th>コマンド</th></tr></thead>
+  <tbody>
+    <tr><td>一時停止</td><td><code>tategaki-tts-pause</code></td></tr>
+    <tr><td>再開</td><td><code>tategaki-tts-resume</code> または <code>tategaki-tts-play</code></td></tr>
+    <tr><td>停止</td><td><code>tategaki-tts-stop</code>。Studioでは <kbd>C-c s .</kbd> も使えます。</td></tr>
+  </tbody>
+</table>
+<p>設定画面の <strong>[利用可能なVoice]</strong> から実機で使える声を選べます。速度は既定180 words/minuteを基準にした倍率です。読み上げ中の文を本文上で強調しますが、単語単位の正確な音声同期ではありません。原稿を編集すると、古い位置での読み上げを止めます。</p>
+<p>固有名詞の読みを指定する場合は、原稿バッファで次のように設定します。置換は音読にだけ使い、本文を書き換えません。</p>
+<pre><code class="language-elisp">(setq-local tategaki-tts-pronunciations
+            '(("小鳥遊" . "たかなし") ("四月一日" . "わたぬき")))</code></pre>
+<p>本文はローカルの音読プロセスへ標準入力で渡し、コマンドライン引数やログへ原稿を載せません。<code>say</code> や指定音声が使えない場合は音読の案内を表示します。通常の編集は続けられます。</p>

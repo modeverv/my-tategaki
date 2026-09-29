@@ -4,6 +4,7 @@
 """Build the dependency-free GitHub Pages manual from HTML content fragments."""
 from html import escape
 from html.parser import HTMLParser
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -11,13 +12,17 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 PAGES = [
-    ("index", "使い方マニュアル", "縦書きで書き、整え、原稿を渡す。my-tategakiの使い方を目的別に案内します。"),
-    ("getting-started", "導入と最初の原稿", "Emacsへの導入、3つの表示方法、最初の保存まで。"),
+    ("index", "小説を書くためのマニュアル", "Novel Studioで書き、章を見渡し、推敲して一冊へ。my-tategakiの利用案内。"),
+    ("getting-started", "導入と最初の原稿", "Emacsへ読み込み、Studioで書き始める。保存と表示方法の選び方。"),
+    ("studio", "Studioの画面と設定", "WriteとReview、ペインの閉じ方、文字サイズ、作品情報、設定の保存先。"),
     ("editing", "縦書きで編集する", "移動・選択・検索・日本語入力と、読みやすい余白の設定。"),
     ("typesetting", "組版と原稿用紙", "ルビ・縦中横・禁則から、見開き・文字数・執筆目標まで。"),
-    ("writing", "執筆支援・アウトライン・脚本", "段落の字下げ、章への移動、人物名と台詞の入力。"),
+    ("writing", "目次・執筆支援・校正", "章と節を見渡しながら書く。字下げ、脚本、辞書、ルール検査。"),
+    ("history", "履歴・再開・読み返し", "旧稿を別コピーで復元し、比較する。前回位置、Reader、音読。"),
+    ("ai", "ローカルAI・検索・資料", "OllamaとLM Studioの接続、モデル選択、原稿・資料の検索と出典付き相談。"),
+    ("world", "人物・作品設定を整理する", "人物、Fact、Scene、時系列、伏線、話し方と知識差を根拠付きで管理する。"),
     ("export", "原稿を出力する", "同じ原稿からTXT・DOCX・PDF・EPUB・HTMLを作る。"),
-    ("reference", "コマンド・設定一覧", "目的からコマンドを探し、setqで自分の書き方に合わせる。"),
+    ("reference", "コマンド・設定一覧", "Studio、縦書き編集、作品資料、AI、出力の操作と設定を調べる。"),
     ("troubleshooting", "困ったとき", "表示・入力・出力の切り分けと、現在の対応範囲。"),
 ]
 REPO = "https://github.com/modeverv/my-tategaki"
@@ -54,9 +59,17 @@ def target(slug, root):
 
 def build():
     search = []
+    bodies = {
+        slug: (DOCS / "manual/content" / (slug + ".html")).read_text(encoding="utf-8")
+        for slug, _, _ in PAGES
+    }
+    # Invalidate a cached search index whenever its source content changes.
+    search_version = hashlib.sha256(
+        json.dumps([PAGES, bodies], ensure_ascii=False).encode("utf-8")
+    ).hexdigest()[:12]
     for number, (slug, title, description) in enumerate(PAGES):
         root = "./" if slug == "index" else "../"
-        body = (DOCS / "manual/content" / (slug + ".html")).read_text(encoding="utf-8")
+        body = bodies[slug]
         parsed = Contents()
         parsed.feed(body)
         if any(not h["id"] for h in parsed.headings):
@@ -81,13 +94,13 @@ def build():
 <title>{escape(title)} | my-tategaki</title>
 <link rel="icon" href="{root}assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="{root}assets/manual.css">
-<script src="{root}assets/search-index.js" defer></script>
+<script src="{root}assets/search-index.js?v={search_version}" defer></script>
 <script src="{root}assets/manual.js" defer></script>
 </head>
 <body data-root="{root}" class="page-{slug}">
 <a class="skip-link" href="#main">本文へ移動</a>
 <aside class="sidebar">
-<a class="brand" href="{root}index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Emacs 縦書きマニュアル</small></span></a>
+<a class="brand" href="{root}index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
 <p class="nav-label">CONTENTS</p><nav aria-label="章一覧">{links}</nav>
 <div class="sidebar-bottom"><a href="{REPO}">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
 </aside>

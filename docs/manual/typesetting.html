@@ -7,189 +7,183 @@
 <title>組版と原稿用紙 | my-tategaki</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/manual.css">
-<script src="../assets/search-index.js" defer></script>
+<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
 <script src="../assets/manual.js" defer></script>
 </head>
 <body data-root="../" class="page-typesetting">
 <a class="skip-link" href="#main">本文へ移動</a>
 <aside class="sidebar">
-<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Emacs 縦書きマニュアル</small></span></a>
-<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html" aria-current="page"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav>
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html" aria-current="page"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav>
 <div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
 </aside>
 <div class="site-body">
-<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 03</span>
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 04</span>
 <div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
-<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html" aria-current="page"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>07</span>困ったとき</a></nav></details>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html" aria-current="page"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html"><span>11</span>困ったとき</a></nav></details>
 <main id="main" tabindex="-1">
-<div class="page-heading"><p class="eyebrow">CHAPTER 03</p><h1>組版と原稿用紙</h1><p class="lead">ルビ・縦中横・禁則から、見開き・文字数・執筆目標まで。</p></div>
+<div class="page-heading"><p class="eyebrow">CHAPTER 04</p><h1>組版と原稿用紙</h1><p class="lead">ルビ・縦中横・禁則から、見開き・文字数・執筆目標まで。</p></div>
 <div class="document-grid"><article><section aria-labelledby="typesetting-start">
-  <h2 id="typesetting-start">ルビや禁則を見ながら書く</h2>
-  <p><code>M-x tategaki-typeset-edit</code>で、現在のテキストバッファを組版した縦書き編集へ切り替えます。本文と注記を元のテキストのまま保持し、表示上で文字のまとまりや折り返しを調整します。GUI版EmacsのSVG表示が必要です。</p>
-<figure><a href="../images/manual-typesetting.jpg"><img src="../images/manual-typesetting.jpg" width="894" height="622" loading="lazy" alt="20字×20列の原稿用紙に、小説の本文、ルビ、縦中横、傍点を配置したEmacsの画面。"></a><figcaption>20字×20列・罫線ありの組版表示。同じサンプル原稿を、本文と注記に分けて描画しています。 画像をクリックすると原寸で開きます。</figcaption></figure>
-
-  <p>まず次の文章をテキストバッファへ入力して試せます。数字は半角です。</p>
+  <h2 id="typesetting-start">組版を有効にして、原稿の見え方を整える</h2>
+  <p>組版表示は、ルビ、縦中横、傍点、禁則などを反映しながら本文を直接編集する表示です。Studioの本文で<code>M-x tategaki-typeset-edit</code>を実行してください。軽量な縦書き編集からも同じコマンドを使えます。SVG画像を表示できるGUI版Emacsが必要です。</p>
+  <p>次の文を原稿へ書き、組版表示を試せます。表示を変えても、保存されるのは注記を含む元のテキストです。</p>
   <pre><code>｜青空《あおぞら》の下で、12人が集まった。
 「本当!?」と、［＃傍点］小さな声［＃傍点終わり］で言う。
 明日のことを考える……。</code></pre>
-  <p>対応する注記を表示へ反映しても、ファイルから記法が消えることはありません。コピー・保存も元のテキストを使います。注記を実際に挿入・修正する操作は通常の本文編集なので、Undoで取り消せます。</p>
-  <h3 id="typesetting-switch">組版と原文表示を切り替える</h3>
-  <pre><code class="language-elisp">;; 現在のバッファを組版する。
+  <h3 id="typesetting-switch">原文表示との切り替え</h3>
+  <p>Studioの起動や<code>tategaki-edit</code>は現在の組版設定を保ちます。組版の既定値は無効です。現在の原稿で明示的に切り替える場合は、次を評価します。</p>
+  <pre><code class="language-elisp">;; 組版表示
 (setq-local tategaki-typesetting t)
 (tategaki-refresh)
 
-;; 原文を一文字ずつ表示する状態へ戻す。
+;; 原文を文字ごとに表示する場合
 ;; (setq-local tategaki-typesetting nil)
-;; (tategaki-refresh)
-
-;; 新しいバッファでも組版を既定にする場合。
-;; (setq-default tategaki-typesetting t)</code></pre>
-  <p><code>tategaki-typesetting</code>はバッファごとの設定です。<code>tategaki-edit</code>はその設定を保って再開します。SVGを使えないGUIや端末では、設定値を保ちつつ、注記を含む従来の原文表示へ戻ります。</p>
-</section>
-
-<section aria-labelledby="kinsoku">
-  <h2 id="kinsoku">禁則・ぶら下げ・追い込み</h2>
-  <p>禁則は、列の先頭に<code>、。）」</code>など、末尾に<code>（「</code>などが来ないよう折り返しを調整します。<code>……</code>や<code>――</code>などの組も、不自然に分かれないよう扱います。</p>
-  <pre><code class="language-elisp">(setq-local tategaki-typeset-kinsoku t
-            tategaki-typeset-hanging-punctuation t
-            tategaki-typeset-compression nil)</code></pre>
-  <div class="table-scroll">
-    <table>
-      <thead><tr><th>設定</th><th>既定値</th><th>動作</th></tr></thead>
-      <tbody>
-        <tr><td><code>tategaki-typeset-kinsoku</code></td><td><code>t</code></td><td>列頭・列末の禁則を適用します。</td></tr>
-        <tr><td><code>tategaki-typeset-hanging-punctuation</code></td><td><code>t</code></td><td>列末の句読点を半セル分ぶら下げる調整を先に試します。</td></tr>
-        <tr><td><code>tategaki-typeset-compression</code></td><td><code>nil</code></td><td><code>t</code>なら、列頭に置けない一つ分を列内へ追い込む調整を使います。</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>ぶら下げ、設定した場合の追い込み、それ以外は前の文字を次列へ送る処理の順に調整します。極端に短い列へ分割できない組を収める場合には、例外的に圧縮する代替処理があります。</p>
-  <p>禁則対象は<code>tategaki-typeset-line-start-prohibited</code>と<code>tategaki-typeset-line-end-prohibited</code>の文字列で変更できます。独自の規則が必要なときだけ調整し、通常は既定値を使ってください。</p>
-</section>
-
-<section aria-labelledby="tcy-and-latin">
-  <h2 id="tcy-and-latin">縦中横と欧文</h2>
-  <p>縦中横は、縦列の一マスの中に短い文字列を横に並べる表示です。既定では、独立したちょうど2桁の半角数字と、ちょうど2文字の<code>!</code>・<code>?</code>の組を自動でまとめます。たとえば<code>12人</code>の<code>12</code>、<code>!?</code>が対象です。</p>
-  <pre><code class="language-elisp">(setq-local tategaki-typeset-auto-tcy-digits t
-            tategaki-typeset-auto-tcy-punctuation t
-            tategaki-typeset-latin-orientation 'rotate)</code></pre>
-  <p>欧文の既定値は<code>'upright</code>で、文字を立てて並べます。<code>'rotate</code>にすると、表示可能なASCII文字の語を時計回りに90度回転して配置します。列に収まらない長い語やURLは分割します。原文自体に回転用の文字や改行を加えることはありません。</p>
-  <p>自動判定を使わず範囲を指定する場合は、文字列を選択して<code>M-x tategaki-insert-tcy</code>を実行します。本文へ次の注記が入ります。</p>
-  <pre><code>［＃縦中横］12［＃縦中横終わり］</code></pre>
-  <p>縦中横は短い文字列向けです。長い文章を一マスへ押し込む用途には適しません。約物には縦書き用文字への表示上の置き換えも使っており、フォントのすべての縦書き字形を自動で選ぶ方式ではありません。</p>
-</section>
-
-<section aria-labelledby="ruby">
-  <h2 id="ruby">ルビを付ける・読みを直す</h2>
-  <ol>
-    <li>本文の「青空」など、親文字にする範囲を選択します。</li>
-    <li><code>C-c C-r</code>（<code>tategaki-insert-ruby</code>）を実行します。</li>
-    <li>読みを入力します。「あおぞら」なら、原文には<code>｜青空《あおぞら》</code>が入ります。</li>
-  </ol>
-  <p>対応するルビの位置へカーソルを置いて<code>M-x tategaki-edit-ruby</code>を実行すると、親文字を残して読みを変更できます。読みには改行やルビの区切り文字を含められません。</p>
-  <p>読みは親文字の右側へ配置し、編集や折り返しに追従します。親文字への読みの割り当ては均等配分です。熟語ルビの精密な配置規則には対応しておらず、長い読みは表示範囲に収めます。</p>
-  <h3 id="annotation-syntax">使える青空文庫形式の注記</h3>
-  <div class="table-scroll">
-    <table>
-      <thead><tr><th>用途</th><th>本文に書く記法</th></tr></thead>
-      <tbody>
-        <tr><td>親文字を明示したルビ</td><td><code>｜青空《あおぞら》</code>、<code>|青空《あおぞら》</code></td></tr>
-        <tr><td>漢字に続けるルビ</td><td><code>青空《あおぞら》</code></td></tr>
-        <tr><td>範囲へ傍点</td><td><code>［＃傍点］強調する文［＃傍点終わり］</code></td></tr>
-        <tr><td>範囲へ傍線</td><td><code>［＃傍線］強調する文［＃傍線終わり］</code></td></tr>
-        <tr><td>直前の文字へ傍点</td><td><code>強調［＃「強調」に傍点］</code></td></tr>
-        <tr><td>直前の文字へ傍線</td><td><code>強調［＃「強調」に傍線］</code></td></tr>
-        <tr><td>明示的な縦中横</td><td><code>［＃縦中横］12［＃縦中横終わり］</code></td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>親文字がないルビ、未完成・不正・未対応の注記は、原文の文字として残します。青空文庫の全注記を解釈するものではありません。</p>
-  <h3 id="emphasis">傍点・傍線を付ける</h3>
-  <p>範囲を選択して<code>M-x tategaki-add-emphasis</code>を実行し、傍点なら<code>dot</code>、傍線なら<code>line</code>を選びます。選択した本文の前後に対応する注記を挿入し、縦書きの文字に沿って表示します。</p>
-  <h3 id="raw-annotations">記法そのものを編集する</h3>
-  <p><code>C-c C-a</code>（<code>tategaki-toggle-annotations</code>）で、対応する注記の組版表示と原文表示を切り替えられます。ルビの区切りや読みの細部を直接直すときに使います。</p>
-  <pre><code class="language-elisp">(setq-local tategaki-typeset-annotation-display 'raw)
-(tategaki-refresh)
-
-;; 注記を再び組版して表示する。
-;; (setq-local tategaki-typeset-annotation-display 'rendered)
 ;; (tategaki-refresh)</code></pre>
-  <p>この切り替えは注記の解釈だけを変えます。組版全体を止めたい場合は<code>tategaki-typesetting</code>を<code>nil</code>にするか、<code>C-c C-c</code>で横書きへ戻してください。</p>
-</section>
-
-<section aria-labelledby="graphemes">
-  <h2 id="graphemes">結合文字・絵文字と編集位置</h2>
-  <p>組版表示では結合濁点、異体字セレクタ、絵文字の肌色修飾子、対応するZWJ絵文字列などをまとめた表示単位にします。Unicode正規化や別の文字への置換はせず、元のコードポイントを保存します。</p>
-  <p>上下の矢印は表示単位で移動します。一方、<code>forward-char</code>・<code>backward-char</code>は原文の文字単位です。<code>tategaki-physical-navigation</code>が<code>nil</code>で、通常のキー設定なら<code>C-f</code>・<code>C-b</code>でその細かな位置へ移れます。表示セル内部の移動では、見た目のカーソル位置が変わらないことがあります。</p>
-  <p>原文表示ではゼロ幅文字にも個別の位置を設け、見えない文字には<code>◌</code>などの目印を表示します。全Unicode文字列に対するUAX #29準拠を保証する実装ではありません。絵文字や異体字の見え方は使用フォントにも依存します。</p>
+  <p>新しいバッファの既定値にするなら<code>(setq-default tategaki-typesetting t)</code>を使います。端末やSVG非対応環境では、設定値を保ったまま、注記を含む原文表示へ戻ります。表示の切替は本文編集ではなく、ルビ記法などを実際に挿入する操作は本文編集です。</p>
 </section>
 
 <section aria-labelledby="manuscript">
-  <h2 id="manuscript">原稿用紙・固定版面・見開き</h2>
-  <p><code>M-x tategaki-manuscript-set-preset</code>で、<code>20x20</code>（1列20字・1頁20列）、<code>40x30</code>、<code>adaptive</code>（画面に合わせる）から選びます。固定版面ではウィンドウを小さくしても論理的な字数・列数を維持し、表示を縮小して収めます。</p>
+  <h2 id="manuscript">フリー・原稿用紙・独自の寸法を選ぶ</h2>
+  <p>組版を有効にした後、「⚙設定」の表示欄を開きます。最初はフリーで文字を読みやすくし、決まった字数で書きたいときに原稿用紙へ切り替えると使いやすくなります。</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>選択</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td>フリー（文字サイズ優先）</td><td>用紙の固定寸法を解除し、フォント・倍率・ウィンドウの大きさから字数と列数を決めます。設定値は<code>nil</code>です。</td></tr>
+      <tr><td>20×20</td><td>1列20字、1枚20列です。画面が狭くなっても、論理的な紙面の寸法は変わりません。</td></tr>
+      <tr><td>40×30 / 40×40</td><td>同じ順序で、縦の字数×横の列数を指定します。</td></tr>
+      <tr><td>縦字数・列数を入力</td><td>それぞれ1〜200の整数で独自寸法を指定します。両方を書き終えて「寸法を適用」を押します。</td></tr>
+    </tbody>
+  </table></div>
+  <p>寸法欄は入力途中の値をそのまま適用しません。空欄や範囲外の値で既存の用紙が壊れることはなく、「寸法を適用」で両方の値を確認してから反映します。未適用の入力がある間は保存できません。プリセットやフリーを選ぶと、その選択へ置き換わります。</p>
+  <p>用紙を保存して次回も使う場合は、設定の保存先を選んで「保存」を押します。「元に戻す」は表示変更と寸法の入力途中の状態を戻し、未保存で閉じる際には保存・破棄・編集に戻る操作を選べます。詳しくは<a href="studio.html">設定と保存範囲</a>を参照してください。</p>
+  <h3 id="paper-fit">文字サイズを保つか、紙面全体を見渡すか</h3>
+  <p>「用紙全体を画面に収める」は既定でOFFです。OFFでは文字サイズを優先し、横幅に入る列を表示します。残りは<a href="editing.html#horizontal-scrollbar">横スクロール</a>で読みます。縦の字数は画面の高さへ収めるため、20字などの固定用紙では高さによる拡大の上限があります。</p>
+  <p>ONにすると、用紙全体または見開き全体が横幅にも収まるよう縮小します。目次や設定を並べた狭い本文ウィンドウでは、文字が小さくなる場合があります。用紙の寸法とページ数はどちらの表示でも同じです。固定用紙をやめてフォントに合わせたいときは、フリーを選んでください。</p>
+  <h3 id="paper-commands">罫線・見開き・ページ移動</h3>
+  <p>「原稿用紙罫線」でマス目、「見開き」で2枚並べる表示を切り替えられます。ページ番号は1から始まり、見開きでも紙面1枚ずつ数えます。</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>操作</th><th>コマンド</th></tr></thead>
+    <tbody>
+      <tr><td>指定した紙面の先頭へ</td><td><code>C-c C-p</code> / <code>tategaki-goto-page</code></td></tr>
+      <tr><td>見開きを切り替える</td><td><code>tategaki-manuscript-toggle-spread</code></td></tr>
+      <tr><td>罫線を切り替える</td><td><code>tategaki-manuscript-toggle-grid</code></td></tr>
+      <tr><td>単独コマンドでプリセットを選ぶ</td><td><code>tategaki-manuscript-set-preset</code>。こちらの選択肢は<code>20x20</code>、<code>40x30</code>、<code>adaptive</code>（フリー）です。</td></tr>
+    </tbody>
+  </table></div>
+  <p>Emacs Lispから現在の原稿へ設定する例です。<code>tategaki-manuscript-size</code>は「縦字数 . 列数」の組です。</p>
   <pre><code class="language-elisp">(setq-local tategaki-manuscript-size '(20 . 20)
-            tategaki-manuscript-spread t
-            tategaki-manuscript-grid t)
+            tategaki-manuscript-fit-window nil
+            tategaki-manuscript-grid t
+            tategaki-manuscript-spread nil)
 (tategaki-refresh)
+;; フリーへ戻す: (setq-local tategaki-manuscript-size nil)</code></pre>
+  <p>固定用紙の描画はGUIの組版表示で使います。原文表示へ戻る環境では設定値を保持し、画面に合わせた通常の表示・ページ数を使います。ここでの用紙は編集画面の設定です。PDFやEPUBの設定は<a href="export.html">出力プロファイル</a>で別に決めます。</p>
+</section>
 
-;; 40字×30列: '(40 . 30)
-;; 画面に合わせる: nil</code></pre>
-  <div class="table-scroll">
-    <table>
-      <thead><tr><th>操作</th><th>コマンド</th></tr></thead>
-      <tbody>
-        <tr><td>紙面を指定して移動</td><td><code>C-c C-p</code> / <code>tategaki-goto-page</code></td></tr>
-        <tr><td>見開きの切り替え</td><td><code>tategaki-manuscript-toggle-spread</code></td></tr>
-        <tr><td>マス目の切り替え</td><td><code>tategaki-manuscript-toggle-grid</code></td></tr>
-        <tr><td>目標字数を設定</td><td><code>tategaki-manuscript-set-target</code>（0で解除）</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>ページ番号は1から始まり、見開きでも紙面1枚ごとに数えます。<code>tategaki-goto-page</code>は指定した紙面の先頭へ移動します。固定版面と見開きの縮小描画はGUIの組版表示で使います。原文表示へ戻る環境では設定値を保ち、画面に合う通常の表示・ページ数を使います。</p>
-  <p>ここで決めるのは編集画面の版面です。PDFや印刷物の版面を決める<a href="export.html">出力プロファイル</a>とは別で、画面の字数・見開き設定がそのまま出力設定になるわけではありません。</p>
+<section aria-labelledby="ruby">
+  <h2 id="ruby">ルビや強調を本文へ付ける</h2>
+  <p>ルビは親文字の右側へ表示します。「青空」に「あおぞら」を付ける例です。</p>
+  <ol>
+    <li>本文の「青空」を選択します。</li>
+    <li><code>C-c C-r</code>（<code>tategaki-insert-ruby</code>）を実行します。</li>
+    <li>読みを入力すると、本文が<code>｜青空《あおぞら》</code>になります。</li>
+  </ol>
+  <p>読みを直すときは、そのルビにカーソルを置いて<code>M-x tategaki-edit-ruby</code>を実行します。親文字を保って読みだけを変更します。読みに改行やルビの区切り文字は使えません。挿入・変更は通常のUndoで戻せます。</p>
+  <h3 id="annotation-syntax">解釈できる青空文庫形式の記法</h3>
+  <div class="table-scroll"><table>
+    <thead><tr><th>用途</th><th>原文の例</th></tr></thead>
+    <tbody>
+      <tr><td>明示した親文字へルビ</td><td><code>｜青空《あおぞら》</code>、<code>|青空《あおぞら》</code></td></tr>
+      <tr><td>直前の漢字へルビ</td><td><code>青空《あおぞら》</code></td></tr>
+      <tr><td>範囲に傍点</td><td><code>［＃傍点］小さな声［＃傍点終わり］</code></td></tr>
+      <tr><td>範囲に傍線</td><td><code>［＃傍線］小さな声［＃傍線終わり］</code></td></tr>
+      <tr><td>直前の文字に傍点</td><td><code>強調［＃「強調」に傍点］</code></td></tr>
+      <tr><td>直前の文字に傍線</td><td><code>強調［＃「強調」に傍線］</code></td></tr>
+      <tr><td>明示的な縦中横</td><td><code>［＃縦中横］12［＃縦中横終わり］</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>青空文庫の全注記を解釈する機能ではありません。親文字のないルビ、未完成・不正・未対応の注記は原文の文字として残します。ルビは親文字へ均等に読みを割り当てる方式で、熟語ルビの精密な配置規則には未対応です。長い読みは用意した表示範囲へ収めます。</p>
+  <h3 id="emphasis">傍点・傍線を挿入する</h3>
+  <p>範囲を選び、<code>M-x tategaki-add-emphasis</code>で<code>dot</code>（傍点）または<code>line</code>（傍線）を選びます。選択した文字列の前後へ対応する注記が入ります。縦中横を明示したい場合は、短い範囲を選んで<code>M-x tategaki-insert-tcy</code>を使います。</p>
+  <h3 id="raw-annotations">区切り記号や読みを直接編集する</h3>
+  <p><code>C-c C-a</code>（<code>tategaki-toggle-annotations</code>）で、対応注記を組版する表示と、原文の記法を見せる表示を切り替えます。ルビの区切りや読みの一部を直接直すときに便利です。</p>
+  <pre><code class="language-elisp">(setq-local tategaki-typeset-annotation-display 'raw)
+(tategaki-refresh)
+;; 組版へ戻す: 'raw を 'rendered に変更して再描画</code></pre>
+  <p>これは注記の解釈だけの切替です。組版全体を止めるには<code>tategaki-typesetting</code>を<code>nil</code>にします。通常の横書きに戻して記法を編集することもできます。</p>
+</section>
+
+<section aria-labelledby="kinsoku">
+  <h2 id="kinsoku">句読点や括弧の折り返しを整える</h2>
+  <p>組版の禁則処理は、列頭に<code>、。）」</code>など、列末に<code>（「</code>などが来ないよう配置を調整します。<code>……</code>や<code>――</code>などの組も、途中で不自然に分かれないよう扱います。</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>設定</th><th>既定値</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><code>tategaki-typeset-kinsoku</code></td><td><code>t</code></td><td>列頭・列末の禁則を使います。</td></tr>
+      <tr><td><code>tategaki-typeset-hanging-punctuation</code></td><td><code>t</code></td><td>列末の句読点を半セル分ぶら下げる調整を使います。</td></tr>
+      <tr><td><code>tategaki-typeset-compression</code></td><td><code>nil</code></td><td>有効にすると、列頭に置けない1字を列内へ追い込む調整を使います。</td></tr>
+    </tbody>
+  </table></div>
+  <p>ぶら下げ、設定した場合の追い込み、それ以外は前の文字を次の列へ送る順に調整します。極端に短い列へ分割できない組を置く場合には、例外的に圧縮する処理があります。</p>
+  <pre><code class="language-elisp">(setq-local tategaki-typeset-kinsoku t
+            tategaki-typeset-hanging-punctuation t
+            tategaki-typeset-compression nil)
+(tategaki-refresh)</code></pre>
+  <p>禁則文字の一覧は<code>tategaki-typeset-line-start-prohibited</code>と<code>tategaki-typeset-line-end-prohibited</code>で変更できます。これらは原文へ改行を挿入する処理ではありません。</p>
+</section>
+
+<section aria-labelledby="tcy-and-latin">
+  <h2 id="tcy-and-latin">数字の縦中横と欧文の向き</h2>
+  <p>縦中横は、短い文字列を縦列の1マスの中へ横に並べる表示です。既定では独立したちょうど2桁の半角数字と、ちょうど2文字の<code>!</code>・<code>?</code>の組をまとめます。<code>12人</code>の<code>12</code>や<code>!?</code>が例です。</p>
+  <pre><code class="language-elisp">(setq-local tategaki-typeset-auto-tcy-digits t
+            tategaki-typeset-auto-tcy-punctuation t
+            tategaki-typeset-latin-orientation 'rotate)
+(tategaki-refresh)</code></pre>
+  <p>欧文の既定値は<code>'upright</code>で、文字を立てて並べます。上の例の<code>'rotate</code>は、表示可能なASCII文字の語を時計回りに90度回転します。長い語やURLは列に収まる範囲で分割します。本文へ回転用の文字や改行を追加しません。</p>
+  <p>長文を縦中横の1マスへ入れる使い方には向きません。約物には表示上の縦書き用文字への置換も使っています。使用フォントの縦書き用字形をすべて自動で選択する方式ではありません。</p>
+</section>
+
+<section aria-labelledby="graphemes">
+  <h2 id="graphemes">結合文字・絵文字の表示と編集位置</h2>
+  <p>組版では結合濁点、異体字セレクタ、絵文字の肌色修飾子、対応するZWJ絵文字列などを一まとまりで表示します。Unicode正規化や原文の置換は行わず、元のコードポイントを保ちます。</p>
+  <p>上下矢印は表示単位で移動します。<code>forward-char</code>・<code>backward-char</code>は原文の文字単位です。通常のキー設定で<code>tategaki-physical-navigation</code>が<code>nil</code>なら、<code>C-f</code>・<code>C-b</code>でその細かな位置へ移れます。セルの内部を移動しても、画面のカーソル位置が変わらない場合があります。</p>
+  <p>原文表示ではゼロ幅文字にも個別の位置を設け、見えない文字に<code>◌</code>などの目印を出します。全Unicode文字列についてUAX #29への完全準拠を保証するものではありません。絵文字や異体字の見え方はフォントにも依存します。</p>
 </section>
 
 <section aria-labelledby="statistics">
-  <h2 id="statistics">文字数・枚数・目標までの残り</h2>
-  <p>縦書き中のモードラインに、現在／総ページ、全文字数、選択範囲と現在の章の字数、400字換算、本文配置枚数、目標までの残りを表示します。</p>
-  <div class="table-scroll">
-    <table>
-      <thead><tr><th>表示</th><th>意味</th></tr></thead>
-      <tbody>
-        <tr><td><code>400字N枚</code></td><td>集計した文字数を400で割って切り上げた換算枚数。</td></tr>
-        <tr><td><code>配N枚</code></td><td>改行・空きマス・組版を反映して、本文が実際に配置される紙面数。</td></tr>
-        <tr><td>現在／総ページ</td><td>編集のために移動できるページ。文末の挿入位置だけのページを含む場合があります。</td></tr>
-        <tr><td><code>選</code> / <code>章</code></td><td>選択範囲／現在位置が属する章の文字数。</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>空の本文は配置0枚・編集用ページ1頁です。本文が版面をちょうど埋めた場合、文末挿入位置だけのページは移動用の総ページ数に含めますが、本文配置枚数には含めません。</p>
-  <pre><code class="language-elisp">(setq-local tategaki-manuscript-status t
-            tategaki-manuscript-target-characters 4000
-            tategaki-manuscript-count-whitespace t
+  <h2 id="statistics">字数とページ数を読む</h2>
+  <p>Studio下部の状態表示には全文字数、設定した目標、現在の章名、現在／総ページが出ます。軽量な縦書き編集のモードラインでは、さらに400字換算、本文の配置枚数、選択範囲・現在の章の字数、目標までの残りを表示します。</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>数値</th><th>数えているもの</th></tr></thead>
+    <tbody>
+      <tr><td>全文字数</td><td>下記の集計規則に従う、元の原稿全体の文字数。</td></tr>
+      <tr><td>400字換算</td><td>集計した文字数を400で割り、切り上げた枚数。</td></tr>
+      <tr><td>本文配置枚数</td><td>改行、空きマス、組版を反映した、本文を置くための紙面数。</td></tr>
+      <tr><td>現在／総ページ</td><td>編集中に移動できるページ。文末の挿入位置だけのページを含む場合があります。</td></tr>
+    </tbody>
+  </table></div>
+  <p>空の原稿は本文配置0枚、編集用ページ1頁です。本文で用紙がちょうど埋まる場合、文末挿入位置だけのページは移動用の総数に含め、本文配置枚数には含めません。</p>
+  <p><code>M-x tategaki-manuscript-set-target</code>で目標字数を設定し、0で解除できます。細かな集計規則は現在の原稿で次のように設定します。</p>
+  <pre><code class="language-elisp">(setq-local tategaki-manuscript-count-whitespace t
             tategaki-manuscript-count-newlines nil
             tategaki-manuscript-count-markup nil
-            tategaki-manuscript-chapter-regexp 'auto)
-
-;; 統計を隠す: (setq-local tategaki-manuscript-status nil)
-;; 目標を解除: (setq-local tategaki-manuscript-target-characters nil)</code></pre>
-  <h3 id="counting-rules">何を一文字と数えるか</h3>
-  <p>既定では半角・全角空白とタブを数え、改行と対応する注記の記法を除きます。ルビは親文字だけを数え、読みを除きます。<code>tategaki-manuscript-count-markup</code>を<code>t</code>にすると、読み・区切り・注記も原文のとおり数えます。</p>
-  <p>字数はEmacs上の文字単位です。バイト数や、絵文字・縦中横をまとめた後の表示マス数とは異なります。未確定のIME入力と未採用の補完は含みません。不正・未完成・未対応の注記は、そのままの文字数として数えます。</p>
-  <p>範囲の集計では、注記全体を選択した場合だけ記法を除きます。ルビの途中から選択するなど注記が境界をまたぐ場合、その部分を原文どおり数えます。narrowing中でも「全文」の字数は元のバッファ全体、ページと配置枚数は表示範囲が対象です。</p>
-  <h3 id="chapter-counts">章ごとに数える</h3>
-  <p><code>tategaki-manuscript-chapter-regexp</code>の<code>'auto</code>は、OrgバッファならOrg見出し、それ以外はMarkdownの<code>#</code>見出しと<code>第三章</code>・<code>第12章</code>などを認識します。見出し自身を含め、次の見出しの直前までを一章とします。最初の見出しより前は「前文」です。</p>
-  <p><code>'outline</code>なら<code>outline-regexp</code>、文字列なら独自の正規表現を使います。<code>nil</code>で章集計を無効にできます。章一覧から移動したい場合は<a href="writing.html">アウトライン機能</a>を使ってください。</p>
-  <p>集計と章境界はキャッシュされ、カーソル移動のたびに全文を走査しません。縦書きを終了すると元のモードラインへ戻ります。モードラインを非表示にしている設定も保ちます。</p>
+            tategaki-manuscript-chapter-regexp 'auto)</code></pre>
+  <h3 id="counting-rules">何を1字と数えるか</h3>
+  <p>既定では半角・全角空白とタブを数え、改行と対応注記の記法を除きます。ルビは親文字だけを数えます。<code>tategaki-manuscript-count-markup</code>を<code>t</code>にすれば、読み・区切り・注記も原文どおり数えます。未完成・不正・未対応の記法は、そのままの文字として数えます。</p>
+  <p>単位はEmacs上の文字で、バイト数や表示マス数ではありません。IMEの未確定文字と未採用の補完候補は含みません。選択範囲が注記の途中から始まるなど、注記が範囲をまたぐ場合は、その部分を原文どおり数えます。</p>
+  <p>narrowing中でも全文字数は元の原稿全体です。ページ数と配置枚数は表示範囲を対象にします。</p>
+  <h3 id="chapter-counts">章の境界と章ごとの字数</h3>
+  <p>章集計の<code>'auto</code>は、OrgバッファではOrg見出し、それ以外では空白を挟むMarkdown見出し（<code># 第一章</code>など）と<code>第三章</code>・<code>第12章</code>などの行を認識します。見出し自身から次の見出しの直前までを数え、最初の見出しより前は「前文」とします。</p>
+  <p><code>'outline</code>なら<code>outline-regexp</code>、文字列なら独自の正規表現を使い、<code>nil</code>で章集計を無効にできます。章集計と、階層や折畳みを持つ<a href="writing.html">目次ペイン</a>の境界・表示は別の機能です。</p>
 </section>
 
 <section aria-labelledby="typesetting-limits">
-  <h2 id="typesetting-limits">組版の範囲と長文での使い方</h2>
-  <p>青空文庫記法、Unicodeの文字分割、日本語組版はそれぞれ限定した対応です。全注記、完全なUAX #29、JLReqの全要件への適合を意味しません。出版物の最終的な仕上がりは、<a href="export.html">出力したファイル</a>でも確認してください。</p>
-  <p>段落ごとの配置を再利用し、カーソル移動ではレイアウトを使い回します。ただし長大な一段落や、文書全体を変える設定変更では再処理が必要です。表示が崩れた場合は<code>C-c C-l</code>で再描画し、記法を確かめるときは注記の原文表示や横書きへ戻れます。</p>
+  <h2 id="typesetting-limits">表示で確認できる範囲</h2>
+  <p>この組版は執筆と推敲のための表示です。青空文庫の全注記、Unicodeの全書記素境界、JLReqの全要件への適合を意味しません。編集画面と出力先ではフォントや組版エンジンも異なるため、出版・配布前には<a href="export.html">生成したPDFやEPUB</a>を別に確認してください。</p>
+  <p>変更の少ない段落や配置は再利用しますが、長大な1段落や全文へ影響する設定変更では再処理が必要です。表示を確かめ直すには<code>C-c C-l</code>、記法を直すには注記の原文表示を使えます。フォントや入力環境で問題がある場合は<a href="troubleshooting.html">困ったとき</a>、変数とコマンドの一覧は<a href="reference.html">リファレンス</a>を参照してください。</p>
 </section>
-<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/editing.html"><small>前の章</small>縦書きで編集する <span aria-hidden="true">→</span></a><a href="../manual/writing.html"><small>次の章</small>執筆支援・アウトライン・脚本 <span aria-hidden="true">→</span></a></nav></article>
-<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#typesetting-start">ルビや禁則を見ながら書く</a></li><li class="h3"><a href="#typesetting-switch">組版と原文表示を切り替える</a></li><li class="h2"><a href="#kinsoku">禁則・ぶら下げ・追い込み</a></li><li class="h2"><a href="#tcy-and-latin">縦中横と欧文</a></li><li class="h2"><a href="#ruby">ルビを付ける・読みを直す</a></li><li class="h3"><a href="#annotation-syntax">使える青空文庫形式の注記</a></li><li class="h3"><a href="#emphasis">傍点・傍線を付ける</a></li><li class="h3"><a href="#raw-annotations">記法そのものを編集する</a></li><li class="h2"><a href="#graphemes">結合文字・絵文字と編集位置</a></li><li class="h2"><a href="#manuscript">原稿用紙・固定版面・見開き</a></li><li class="h2"><a href="#statistics">文字数・枚数・目標までの残り</a></li><li class="h3"><a href="#counting-rules">何を一文字と数えるか</a></li><li class="h3"><a href="#chapter-counts">章ごとに数える</a></li><li class="h2"><a href="#typesetting-limits">組版の範囲と長文での使い方</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+<nav class="chapter-pager" aria-label="前後の章"><a href="../manual/editing.html"><small>前の章</small>縦書きで編集する <span aria-hidden="true">→</span></a><a href="../manual/writing.html"><small>次の章</small>目次・執筆支援・校正 <span aria-hidden="true">→</span></a></nav></article>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#typesetting-start">組版を有効にして、原稿の見え方を整える</a></li><li class="h3"><a href="#typesetting-switch">原文表示との切り替え</a></li><li class="h2"><a href="#manuscript">フリー・原稿用紙・独自の寸法を選ぶ</a></li><li class="h3"><a href="#paper-fit">文字サイズを保つか、紙面全体を見渡すか</a></li><li class="h3"><a href="#paper-commands">罫線・見開き・ページ移動</a></li><li class="h2"><a href="#ruby">ルビや強調を本文へ付ける</a></li><li class="h3"><a href="#annotation-syntax">解釈できる青空文庫形式の記法</a></li><li class="h3"><a href="#emphasis">傍点・傍線を挿入する</a></li><li class="h3"><a href="#raw-annotations">区切り記号や読みを直接編集する</a></li><li class="h2"><a href="#kinsoku">句読点や括弧の折り返しを整える</a></li><li class="h2"><a href="#tcy-and-latin">数字の縦中横と欧文の向き</a></li><li class="h2"><a href="#graphemes">結合文字・絵文字の表示と編集位置</a></li><li class="h2"><a href="#statistics">字数とページ数を読む</a></li><li class="h3"><a href="#counting-rules">何を1字と数えるか</a></li><li class="h3"><a href="#chapter-counts">章の境界と章ごとの字数</a></li><li class="h2"><a href="#typesetting-limits">表示で確認できる範囲</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
 </main>
 <footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/typesetting.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
 </div>

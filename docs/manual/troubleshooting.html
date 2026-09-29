@@ -7,32 +7,32 @@
 <title>困ったとき | my-tategaki</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/manual.css">
-<script src="../assets/search-index.js" defer></script>
+<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
 <script src="../assets/manual.js" defer></script>
 </head>
 <body data-root="../" class="page-troubleshooting">
 <a class="skip-link" href="#main">本文へ移動</a>
 <aside class="sidebar">
-<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Emacs 縦書きマニュアル</small></span></a>
-<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html" aria-current="page"><span>07</span>困ったとき</a></nav>
+<a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">縦</span><span>my-tategaki<small>Novel Studio / 縦書きマニュアル</small></span></a>
+<p class="nav-label">CONTENTS</p><nav aria-label="章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html" aria-current="page"><span>11</span>困ったとき</a></nav>
 <div class="sidebar-bottom"><a href="https://github.com/modeverv/my-tategaki">GitHub リポジトリ ↗</a><p>プレーンテキストから<br>あなたの一冊へ。</p></div>
 </aside>
 <div class="site-body">
-<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 07</span>
+<header class="site-header"><a class="mobile-brand" href="../index.html">my-tategaki</a><span class="header-context">USER MANUAL <span aria-hidden="true">/</span> 11</span>
 <div class="search"><label class="sr-only" for="manual-search">マニュアルを検索</label><input id="manual-search" type="search" placeholder="用語・コマンドを検索" autocomplete="off" aria-controls="search-results"><div id="search-results" class="search-results" hidden></div><span id="search-status" class="sr-only" aria-live="polite"></span></div></header>
-<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>使い方マニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/editing.html"><span>02</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>03</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>04</span>執筆支援・アウトライン・脚本</a><a href="../manual/export.html"><span>05</span>原稿を出力する</a><a href="../manual/reference.html"><span>06</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html" aria-current="page"><span>07</span>困ったとき</a></nav></details>
+<details class="mobile-menu"><summary>目次を開く</summary><nav aria-label="モバイル章一覧"><a href="../index.html"><span>00</span>小説を書くためのマニュアル</a><a href="../manual/getting-started.html"><span>01</span>導入と最初の原稿</a><a href="../manual/studio.html"><span>02</span>Studioの画面と設定</a><a href="../manual/editing.html"><span>03</span>縦書きで編集する</a><a href="../manual/typesetting.html"><span>04</span>組版と原稿用紙</a><a href="../manual/writing.html"><span>05</span>目次・執筆支援・校正</a><a href="../manual/history.html"><span>06</span>履歴・再開・読み返し</a><a href="../manual/ai.html"><span>07</span>ローカルAI・検索・資料</a><a href="../manual/world.html"><span>08</span>人物・作品設定を整理する</a><a href="../manual/export.html"><span>09</span>原稿を出力する</a><a href="../manual/reference.html"><span>10</span>コマンド・設定一覧</a><a href="../manual/troubleshooting.html" aria-current="page"><span>11</span>困ったとき</a></nav></details>
 <main id="main" tabindex="-1">
-<div class="page-heading"><p class="eyebrow">CHAPTER 07</p><h1>困ったとき</h1><p class="lead">表示・入力・出力の切り分けと、現在の対応範囲。</p></div>
-<div class="document-grid"><article><p class="lead">まず「編集画面の表示」「入力やキー操作」「ファイル出力」のどこで起きているかを切り分けます。表示を更新しても原稿が直らない場合は、横書きへ戻して元の本文を確認できます。</p>
+<div class="page-heading"><p class="eyebrow">CHAPTER 11</p><h1>困ったとき</h1><p class="lead">表示・入力・出力の切り分けと、現在の対応範囲。</p></div>
+<div class="document-grid"><article><p class="lead">症状に近い項目から確認してください。本文の表示、設定の保存、AI接続、ファイル出力は別の処理です。まず短い原稿で再現するかを確かめると、問題の場所を絞れます。</p>
 
 <h2 id="first-checks">最初に確認すること</h2>
 <ol>
-  <li>縦書き編集中は <kbd>C-c C-l</kbd> で再描画します。プレビューは <kbd>g</kbd> です。</li>
-  <li><kbd>C-c C-c</kbd> で編集を横書きへ戻し、元の文字・改行・注記を確認します。この表示切り替えは本文やUndo履歴を変更しません。</li>
-  <li><code>M-x emacs-version</code> でバージョンを確認します。<code>M-: (locate-library "tategaki")</code> で、読み込んでいるファイルが更新したリポジトリ内にあるか確認できます。</li>
-  <li>エラーの本文は <code>*Messages*</code> バッファで確認します。実行したコマンドと、問題が再現する短い原稿を控えておくと調査しやすくなります。</li>
+  <li>本文の描画がおかしい場合は <kbd>C-c C-l</kbd> で再描画します。従来プレビューでは <kbd>g</kbd> を使います。</li>
+  <li><kbd>C-c C-c</kbd> で縦書きを終了し、元の文字・改行・注記を確認します。表示の切り替えは本文やUndoを変更しません。</li>
+  <li><code>*Messages*</code> のエラー全文を確認します。AIや出力は、それぞれのペイン・ジョブログにも結果を表示します。</li>
+  <li><code>M-x emacs-version</code> と <code>M-: (locate-library "tategaki")</code> で、Emacsの版と読み込み先を確認します。</li>
 </ol>
-<p>GUI・SVG・NS入力関数の有無は、次を <code>M-:</code> で評価すると確認できます。これは状態を読むだけで、設定は変更しません。</p>
+<p>次を <kbd>M-:</kbd> で評価すると、描画・入力連携に必要な機能の有無を読めます。設定や本文は変更しません。</p>
 <pre><code class="language-elisp">(list :emacs emacs-version
       :window-system window-system
       :graphical (display-graphic-p)
@@ -42,116 +42,126 @@
       :ime-offset-x (boundp 'mac-ime-panel-offset-x)
       :ime-offset-y (boundp 'mac-ime-panel-offset-y))</code></pre>
 
-<h2 id="startup">縦書き編集を開始できない</h2>
-<table>
-  <thead><tr><th>症状</th><th>確認と対処</th></tr></thead>
-  <tbody>
-    <tr><td><code>tategaki-edit</code> が見つからない</td><td><code>load-path</code> に配置先を追加し、<code>(require 'tategaki)</code> を評価します。古いコピーを読んでいないか <code>locate-library</code> で確認します。<a href="getting-started.html">導入手順</a>を参照してください。</td></tr>
-    <tr><td><code>Vertical editing requires text-mode or a derived mode</code></td><td>編集モードは <code>text-mode</code> と派生モードが対象です。新しい <code>fundamental-mode</code> のバッファでは、先に <code>M-x text-mode</code> を実行します。</td></tr>
-    <tr><td>文字を入力できない</td><td>元のバッファが読み取り専用の場合、その制限を引き継ぎます。縦書き表示を理由に読み取り専用を解除することはありません。</td></tr>
-    <tr><td>更新した機能が出てこない</td><td>実行中のEmacsには既に読んだ定義が残ります。原稿を保存してからEmacsを再起動し、読み込み先を確認します。Docker出力の更新には、別途イメージの再構築が必要です。</td></tr>
-  </tbody>
-</table>
+<h2 id="startup">Studio・縦書きを開始できない</h2>
+<table><thead><tr><th>症状</th><th>確認・操作</th></tr></thead><tbody>
+<tr><td>コマンドが見つからない</td><td>リポジトリを <code>load-path</code> に追加し、<code>(require 'tategaki)</code> を評価します。<a href="getting-started.html">導入手順</a>を確認してください。</td></tr>
+<tr><td>Studioが開始画面を表示する</td><td>「新しい小説を書く」または「原稿を開く」を選びます。既存のtext-mode系バッファではその原稿を使用します。</td></tr>
+<tr><td>text-modeが必要と言われる</td><td>新規のfundamental-modeバッファなら <code>M-x text-mode</code> を実行してから開始します。</td></tr>
+<tr><td>本文を入力できない</td><td>Reader・履歴表示・比較用コピーなど、読むための画面ではないか確認します。Readerは上部の「閉じる・執筆に戻る」か <kbd>q</kbd> で終了。元原稿が読み取り専用の場合はその制限を引き継ぎます。</td></tr>
+<tr><td>更新した機能が出ない</td><td>古いインストール先や.elcを使っていないか確認します。実行中のEmacsには読み込み済み定義が残るため、本文を保存してから新しいコードで再起動してください。Dockerイメージの更新は別途必要です。</td></tr>
+</tbody></table>
 
-<h2 id="svg">ルビや縦中横が記法のまま見える</h2>
-<p><code>M-x tategaki-edit</code> の既定は、原文を1文字ずつ並べる表示です。禁則・ルビ・縦中横などを使うときは <code>M-x tategaki-typeset-edit</code> を実行します。</p>
-<p>組版表示には、GUI、EmacsのSVG対応、<code>tategaki-glyph-use-svg</code> が <code>t</code> であることが必要です。端末EmacsやSVG非対応のGUIでは、注記を含む原文の文字表示へ戻ります。固定原稿用紙・見開きを縮小して画面内へ収める描画も同じ条件が必要です。</p>
-<pre><code class="language-elisp">;; SVG対応のGUIで、現在の文書を組版表示にする
-(setq tategaki-glyph-use-svg t)
-(setq-local tategaki-typesetting t
-            tategaki-typeset-annotation-display 'rendered)
+<h2 id="paper">本文が小さい・用紙寸法が反映されない</h2>
+<p>まず設定の文字サイズで「リセット」、または <kbd>M-0</kbd> を実行し、負の倍率になっていないか確認します。その後「＋」または <kbd>M-+</kbd> で拡大します。</p>
+<p>「用紙全体を画面に収める」が有効だと、20×20の見開きなどを画面幅へ縮小します。文字を優先して読みたい場合はこの設定を無効にしてください。既定では無効で、幅に入る列だけ表示し、残りは下の横スクロールバーで移動します。論理ページの字数・列数は維持されます。</p>
+<p>固定用紙の縦字数は高さへ収めるため、拡大には上限があります。さらに大きくする場合は原稿用紙を「フリー（文字サイズ優先）」にします。自由寸法は「縦字数」「列数」へ各1〜200の整数を入力し、「寸法を適用」→保存先を選ぶ→「保存」の順で操作します。入力しただけでは表示へ反映されません。</p>
+<p>Readerは用紙全体を収める表示を一時的に使います。閉じると執筆時の設定に戻ります。画面の用紙設定はPDF・DOCXの出力設定へ自動転記されません。</p>
+
+<h2 id="settings-save">保存した設定が戻る・別作品にも反映される</h2>
+<p>設定の優先順位は<strong>セッション → 作品 → 全作品の既定値 → Lispの値</strong>です。上位にある値は下位へ保存しただけでは解除されません。例えばセッションの文字サイズがあれば、全作品の既定値へ別の値を保存しても現在稿の表示にはセッション値が残ります。</p>
+<p>「このセッションだけ」は現在のバッファ内の設定で、バッファを閉じると終了します。「この作品」は最寄りの <code>.tategaki/project.json</code>、「全作品の既定値」は <code>tategaki-project-default-file</code> へ保存します。新しい原稿は専用フォルダーへ保存してから作品設定を保存すると、作品間の意図しない共有を避けられます。</p>
+<p>保存は、その画面で編集・適用した項目だけが対象です。同じ値を別の保存先へ置きたい場合も、値を選び直すか「寸法を適用」してから保存します。「元に戻す」は画面を開いた時点へ戻す操作で、保存後に押した場合は新しい未保存変更になります。壊れたJSONは自動で上書きせずエラーを表示します。</p>
+
+<h2 id="svg">ルビ・縦中横が記法のまま見える</h2>
+<p><code>M-x tategaki-typeset-edit</code> で組版付き編集を開始します。<code>tategaki-typesetting</code> が <code>nil</code> の場合は文字単位表示です。組版にはGUI・SVG対応・<code>tategaki-glyph-use-svg = t</code> が必要で、利用できない場合は原文表示へ戻ります。</p>
+<p>組版が有効でも <code>tategaki-typeset-annotation-display = raw</code> なら注記の記法を見せます。<kbd>C-c C-a</kbd> で表示を切り替えてください。未完成・未対応の注記は原文のまま残ります。対応記法は<a href="typesetting.html">組版と注記</a>にあります。</p>
+
+<h2 id="fonts">文字が四角になる・約物の向きがおかしい</h2>
+<p>設定のフォント欄で、インストール済みの日本語書体を選びます。本文のfaceは <code>tategaki-face</code>、従来プレビューは <code>org-tategaki-preview-face</code> です。<code>M-x customize-face</code> からも変更できます。</p>
+<p>「、」「。」だけが欠ける場合は、表示用の約物置換を一時的に無効にして比較できます。本文の文字コードを書き換える設定ではありません。</p>
+<pre><code class="language-elisp">(setq-local tategaki-layout-use-vertical-forms nil)
 (tategaki-refresh)</code></pre>
-<p><code>tategaki-typeset-annotation-display</code> が <code>raw</code> のときは、記法を直接編集するために原文を表示します。<kbd>C-c C-a</kbd> / <code>M-x tategaki-toggle-annotations</code> でも切り替えられます。未完・未対応の注記も原文表示に残します。対応する記法は<a href="typesetting.html">組版と原稿用紙</a>で確認してください。</p>
+<p>結合文字、異体字、ZWJ絵文字の字形はフォントとEmacsの描画環境にも依存します。出力用コンテナのフォントとは別です。従来プレビューでは <code>org-tategaki-preview-use-vertical-forms</code> を調べ、<kbd>g</kbd> で更新します。</p>
 
-<h2 id="fonts">文字が豆腐になる・約物の向きが合わない</h2>
-<p>本文・ルビ・縦書き約物・絵文字の表示は、使うフォントとEmacsの描画環境に依存します。編集画面のfaceは <code>tategaki-face</code>、プレビューは <code>org-tategaki-preview-face</code> です。<code>M-x customize-face</code> で対象のfaceを選び、実際にインストール済みの日本語フォントを指定してください。</p>
-<p>通常の「、」「。」は出るのに縦書き用字形が欠ける場合は、約物の表示文字置換を無効にして比較できます。編集とプレビューは設定が別です。</p>
-<pre><code class="language-elisp">;; 縦書き編集の約物置換を止めて比較する
-(setq tategaki-layout-use-vertical-forms nil)
-(tategaki-refresh)
+<h2 id="ime">IMEの変換・候補位置がおかしい</h2>
+<p>まず変換を確定または取消し、<kbd>C-c C-l</kbd> で再描画します。確定前の文字が原稿ファイルや文字数へ加わることはありません。確定後は通常の本文編集としてUndoできます。</p>
+<p>縦書きの未確定表示は、対応するNS入力関数があるmacOS版Emacsで利用できます。OSの候補一覧自体は横書きです。候補位置の補正には <code>mac-ime-panel-offset-x</code> / <code>mac-ime-panel-offset-y</code> が存在して整数値であることも必要です。同名の変数を作るだけで、未対応のEmacsへ機能が追加されるわけではありません。</p>
+<p>Corfu・Copilotの候補はIMEと別の補助表示です。候補操作中はそのキー割り当てを優先します。問題を報告する場合はEmacsの配布元、上のNS診断値、変換のどの段階で起きたかを添えてください。</p>
 
-;; プレビューの場合。変更後はプレビュー上で g を押す
-(setq org-tategaki-preview-use-vertical-forms nil)</code></pre>
-<p>フォント変更後も再描画してください。これは保存文字を置換する設定ではありません。結合文字・異体字・ZWJ絵文字は対応範囲でまとめて表示しますが、Unicodeのすべての組み合わせや全フォントで同じ字形を保証するものではありません。</p>
-<p>画面の余白や間隔を調整したい場合は、<a href="reference.html">設定リファレンス</a>のpadding・字間・行間を参照してください。GUIではピクセル、端末では行・文字セルとして扱う設定があるため、同じ数値でも見え方が異なります。</p>
+<h2 id="keys">移動キー・ページ送りが想定と違う</h2>
+<table><thead><tr><th>症状</th><th>確認・操作</th></tr></thead><tbody>
+<tr><td>C-fなどが見た目の方向へ動かない</td><td>既定は通常のEmacsの移動です。画面方向を使う場合は <code>tategaki-physical-navigation</code> を <code>t</code> にします。矢印キーは縦書きの方向へ動きます。</td></tr>
+<tr><td>C-vが論理的な次ページへ行かない</td><td>C-v/M-vは画面単位です。固定版面のページ番号を指定する場合は <code>tategaki-goto-page</code>（C-c C-p）。</td></tr>
+<tr><td>本文ではなく補完候補が動く</td><td>Corfu候補操作中は候補の移動・ページ送りを優先します。候補を採用・取消してから本文を移動します。</td></tr>
+<tr><td>他パッケージのコマンドが実行される</td><td><kbd>C-h k</kbd> の後にキーを押し、実際の割り当てを確認します。Studioと目次、Readerでは使えるキーが違います。</td></tr>
+</tbody></table>
+<p>下部スクロールバーは右端が先頭、左端が末尾です。キー一覧は<a href="reference.html#commands">リファレンス</a>を参照してください。</p>
 
-<h2 id="ime">IMEの未確定文字や候補一覧の位置が合わない</h2>
-<p>未確定文字を縦に並べる連携は、対応するNS入力関数があるmacOS版Emacsで有効になります。macOS上で動くすべてのEmacs配布物が同じ入力APIを備えているわけではありません。上の診断で <code>ns-working</code> / <code>ns-marked</code> の有無を確認してください。</p>
-<p>候補一覧の位置補正には、<code>mac-ime-panel-offset-x</code> と <code>mac-ime-panel-offset-y</code> が存在し、整数値であることも必要です。対応環境では既存のオフセット値を基準に、変換中の文節位置へ補正します。対象ウィンドウを離れたときや確定・取消・終了時には元へ戻します。変数がない環境へ同名の変数を作るだけでは、OS側の位置補正機能は追加されません。</p>
-<p>候補一覧そのものはOSの横書き表示です。本文の未確定文字は縦書きでも、候補一覧は縦書きになりません。ミニバッファ・通常の編集バッファは元の入力表示を保ちます。</p>
-<p>表示が残った場合は、まずIMEの変換を確定または取り消してから <kbd>C-c C-l</kbd> を実行します。変換途中のままスクロールする操作も、先に確定・取消を行ってください。実機のNS表示関数による描画・取消・確定後のUndoは検証していますが、OSの候補選択キーまで自動操作した試験ではありません。</p>
+<h2 id="outline">目次が出ない・章が更新されない</h2>
+<p>Studio上部の「目次」または <kbd>C-c s o</kbd> で開閉します。本文のカーソルを残したまま開け、Writeに戻っても表示中の目次は維持します。<kbd>C-c C-o</kbd> は目次へフォーカスを移す従来の操作です。</p>
+<p><code>第一章</code>、<code># 第一章</code>、<code>* 第一章</code> などを使えます。空白なしの <code>#第一章</code> / <code>##第一節</code> も認識しますが、任意のタイトルは <code># プロローグ</code> のように空白を入れます。入力中の更新はidleまでまとめます。すぐ確認する場合は目次内で <kbd>g</kbd> を押します。</p>
+<p>narrowing中はその範囲だけを一覧にします。タイトルクリック・RETは本文へ移動し、三角クリック・TABは一覧だけを折りたたみます。本文の章集計や出力の電子目次は別の見出し設定を使います。</p>
 
-<h2 id="keys">移動キーやページ送りが期待どおりでない</h2>
-<table>
-  <thead><tr><th>症状</th><th>確認と対処</th></tr></thead>
-  <tbody>
-    <tr><td><kbd>C-f</kbd> / <kbd>C-b</kbd> が物理的な右・左へ進まない</td><td>既定では通常のEmacsの動作です。<code>(setq tategaki-physical-navigation t)</code> で、右・左・下・上に <kbd>C-f</kbd> / <kbd>C-b</kbd> / <kbd>C-n</kbd> / <kbd>C-p</kbd> を割り当てます。現在の原稿だけなら <code>setq-local</code> を使います。</td></tr>
-    <tr><td>Corfuの表示中に本文が動かない</td><td>補完候補を選んでいる間は、補完側の移動・ページ送りキーを優先します。採用または取消後に本文を移動してください。これは <kbd>C-v</kbd> / <kbd>M-v</kbd> にも適用されます。</td></tr>
-    <tr><td><kbd>C-v</kbd> が指定した用紙の次ページへ移らない</td><td><kbd>C-v</kbd> / <kbd>M-v</kbd> は画面単位です。固定版面のページ番号を指定する場合は <code>M-x tategaki-goto-page</code> を使います。物理移動の設定とは独立しています。</td></tr>
-    <tr><td>他のモードのコマンドが実行される</td><td><kbd>C-h k</kbd> の後に問題のキーを押すと、実際に呼ばれるコマンドを確認できます。補完・キーバインド変更パッケージの状態と、縦書きモードが有効かを確認します。</td></tr>
-    <tr><td>文字単位で動いても同じ文字の位置に見える</td><td>組版したセルには複数の原文位置が対応する場合があります。細かい原文位置を編集する場合は、注記の原文表示や横書きへ戻して確認します。</td></tr>
-  </tbody>
-</table>
-<p>画面下の横スクロールバーは、右が原稿の先頭、左が末尾です。縦列を右から左へ読む向きに合わせています。操作一覧は<a href="editing.html">編集と移動</a>を参照してください。</p>
+<h2 id="writing">括弧が二重になる・字下げが変わる</h2>
+<p>Smartparensなど別の括弧補完を使う場合は、<code>tategaki-writing-electric-pair</code> を <code>nil</code> にして執筆支援を再開します。<code>M-x tategaki-writing-mode</code> で切り替えられます。</p>
+<p>自動字下げは改行・段落先頭の入力に作用し、既存原稿を開いた時や貼り付けた時に一括整形するものではありません。脚本モードのTAB・整形コマンドは本文の空白を変更します。小説／脚本の規則は<a href="writing.html">執筆支援</a>で確認してください。</p>
 
-<h2 id="writing">括弧が二重に入る・字下げが変わる</h2>
-<p>執筆支援はEmacsのElectric Pairをバッファ単位で使います。Smartparensなど別の括弧補完と併用する場合は、my-tategaki側を <code>(setq tategaki-writing-electric-pair nil)</code> にしてから執筆支援を開始してください。現在のバッファの支援は <code>M-x tategaki-writing-mode</code> で切り替えられます。</p>
-<p>自動字下げは改行や会話文の入力に対して行います。既存原稿の読み込みや貼り付けで一括整形はしません。脚本モードの <kbd>TAB</kbd> や整形コマンドは原文へ全角空白を挿入・削除するため、保存・Undoの対象です。設定と操作は<a href="writing.html">執筆支援・脚本</a>を参照してください。</p>
-<p>脚本モードで <kbd>C-c C-c</kbd> を押すと縦書き表示を終了しますが、脚本モードとその入力支援は残ります。脚本モード自体を終了する場合は <code>M-x text-mode</code> を使います。</p>
+<h2 id="ai-provider">LM Studioを選んだのにOllamaと表示される</h2>
+<p>設定のProvider欄にある現在値のボタン、例えば <strong>[Ollama ▼]</strong> をクリックしてLM Studioを選び、保存先を選んで「保存」します。文字列の横のラベルだけでなく現在値のボタンから選択できます。</p>
+<p>旧設定にはEndpointだけがあり、Provider項目がない場合がありました。現行版は未指定のProviderだけを標準の <code>localhost</code> / <code>127.0.0.1</code> のポート1234・11434・8080から補完します。独自URLでは推定せず、明示ProviderやLispのローカル値も上書きしません。</p>
+<p>選択後も戻る場合は保存先の優先順位を確認します。EndpointとモデルがLM Studio向けでも、上位のセッション設定にOllamaが残っていればそちらが優先します。Providerを選ぶと標準URLは切り替わりますが、独自URLは保持します。「標準URLを使う」で選択中Providerの標準値へ戻せます。</p>
 
-<h2 id="source">原稿・文字数・出力範囲が気になる</h2>
-<table>
-  <thead><tr><th>項目</th><th>原文との関係</th></tr></thead>
-  <tbody>
-    <tr><td><code>↵</code> / <code>⇥</code> / <code>□</code> などが見える</td><td>改行・タブ・文末位置を示す表示用記号です。その記号を保存本文へ加えるものではありません。</td></tr>
-    <tr><td>IMEやCopilot・Corfuの仮入力</td><td>確定・採用前は本文・保存内容・文字数へ含めません。採用後は元の入力処理による本文編集になります。</td></tr>
-    <tr><td>ルビや傍点がコピーすると記法へ戻る</td><td>編集バッファの原文は青空文庫形式の注記を保持します。本文だけが必要な場合は、出力した <code>txt/body.txt</code> と原文保存版 <code>txt/source.txt</code> を使い分けます。</td></tr>
-    <tr><td>400字換算とページ数が違う</td><td>400字換算は文字数から算出し、配置枚数は改行や空きマス・組版を反映します。画面上の版面と、DOCX・PDF・リフローEPUBのページ数も一致するとは限りません。</td></tr>
-    <tr><td>narrowingした範囲より多く数える・出力する</td><td>文字数の「全文」は元バッファ全体です。編集画面・配置枚数・アウトラインは表示対象範囲、従来プレビューは全文を扱います。出力の既定も全文なので、部分出力は <kbd>C-u</kbd> <code>M-x tategaki-export</code> で <code>region</code> または <code>narrowed</code> を選びます。</td></tr>
-  </tbody>
-</table>
-<p>出力は開始時点の本文をスナップショットにします。未保存の編集は含みますが、開始後の追記はそのジョブへ入りません。原稿を保存する操作とは独立しており、元ファイル・カーソル位置・Undoを保持します。</p>
+<h2 id="ai-models">モデル一覧・接続・相談が失敗する</h2>
+<table><thead><tr><th>症状</th><th>確認・操作</th></tr></thead><tbody>
+<tr><td>接続できない</td><td>サーバーを起動し、待受URLを確認。Endpointは <code>/v1</code> まで指定します。LM Studioの標準例は <code>http://127.0.0.1:1234/v1</code>、Ollamaは <code>http://127.0.0.1:11434/v1</code>。</td></tr>
+<tr><td>モデル一覧が0件</td><td>サーバー側のモデルを確認し、再取得します。一覧取得は本文を送らず、AI無効でも実行できます。</td></tr>
+<tr><td>接続成功なのに相談できない</td><td>接続テストはモデル一覧APIです。AIの有効化、実際の会話用モデルID、モデルの稼働状況を確認します。</td></tr>
+<tr><td>接続先変更で一覧が消える</td><td>古い接続先のモデルを選ばないための動作です。新しい接続先で再取得します。</td></tr>
+<tr><td>回答待ちが続く</td><td>サーバー側の処理とメモリ状況を確認。既定のHTTPタイムアウトは120秒です。Assistantの取消・閉じるで中止できます。</td></tr>
+<tr><td>回答・引用が古いと言われる</td><td>依頼中に原稿や資料が変わった場合は古い結果の使用を止めます。現在の原稿で再実行してください。</td></tr>
+</tbody></table>
+<p>AIは本文を自動修正しません。非localhostのEndpointへの本文送信には確認があります。ローカルサーバーがさらに外部へ転送するかはサーバー側の設定も確認してください。詳しくは<a href="ai.html">AI接続と相談</a>。</p>
 
-<h2 id="docker">Docker出力が開始しない・途中で失敗する</h2>
-<p>まずDocker Desktopが起動しているか確認し、リポジトリのディレクトリで次を実行します。ビルドはネット接続が必要ですが、通常の出力コンテナはネット接続なしで動きます。</p>
-<pre><code class="language-sh">./bin/tategaki-export doctor
+<h2 id="embedding">意味検索が語句検索になる・embeddingエラーが出る</h2>
+<p>会話用ModelとEmbedding Modelは別の用途です。一覧に名前があるだけではembedding対応を判別できません。Embeddingを空欄にすると会話用Modelを使いますが、多くの会話用モデルはembedding APIに対応しません。対応モデルを別途選んでください。両方で同じEndpointを使います。</p>
+<p>意味索引は明示的に作成します。未作成、原稿の変更、Endpoint・Embedding Modelの変更、embedding通信失敗では語句検索へ切り替わります。原稿を整えた後で <code>M-x tategaki-semantic-index</code> を実行してください。別原稿・資料は「作品・資料」で登録・検索対象の指定・索引作成が必要です。フォルダー全体の自動走査やPDF・Word・OCR取り込みは行いません。</p>
+<p>人物としての相談で「不明」になる場合は、採用済みの知識や許可された本文範囲があるか確認します。単に登場した、POVに指定された、名前が書かれたという理由だけで、その人物へ全情報を渡すことはありません。<a href="world.html">人物と知識の登録</a>を参照してください。</p>
 
-# 初回、またはソース更新後
-./bin/tategaki-export build</code></pre>
-<p>ジョブができている場合は <code>M-x tategaki-export-status</code>、または出力先の <code>report.md</code> / <code>report.json</code> を確認します。一部の形式だけが失敗する場合もあります。失敗した途中ファイルとログは <code>.work/</code> と <code>logs/</code> に残り、成功した完成物とは区別されます。</p>
-<table>
-  <thead><tr><th>確認する点</th><th>対処</th></tr></thead>
-  <tbody>
-    <tr><td>古い出力コードが動く</td><td>ソース更新後は <code>build</code> を再実行します。Emacs側の再読み込みとDockerイメージの更新は別です。</td></tr>
-    <tr><td>CLI入力で文字コードエラー</td><td>CLIの入力はUTF-8です。別の文字コードの原稿は、Emacsで正しく開いてバッファから出力します。TXTの出力文字コード指定とは区別してください。</td></tr>
-    <tr><td>プロファイルや注記の診断で止まる</td><td>レポートの箇所を原文で確認します。<code>strict_diagnostics: true</code> は未解決の注記診断を失敗にします。対応外注記を無条件に消して本文へ混ぜる設計ではありません。</td></tr>
-    <tr><td>フォントが見つからない</td><td>ホストのフォントは自動収集しません。必要なOTF・TTF・TTCをフォント用ディレクトリへ用意して <code>--font-dir</code> を使い、プロファイルには正しいfamily名を指定します。PDFには下記の制限があります。</td></tr>
-    <tr><td>長文で待ち時間が長い</td><td>PDFは全ページの検査画像も作ります。<code>--timeout 600</code> は外部コマンド一回あたりの上限で、ジョブ全体の制限ではありません。PDF変換器には別の上限もあります。</td></tr>
-    <tr><td>やり直したい</td><td>新しいジョブとして出力します。同じジョブIDを再利用せず、前回のログを保持したまま比較できます。</td></tr>
-  </tbody>
-</table>
-<p>取り消す場合は <code>M-x tategaki-export-cancel</code> を使います。Emacsからは、そのEmacsセッションで開始したジョブだけを取り消せます。CLIの場合は <code>./bin/tategaki-export cancel JOB-ID</code> です。取消と終了が重なったときも、最終結果はレポートで確認してください。</p>
+<h2 id="history">履歴や執筆位置が見つからない</h2>
+<p>履歴の既定保存先は <code>~/.local/share/my-tategaki/history/</code>、セッションの記録は <code>~/.local/state/my-tategaki/session.json</code> です。<code>XDG_DATA_HOME</code> / <code>XDG_STATE_HOME</code> や対応する設定変数で変わります。<kbd>C-h v</kbd> で <code>tategaki-history-directory</code> と <code>tategaki-session-file</code> の現在値を確認できます。</p>
+<p>履歴は保存時と既定120秒のidle時に作り、同じ本文の内容を重複保存しません。履歴を無効にしている、idle間隔がnilで保存していない、といった場合は新しい記録が増えません。必要な時点は <code>tategaki-history-snapshot</code> で記録できます。</p>
+<p>セッションは本文のバックアップではありません。復元できるのは取得済みの履歴までです。ファイル名のある原稿を再度開き、履歴の「コピー復元」で別バッファへ取り出します。一度もファイル名を付けていない新規原稿はセッションの再開対象外で、再起動後の通常の履歴UIにも自動で結び付きません。終了前に名前を付けて本文を保存してください。元原稿を自動で上書きする操作はありません。</p>
 
-<h2 id="format-limits">出力形式ごとの既知の制約</h2>
-<table>
-  <thead><tr><th>形式</th><th>確認している範囲と制約</th></tr></thead>
-  <tbody>
-    <tr><td>DOCX</td><td>編集可能な段落として出力し、LibreOfficeで描画・再保存を検証しています。Wordでの最終実表示は未確認です。LibreOfficeでは一部ZWJ絵文字が分かれて見えますが、原文のコードポイントは保持します。固定字数・列数は試験的設定です。</td></tr>
-    <tr><td>PDF</td><td>フォント埋め込み・本文順・ルビなどを検査します。現在は <code>Noto Serif CJK JP</code> に限定し、別フォントはエラーにします。固定字数・列数、PDF/X、印刷所別の塗り足し・色変換は未対応です。抽出時の空白位置・幅まで完全に照合する検査ではありません。</td></tr>
-    <tr><td>EPUB</td><td>EPUBCheckと構造・本文の検査を行います。Apple Books 9.0では縦書き本文・ルビ・縦中横・文字サイズ変更を確認しました。一方、章名に <code>&amp; &lt;灯&gt;</code> などがあると目次ポップオーバーで <code>xmlParseEntityRef: no name</code> が出る既知の問題があります。正しい原文・目次名は保持し、警告を出します。Kindle Previewerは未検証です。</td></tr>
-    <tr><td>共通</td><td>文字による表紙・奥付に対応し、画像表紙、EPUBへのフォント埋め込みは未対応です。組版や表示の結果は閲覧アプリにも依存します。Apple Silicon / linux/aarch64で実測し、amd64での実行は未確認です。</td></tr>
-  </tbody>
-</table>
-<p>検査が成功したことと、すべての閲覧アプリや提出先の書式へ適合することは別です。提出前には実際に使うアプリで確認してください。形式ごとの設定は<a href="export.html">Docker出力</a>、実施済み試験の範囲は <a href="../docker-export-validation.md">Docker出力の検証記録</a>と<a href="../vertical-typesetting-validation.md">編集・組版の検証記録</a>にまとめています。</p>
+<h2 id="close">ペインを閉じたい・閉じても処理が続く</h2>
+<p>補助ペイン上部の「閉じる」はスクロールしても残ります。Lookupの見出し・本文・辞書一覧にもあります。多くの読む画面は <kbd>q</kbd> でも閉じられます。編集可能なコピーでは文字入力を妨げないよう、上部の閉じるを使います。</p>
+<ul>
+  <li>設定：未保存変更は保存・破棄・戻るを選びます。</li>
+  <li>Assistant・検索：その要求を取消し、後から届いた応答でペインを開き直しません。</li>
+  <li>出力の状態・ログ：閉じても出力は続きます。停止は <code>tategaki-export-cancel</code>。</li>
+  <li>履歴の復元コピー・別案：閉じても未保存のコピーはバッファに残ります。</li>
+  <li>比較・Reader：専用の閉じるで元の配置・表示へ戻ります。</li>
+</ul>
+<p>Studioの終了と縦書きの終了も別です。Studioは <code>tategaki-studio-mode</code>、縦書き自体は <kbd>C-c C-c</kbd> で終了します。</p>
 
-<h2 id="reporting">問題を報告するとき</h2>
-<p>再現する最小の原稿、実行したコマンド、Emacs・OSのバージョン、GUI/SVGの診断結果、関連する設定、エラーメッセージを添えてください。出力の問題なら、形式・プロファイル・<code>report.md</code> と該当ログも役立ちます。原稿全体や個人情報を公開する必要はありません。まず短い例で同じ症状が出るか確認すると、入力・描画・閲覧アプリのどこで差が生じるかを整理できます。</p>
+<h2 id="source">原文・文字数・出力の内容が違って見える</h2>
+<p><code>↵</code>、<code>⇥</code>、<code>□</code> は改行・タブ・末尾の表示記号です。保存本文へ追加しません。ルビや傍点も表示では組版しますが、原文には注記が残ります。本文だけのテキストが必要なら出力の <code>txt/body.txt</code>、注記付き原文は <code>txt/source.txt</code> を使います。</p>
+<p>400字詰換算は文字数からの計算で、改行・空きマス・組版を含む実ページ数とは異なります。編集画面、PDF、DOCX、リフローEPUBのページ数も一致するとは限りません。出力の既定範囲は全文です。部分出力は <kbd>C-u M-x tategaki-export</kbd> で明示します。</p>
 
-<h2 id="support">確認環境と制限</h2>
-<p>主な実機確認はmacOSのGUI版Emacs 31.1、SVG対応環境で行っています。通常の編集機能の対象はEmacs 27.1以降ですが、すべてのOS・Emacsビルドを実機確認したわけではありません。NSのIME連携には対応する関数・変数が必要です。</p>
-<p>Docker出力はApple Silicon環境で検証し、DOCXはmacOS版LibreOffice、EPUB本文はApple Booksで確認しました。バージョン、試験範囲、未対応項目は<a href="../vertical-typesetting-validation.md">編集の検証記録</a>と<a href="../docker-export-validation.md">出力の検証記録</a>に残しています。マニュアルの画像は公開用サンプル原稿を使った実画面です。</p>
+<h2 id="docker">Docker出力が始まらない・失敗する</h2>
+<pre><code class="language-sh"># リポジトリのフォルダーで実行
+./bin/tategaki-export build
+./bin/tategaki-export doctor</code></pre>
+<p>Docker Desktopを起動してから確認します。Emacsだけでdockerが見つからない場合は、Emacsの <code>exec-path</code> とPATHを確認してください。ソース更新後はイメージの再構築も必要です。</p>
+<p>ジョブができていれば <code>M-x tategaki-export-status</code> からレポートとログを開きます。未対応注記、要求フォント不足、外部コマンドの時間上限などは形式別に報告されます。一形式の失敗でほかの完成物まで失敗とは限りません。途中ファイルは <code>.work/</code> に残り、再実行は新しいジョブになります。</p>
+<p>CLI入力はUTF-8です。CP932などへの本文TXT出力では、表せない文字を黙って置換せずエラーにします。設定・取消・完成物の場所は<a href="export.html">出力手順</a>を参照してください。</p>
+
+<h2 id="format-limits">出力形式の制限</h2>
+<table><thead><tr><th>形式</th><th>主な制限</th></tr></thead><tbody>
+<tr><td>DOCX</td><td>LibreOfficeで描画・再保存を確認。Wordの実表示は未確認。一部ZWJ絵文字の表示差あり。固定グリッドは試験的設定。</td></tr>
+<tr><td>PDF</td><td>本文照合はNoto Serif CJK JP限定。固定字数・列数、PDF/X、印刷所別の塗り足し・色変換は未対応。</td></tr>
+<tr><td>EPUB</td><td>Apple Booksで通常章の目次・本文移動を確認。記号を含む特定の章名では目次のXMLエラーが残る。Kindle Previewerは未検証。画像表紙・フォント埋め込みは未対応。</td></tr>
+</tbody></table>
+<p>具体的なBooksの条件などは<a href="export.html#compatibility">出力後の確認</a>を参照してください。EPUBCheck成功だけで全閲覧アプリの互換性を判断しないでください。</p>
+
+<h2 id="support">確認環境</h2>
+<p>主な操作確認は2026年9月のmacOS・GUI版GNU Emacs 31.1（Emacs-takaxp）・SVG対応環境です。パッケージの対象はEmacs 27.1以降ですが、全OS・全ビルドを実機確認したわけではありません。NSのIME APIがない環境では連携範囲が異なります。</p>
+<p>AIは合成原稿を使ったLM Studioの実モデルで相談・embedding・候補抽出を確認しました。Ollamaの切替はfixtureによる検証を含み、同じ条件で全Providerの実モデルを確認したわけではありません。DockerはApple Silicon / linux aarch64、DOCXはmacOS LibreOffice、EPUBはApple Booksで確認しています。amd64、Word、Kindle Previewerは未検証です。</p>
+<p>試験の実施日・条件・結果は<a href="../novel-studio-validation.md">Studio</a>、<a href="../vertical-typesetting-validation.md">編集・組版</a>、<a href="../docker-export-validation.md">出力</a>の検証記録へ残しています。これらは過去の検証記録であり、現在の設定手順はこのマニュアルを参照してください。</p>
+
+<h2 id="reporting">問題を報告する</h2>
+<p>再現する短い原稿、操作手順、エラー全文、OSとEmacsの版、読み込み先、関連設定を添えてください。目次なら見出しの記法、IMEなら変換の段階、AIならProvider・Endpoint・モデルと失敗した処理、出力なら形式・プロファイル・レポートが役立ちます。認証キーや非公開原稿全体を載せる必要はありません。</p>
 <nav class="chapter-pager" aria-label="前後の章"><a href="../manual/reference.html"><small>前の章</small>コマンド・設定一覧 <span aria-hidden="true">→</span></a></nav></article>
-<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#first-checks">最初に確認すること</a></li><li class="h2"><a href="#startup">縦書き編集を開始できない</a></li><li class="h2"><a href="#svg">ルビや縦中横が記法のまま見える</a></li><li class="h2"><a href="#fonts">文字が豆腐になる・約物の向きが合わない</a></li><li class="h2"><a href="#ime">IMEの未確定文字や候補一覧の位置が合わない</a></li><li class="h2"><a href="#keys">移動キーやページ送りが期待どおりでない</a></li><li class="h2"><a href="#writing">括弧が二重に入る・字下げが変わる</a></li><li class="h2"><a href="#source">原稿・文字数・出力範囲が気になる</a></li><li class="h2"><a href="#docker">Docker出力が開始しない・途中で失敗する</a></li><li class="h2"><a href="#format-limits">出力形式ごとの既知の制約</a></li><li class="h2"><a href="#reporting">問題を報告するとき</a></li><li class="h2"><a href="#support">確認環境と制限</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
+<aside class="page-toc"><p>このページ</p><ol><li class="h2"><a href="#first-checks">最初に確認すること</a></li><li class="h2"><a href="#startup">Studio・縦書きを開始できない</a></li><li class="h2"><a href="#paper">本文が小さい・用紙寸法が反映されない</a></li><li class="h2"><a href="#settings-save">保存した設定が戻る・別作品にも反映される</a></li><li class="h2"><a href="#svg">ルビ・縦中横が記法のまま見える</a></li><li class="h2"><a href="#fonts">文字が四角になる・約物の向きがおかしい</a></li><li class="h2"><a href="#ime">IMEの変換・候補位置がおかしい</a></li><li class="h2"><a href="#keys">移動キー・ページ送りが想定と違う</a></li><li class="h2"><a href="#outline">目次が出ない・章が更新されない</a></li><li class="h2"><a href="#writing">括弧が二重になる・字下げが変わる</a></li><li class="h2"><a href="#ai-provider">LM Studioを選んだのにOllamaと表示される</a></li><li class="h2"><a href="#ai-models">モデル一覧・接続・相談が失敗する</a></li><li class="h2"><a href="#embedding">意味検索が語句検索になる・embeddingエラーが出る</a></li><li class="h2"><a href="#history">履歴や執筆位置が見つからない</a></li><li class="h2"><a href="#close">ペインを閉じたい・閉じても処理が続く</a></li><li class="h2"><a href="#source">原文・文字数・出力の内容が違って見える</a></li><li class="h2"><a href="#docker">Docker出力が始まらない・失敗する</a></li><li class="h2"><a href="#format-limits">出力形式の制限</a></li><li class="h2"><a href="#support">確認環境</a></li><li class="h2"><a href="#reporting">問題を報告する</a></li></ol><a class="back-top" href="#main">ページの先頭へ ↑</a></aside></div>
 </main>
 <footer><span>my-tategaki · Emacsで縦書き。</span><a href="https://github.com/modeverv/my-tategaki/blob/main/LICENSE" rel="license">GPL-3.0-or-later</a><a href="https://github.com/modeverv/my-tategaki/blob/main/docs/manual/content/troubleshooting.html">このページの原稿</a><a href="../manual/troubleshooting.html#support">確認環境と制限</a></footer>
 </div>
