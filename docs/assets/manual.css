@@ -13,3 +13,6 @@
 
 .sidebar nav a span,.mobile-menu nav a span{flex:0 0 16px;white-space:nowrap}
 tr.ref-entry:target{background:#fbefcf;outline:2px solid #ac6c36;outline-offset:-2px}
+figure.manual-shot a{display:block}
+figure.manual-shot--narrow{max-width:620px}
+figure.manual-shot--page{max-width:520px;margin-left:auto;margin-right:auto}

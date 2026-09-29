@@ -13,9 +13,11 @@
 | `docs/novel-studio.md` | GitHubから読めるStudioの開始ガイド |
 | `docs/docker-export-guide.md` | CLIと開発時の出力ガイド |
 | `docs/examples/` | 公開用の小説・脚本サンプル |
-| `docs/images/` | 過去の実画面資料。来歴は`images/README.md` |
+| `docs/images/` | 実画面と出力例。来歴は`images/README.md` |
 
 本文の`h2`と`h3`にはページ内で一意の`id`を付けます。既存の公開アンカーは可能な限り保持します。HTML断片へ`html` / `head` / `body`を追加しません。
+
+画面を追加するときは公開サンプルを専用のEmacsで開いて撮影し、本文の該当手順の近くに`figure`として置きます。`img`には内容が伝わる`alt`と実寸の`width`・`height`を付け、`figcaption`には画像で確認できる操作や状態を書きます。画像を原寸で開けるリンクと、`docs/images/README.md`の撮影条件も更新してください。
 
 相対リンクは生成後のページを基準に書きます。通常の章は`docs/manual/`、トップページの`content/index.html`だけは`docs/`が基準です。生成物を直接編集すると再生成で上書きされます。
 

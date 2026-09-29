@@ -4,6 +4,10 @@
 
 [日本語マニュアル](https://modeverv.github.io/my-tategaki/) · [Studioの画面と設定](https://modeverv.github.io/my-tategaki/manual/studio.html) · [コマンド一覧](https://modeverv.github.io/my-tategaki/manual/reference.html) · [困ったとき](https://modeverv.github.io/my-tategaki/manual/troubleshooting.html)
 
+![StudioのWrite画面。公開サンプルの小説を縦書きで編集中](docs/images/manual-studio-write.png)
+
+*公開サンプル「雨の書店」をStudioで編集した画面。上部から目次・Review・設定を開けます。*
+
 ## 最初の原稿を書く
 
 リポジトリを配置します。
@@ -27,6 +31,10 @@ Emacsの設定へ追加し、評価します。パスは配置先に合わせて
 
 既存原稿から始める場合は `C-x C-f` で開いてからStudioを開始してください。新しい作品では、作品ごとのフォルダに本文を保存してから作品設定を保存すると管理しやすくなります。
 
+![原稿を開く前のStudio開始画面](docs/images/manual-welcome.png)
+
+*テキスト原稿を開かずにStudioを始めた場合の開始画面です。*
+
 ## 執筆から出力まで
 
 | やりたいこと | 使う機能 |
@@ -42,6 +50,10 @@ Emacsの設定へ追加し、評価します。パスは配置先に合わせて
 | 原稿を外へ渡す | DockerによるTXT・DOCX・PDF・EPUB・HTML出力 |
 
 Writeは原稿と表示中の目次を残す執筆画面、Reviewは補助ペインを使う推敲画面です。全操作は［原稿］メニューから開けます。ペイン上部の［閉じる］で原稿へ戻れます。
+
+![縦書きの原稿と章一覧を並べたStudio画面](docs/images/manual-studio-outline.png)
+
+*［目次］を開くと、章を選びながら本文を編集できます。*
 
 本文は元の原稿バッファに保持します。表示設定は本文を変更せず、履歴の復元は別コピーになります。AIの回答や抽出した人物設定は、作者が根拠を確認して使う補助情報です。
 
@@ -71,6 +83,10 @@ Writeは原稿と表示中の目次を残す執筆画面、Reviewは補助ペイ
 
 作品設定は `.tategaki/project.json`、本文の履歴と前回位置はそれぞれ別の場所へ保存します。[設定の保存先](docs/manual/studio.html#scope)と[履歴・再開](docs/manual/history.html)を参照してください。
 
+![縦書き原稿の右側に開いたStudio設定画面](docs/images/manual-studio-settings.png)
+
+*設定ペインでは作品情報、文字サイズ、用紙や余白を確認できます。*
+
 ## よく使う操作
 
 | 操作 | コマンド・キー |
@@ -98,6 +114,10 @@ LLMサーバーを起動し、［⚙設定］のAI欄で［ローカルLLMを使
 
 意味索引がない場合や古い場合は語句検索へ切り替えます。人物に相談する機能では、作者が許可した出典範囲に文脈を制限します。外部の接続先への本文送信には確認が入ります。送信する情報とモデルごとの設定は[AI・検索マニュアル](docs/manual/ai.html)を参照してください。
 
+![原稿の下に開いたAI相談ペイン。質問入力欄と補助操作が見える](docs/images/manual-assistant.png)
+
+*AI相談ペインの入力画面です。画像は接続前の状態で、回答は表示していません。*
+
 ## EPUBなどへ書き出す
 
 リポジトリ直下で出力環境を用意します。初回ビルドにはネット接続が必要です。
@@ -115,6 +135,10 @@ Emacsの［原稿］→［出力］で形式を選ぶか、`M-x tategaki-export-
 ```
 
 画面・PDF・DOCX・EPUBでは組版や改ページが異なります。利用先のアプリで最終表示を確認してください。[出力マニュアル](docs/manual/export.html)に、形式ごとの対応、出力設定、取消、ログの読み方をまとめています。
+
+![公開サンプルをpreviewプロファイルで書き出したPDFの本文ページ](docs/images/manual-export-pdf.png)
+
+*公開サンプル「雨の書店」のPDF出力例。本文ページを画像化したものです。*
 
 ## マニュアルと検証記録
 

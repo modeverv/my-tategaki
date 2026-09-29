@@ -7,7 +7,7 @@
 <title>目次・執筆支援・校正 | my-tategaki</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/manual.css">
-<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
+<script src="../assets/search-index.js?v=cb5ee39101fe" defer></script>
 <script src="../assets/manual.js" defer></script>
 </head>
 <body data-root="../" class="page-writing">
@@ -57,6 +57,7 @@
 
 <h2 id="outline">目次を開いたまま執筆する</h2>
 <p>Studio上部の <strong>[目次]</strong> をクリックすると、原稿にカーソルを残したまま右側へ章・節の一覧が開きます。Write中も開いておけます。もう一度 [目次] を押すと閉じます。キーでは <kbd>C-c s o</kbd>、コマンドでは <code>M-x tategaki-studio-toggle-outline</code> です。</p>
+<figure class="manual-shot"><a href="../images/manual-studio-outline.png"><img src="../images/manual-studio-outline.png" alt="縦書き本文の右側に章の目次を表示したStudio画面" width="2000" height="1164"></a><figcaption>目次を開いたStudio。章の一覧を参照しながら原稿を編集できます。</figcaption></figure>
 <p>Studioを使わない縦書き編集では <kbd>C-c C-o</kbd> または <code>M-x tategaki-outline</code> で開けます。この従来のコマンドは目次側へフォーカスを移します。</p>
 <pre><code class="language-text">#第一章　雨上がり
 　窓を開けた。
@@ -90,6 +91,7 @@
 
 <h2 id="script">脚本・台本を書く</h2>
 <p><code>M-x tategaki-script-mode</code> で脚本モードを始めます。これは <code>text-mode</code> 派生のメジャーモードで、既定では組版付き縦書きと入力支援を有効にします。シーン、人物名、台詞、ト書きを色と字下げで区別します。開始するだけで既存本文を整形することはありません。</p>
+<figure class="manual-shot"><a href="../images/manual-script.jpg"><img src="../images/manual-script.jpg" alt="シーン、人物名、台詞、ト書きを縦書きで表示した脚本モード" width="894" height="622"></a><figcaption>公開用の脚本サンプルを開いた画面。シーンと台詞の表示を確認できます。</figcaption></figure>
 <pre><code class="language-text">第一幕
 ○ 居間・朝
 太郎：
@@ -141,6 +143,7 @@
 
 <h2 id="review">Review画面とレビュー一覧を使い分ける</h2>
 <p>上部の <strong>[Review]</strong> は推敲用のウィンドウ配置へ切り替えます。<strong>[Write]</strong> は原稿と表示中の目次を残し、推敲用の補助画面を閉じます。検査そのものを実行するボタンではありません。</p>
+<figure class="manual-shot"><a href="../images/manual-studio-review.png"><img src="../images/manual-studio-review.png" alt="推敲用の操作と章一覧を表示したStudio Review画面" width="2000" height="1164"></a><figcaption>Reviewへ切り替えた画面。上部から校正や人物、履歴などのペインを開けます。</figcaption></figure>
 <p><strong>[原稿] → [レビュー一覧]</strong>、または <code>M-x tategaki-review</code> は、校正・設定整合性・話し方・時系列・伏線・AI相談・音読・出力状態の入口をまとめた画面です。<strong>[原稿を検査]</strong> を押すと、ローカル校正、登録Factの比較、人物の話し方の検査を実行します。</p>
 <p>設定や話し方の検査には、先に <a href="world.html">人物・作品設定</a>を登録します。レビュー画面を開くだけでAI送信や音読は始まりません。実行していない検査や出力を、完了したものとして扱うこともありません。</p>
 

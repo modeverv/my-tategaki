@@ -29,6 +29,7 @@
     <li><code>C-x C-s</code>で本文を保存します。Studioの新規原稿は、ここで初めてファイル名を決めます。</li>
   </ol>
   <p><code>fundamental-mode</code>のバッファをそのまま使いたい場合は、先に<code>M-x text-mode</code>を実行します。プログラム用のメジャーモードは対象外です。もともと読み取り専用だったバッファは、縦書きにしても読み取り専用です。</p>
+  <figure class="manual-shot manual-shot--narrow"><a href="../images/manual-welcome.png"><img src="../images/manual-welcome.png" alt="新しい小説を書く、原稿を開く、前回の原稿を復元を選べるStudio開始画面" width="1090" height="744"></a><figcaption>テキスト原稿を開かずにStudioを起動した場合の開始画面。新規作成と既存原稿の選択ができます。</figcaption></figure>
   <h3 id="first-writing-session">書きやすい画面にする</h3>
   <ol>
     <li>ヘッダーの「⚙設定」を開き、フォントと文字サイズを調整します。変更は原稿の表示へ反映されます。保存先と取消の扱いは<a href="studio.html">Studioと設定</a>で説明します。</li>
@@ -68,6 +69,7 @@
     </tbody>
   </table></div>
   <p><code>tategaki-edit</code>は、以前に有効にした組版設定を引き継ぎます。原文の表示へ戻したい場合は<a href="typesetting.html#typesetting-switch">組版の切り替え</a>を使ってください。</p>
+  <figure class="manual-shot"><a href="../images/manual-editing.jpg"><img src="../images/manual-editing.jpg" alt="公開サンプルを原文の記号も含めて縦書きで直接編集している画面" width="894" height="622"></a><figcaption><code>tategaki-edit</code>の直接編集例。原稿の記号を含めて縦に表示します。</figcaption></figure>
 </section>
 
 <section aria-labelledby="preview">
@@ -75,6 +77,7 @@
   <p>横書きの編集画面を残したい場合は、プレビューモジュールを読み込みます。</p>
   <pre><code class="language-elisp">(require 'org-tategaki-preview)</code></pre>
   <p>編集する本文で<code>M-x tategaki-preview</code>を実行すると、左側にプレビューが開き、フォーカスは編集側に残ります。別フレームなら<code>M-x tategaki-preview-frame</code>です。再実行時は既存の表示を再利用します。</p>
+  <figure class="manual-shot"><a href="../images/tategaki-preview.png"><img src="../images/tategaki-preview.png" alt="左の縦書きプレビューと右の横書き原稿を並べたEmacs画面" width="1320" height="852"></a><figcaption>横書きの本文と、読み取り専用の縦書きプレビューを並べた例。</figcaption></figure>
   <div class="table-scroll"><table>
     <thead><tr><th>したいこと</th><th>操作</th></tr></thead>
     <tbody>

@@ -7,7 +7,7 @@
 <title>Studioの画面と設定 | my-tategaki</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/manual.css">
-<script src="../assets/search-index.js?v=aa968bf2520b" defer></script>
+<script src="../assets/search-index.js?v=cb5ee39101fe" defer></script>
 <script src="../assets/manual.js" defer></script>
 </head>
 <body data-root="../" class="page-studio">
@@ -26,18 +26,21 @@
 <div class="document-grid"><article><h2 id="workspace">原稿を中心にした執筆画面</h2>
 <p>Novel Studioは、縦書きの原稿に設定・目次・履歴・辞書・校正・AI相談を添える画面です。<code>M-x tategaki-studio</code>で開始します。テキストの原稿を開いていればそのまま執筆画面へ入り、それ以外のバッファでは開始画面から原稿を選びます。</p>
 <p>本文は通常のEmacsバッファです。原稿を保存するには上部の<strong>［原稿］→［保存］</strong>、または<kbd>C-x C-s</kbd>を使います。設定の［保存］は表示や作品情報を保存する操作で、本文の保存とは別です。</p>
+<figure class="manual-shot"><a href="../images/manual-studio-write.png"><img src="../images/manual-studio-write.png" alt="公開サンプルの小説を縦書きで編集中のStudio Write画面" width="2000" height="1164"></a><figcaption>Write画面では縦書き原稿を中心にして執筆します。</figcaption></figure>
 <h3 id="layout">WriteとReviewを切り替える</h3>
 <table><thead><tr><th>画面</th><th>使う場面</th><th>ウィンドウの動き</th></tr></thead><tbody>
 <tr><td>Write</td><td>本文を書き進める</td><td>原稿と、表示中の同じ原稿の目次を残します。他の推敲用ペインを隠します。</td></tr>
 <tr><td>Review</td><td>辞書・校正・人物設定などを見ながら直す</td><td>前回の推敲レイアウトを戻します。初回は目次を開きます。</td></tr>
 </tbody></table>
 <p>どちらの画面でも［原稿］から全操作を開けます。幅が狭いとReviewの上部ボタンは一部に絞られますが、原稿メニューから同じ機能を利用できます。画面の切り替えだけでAI相談や音読が始まることはありません。</p>
+<figure class="manual-shot"><a href="../images/manual-studio-review.png"><img src="../images/manual-studio-review.png" alt="縦書き原稿と目次を並べ、上部に校正、人物、履歴、AIなどの操作が表示されたReview画面" width="2000" height="1164"></a><figcaption>Review画面。目次を残したまま、上部から校正・人物・履歴などを開けます。</figcaption></figure>
 <h3 id="panes">ペインを閉じて原稿へ戻る</h3>
 <p>各補助ペインの上部にある［閉じる］は、スクロールしても残ります。設定、目次、辞書の結果・本文、校正、人物・資料、履歴、AI、出力状態などからマウスで原稿へ戻れます。通常は押したペインだけが閉じ、ほかのペインは残ります。</p>
 <ul><li>設定に未保存の変更があるときは、保存するか破棄するかを選びます。</li><li>AIペインを閉じると実行中の相談を中止します。会話と入力途中の質問は再度開くと続けられます。</li><li>比較画面を閉じると比較を終了し、比較前の配置へ戻ります。</li><li>復元コピーや場面の別案を閉じても、未保存の本文はバッファに残ります。</li><li>出力状態・ログを閉じても、出力処理は継続します。中止するときは出力の取消操作を使います。</li></ul>
 <p>一覧や設定の本文にあるボタンは<kbd>TAB</kbd>で選び、<kbd>RET</kbd>でも実行できます。Emacsの<kbd>C-g</kbd>は入力途中のコマンドを中断するときに使います。</p>
 <h2 id="settings">設定画面を使う</h2>
 <ol class="steps"><li><strong>原稿から［⚙設定］を開く</strong><p>いまの原稿に適用されている値が表示されます。キーボードでは<kbd>C-c s s</kbd>です。</p></li><li><strong>見た目や執筆支援を調整する</strong><p>文字サイズ、フォント、原稿用紙、余白などの変更はその場でプレビューされます。本文、Undo履歴、本文の未保存マークは変わりません。</p></li><li><strong>保存先を選んで［保存］する</strong><p>この原稿だけで使うか、作品全体で使うか、新しい作品の既定値にするかを決めます。</p></li><li><strong>［閉じる］で本文へ戻る</strong><p>プレビューだけで終える場合は［保存せず閉じる］を選びます。原稿の本文は別途保存してください。</p></li></ol>
+<figure class="manual-shot"><a href="../images/manual-studio-settings.png"><img src="../images/manual-studio-settings.png" alt="原稿の右側に作品情報、文字サイズ、用紙、余白を表示した設定ペイン" width="2000" height="1164"></a><figcaption>設定画面の上部。右側で変更しながら、左側の原稿表示を確認できます。</figcaption></figure>
 <table><thead><tr><th>項目</th><th>調整できること</th><th>詳しい説明</th></tr></thead><tbody>
 <tr><td>作品</td><td>タイトル、著者名、言語、識別子</td><td><a href="#metadata">作品情報と出力</a></td></tr>
 <tr><td>表示</td><td>文字サイズ、フォント、用紙寸法、罫線、見開き、字間・列間・余白</td><td><a href="#paper">用紙と文字サイズ</a></td></tr>

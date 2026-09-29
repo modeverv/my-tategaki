@@ -4,6 +4,10 @@ my-tategakiは、原稿の同じスナップショットから5形式を生成�
 
 最初に試す場合は次の「準備」と「Emacsからの出力」へ進んでください。画面付きの説明は[出力マニュアル](manual/export.html)、試験の実施条件は[出力検証記録](docker-export-validation.md)と[Studio検証記録](novel-studio-validation.md)にあります。
 
+![公開サンプルをpreviewプロファイルでPDFへ出力した本文ページ](images/manual-export-pdf.png)
+
+公開サンプル「雨の書店」をPDFへ書き出した例です。画面上の原稿用紙とは別の版面になります。
+
 ## 準備：Dockerを起動してイメージを作る
 
 必要なのはDockerとComposeです。macOSではDocker Desktopを起動し、ターミナルで `docker info` が成功することを確認します。ホストへPython・Node・Java・Pandocを個別に導入する必要はありません。
